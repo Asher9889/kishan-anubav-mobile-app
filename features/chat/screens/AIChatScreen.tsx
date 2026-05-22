@@ -1,6 +1,8 @@
 import { MessageBubble } from '@/components';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 import { VoiceButton } from '@/features/voice';
+import { useVoiceRecorder } from '@/features/voice/hooks/useVoiceRecorder';
+import { uploadVoice } from '@/features/voice/services/voice.service';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -46,11 +48,34 @@ const messages = [
 
 export default function AIChatScreen() {
   const c = Colors.light;
-  const [isListening, setIsListening] = useState(false);
+
   const [inputText, setInputText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
 
-  const toggleListening = () => setIsListening((prev) => !prev);
+  const { isRecording, startRecording, stopRecording } = useVoiceRecorder();
+
+  console.log('Recording State:', { isRecording });
+
+  const toggleListening = async () => {
+    try {
+      if (isRecording) {
+        const audioUri = await stopRecording();
+
+        if(!audioUri) {
+          console.log("No audio URI returned from stopRecording");
+          return;
+        }
+        console.log("Audio URI:", audioUri);
+
+        const data = await uploadVoice(audioUri);
+
+      } else {
+        await startRecording();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.root}>
@@ -105,7 +130,7 @@ export default function AIChatScreen() {
           />
 
           {/* Voice Status */}
-          {isListening && (
+          {isRecording && (
             <View style={styles.listeningBar}>
               <View style={styles.listeningDot} />
               <Text style={styles.listeningText}>Listening...</Text>
@@ -116,9 +141,9 @@ export default function AIChatScreen() {
           <BlurView intensity={60} tint="light" style={styles.bottomBar}>
             {/* Voice Button - Primary CTA */}
             <View style={styles.voiceSection}>
-              <VoiceButton isListening={isListening} onPress={toggleListening} />
+              <VoiceButton isListening={isRecording} onPress={toggleListening} />
               <Text style={styles.voiceHint}>
-                {isListening ? 'Tap to stop' : 'Tap to speak'}
+                {isRecording ? 'Tap to stop' : 'Tap to speak'}
               </Text>
             </View>
 
@@ -131,7 +156,7 @@ export default function AIChatScreen() {
                 ]}
               >
                 <TextInput
-                className=''
+                  className=''
                   placeholder="Or type your question..."
                   placeholderTextColor={c.textMuted}
                   value={inputText}
@@ -169,6 +194,7 @@ export default function AIChatScreen() {
                 </LinearGradient>
               </TouchableOpacity>
             </View>
+
           </BlurView>
         </View>
       </KeyboardAvoidingView>
