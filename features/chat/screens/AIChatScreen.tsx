@@ -1,12 +1,12 @@
-import { MessageBubble, VoiceButton } from '@/components';
+import { MessageBubble } from '@/components';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
+import { VoiceButton } from '@/features/voice';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { ArrowLeft, Mic, Send, Sparkles } from 'lucide-react-native';
 import { useState } from 'react';
 import {
-  Dimensions,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -19,7 +19,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+// const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const messages = [
   {
