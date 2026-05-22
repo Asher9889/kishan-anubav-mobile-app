@@ -31,14 +31,14 @@ export default function HomeScreen() {
             {/* Hero */}
             <View className="items-center">
               <Text
-                className="text-center text-4xl font-extrabold leading-[50px]"
+                className="text-center text-3xl font-extrabold"
                 style={{ color: Colors.light.primaryDark }}
               >
                 Namaste, Farmer Friend
               </Text>
 
               <Text
-                className="mt-1 pt-2 text-center text-3xl font-bold"
+                className="mt-1 pt-2 text-center text-2xl font-bold w-full"
                 style={{ color: Colors.light.accentDark }}
               >
                 नमस्ते, किसान मित्र

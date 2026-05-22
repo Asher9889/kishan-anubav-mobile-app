@@ -1,6 +1,5 @@
 import { Colors } from "@/constants/theme";
 import { BlurView } from "expo-blur";
-import { LinearGradient } from "expo-linear-gradient";
 import { Globe, Sprout } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -21,12 +20,12 @@ export default function HomeHeader() {
       }}
       className="overflow-hidden px-5 pb-4"
     >
-      <LinearGradient
+      {/* <LinearGradient
         colors={[colors.primaryDark, colors.primary, colors.accent]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         className="absolute inset-0"
-      />
+      /> */}
 
       <View className="flex-row items-center justify-between">
         {/* Left Side */}

@@ -1,4 +1,3 @@
-import { BlurView } from "expo-blur";
 import { ReactNode } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
@@ -17,9 +16,7 @@ export default function FeatureCard({
 }: FeatureCardProps) {
   return (
     <TouchableOpacity activeOpacity={0.9} className={large ? "w-full" : "flex-1"}>
-      <BlurView
-        intensity={30}
-        tint="light"
+      <View
         className={`overflow-hidden rounded-[32px] border border-blue-100 bg-white ${
           large ? "p-5" : "p-4"
         }`}
@@ -52,7 +49,7 @@ export default function FeatureCard({
             {subtitle}
           </Text>
         </View>
-      </BlurView>
+      </View>
     </TouchableOpacity>
   );
 }

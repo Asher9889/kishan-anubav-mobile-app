@@ -1,180 +1,57 @@
-import { MessageBubble, VoiceButton } from '@/components';
-import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
-import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
-import { ArrowLeft, Mic, Send, Sparkles } from 'lucide-react-native';
-import { useState } from 'react';
-import {
-  Dimensions,
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
+import { LinearGradient } from "expo-linear-gradient";
+import { Sparkles, Volume2 } from "lucide-react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const messages = [
-  {
-    id: '1',
-    role: 'assistant',
-    content:
-      'Namaste Farmer! How can I help you today with your crops or farming questions?',
-    timestamp: '10:30 AM',
-  },
-  {
-    id: '2',
-    role: 'user',
-    content: 'Mere gehun mein peele patte aa rahe hain',
-    timestamp: '10:31 AM',
-  },
-  {
-    id: '3',
-    role: 'assistant',
-    content:
-      'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
-    timestamp: '10:31 AM',
-  },
-];
-
-export default function AIChatScreen() {
-  const c = Colors.light;
-  const [isListening, setIsListening] = useState(false);
-  const [inputText, setInputText] = useState('');
-  const [inputFocused, setInputFocused] = useState(false);
-
-  const toggleListening = () => setIsListening((prev) => !prev);
+function MessageBubble({item}: {item: { id: string; role: string; content: string; timestamp: string }}) {
+  const isUser = item.role === 'user';
 
   return (
-    <SafeAreaView style={styles.root}>
-      <StatusBar backgroundColor={c.background} barStyle="dark-content" />
-
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        {/* Header */}
-        <BlurView intensity={50} tint="light" style={styles.headerBlur}>
-          <View style={styles.headerContent}>
-            <TouchableOpacity
-              onPress={() => router.back()}
-              style={styles.backButton}
-              activeOpacity={0.7}
-            >
-              <ArrowLeft size={22} color={c.text} />
-            </TouchableOpacity>
-
-            <View style={styles.headerCenter}>
-              <LinearGradient
-                colors={[c.primary, '#14B8A6']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.headerAvatar}
-              >
-                <Sparkles size={16} color="#FFFFFF" />
-              </LinearGradient>
-              <View style={styles.headerText}>
-                <Text style={styles.headerTitle}>Kisna AI</Text>
-                <View style={styles.onlineRow}>
-                  <View style={styles.onlineDot} />
-                  <Text style={styles.onlineLabel}>Online</Text>
-                </View>
-              </View>
-            </View>
-
-            <View style={styles.headerRight} />
-          </View>
-        </BlurView>
-
-        {/* Messages */}
-        <View style={styles.flex}>
-          <FlatList
-            data={messages}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.messagesList}
-            ItemSeparatorComponent={() => <View style={styles.messageGap} />}
-            renderItem={({ item }) => <MessageBubble item={item} />}
-          />
-
-          {/* Voice Status */}
-          {isListening && (
-            <View style={styles.listeningBar}>
-              <View style={styles.listeningDot} />
-              <Text style={styles.listeningText}>Listening...</Text>
-            </View>
-          )}
-
-          {/* Bottom Bar */}
-          <BlurView intensity={60} tint="light" style={styles.bottomBar}>
-            {/* Voice Button - Primary CTA */}
-            <View style={styles.voiceSection}>
-              <VoiceButton isListening={isListening} onPress={toggleListening} />
-              <Text style={styles.voiceHint}>
-                {isListening ? 'Tap to stop' : 'Tap to speak'}
-              </Text>
-            </View>
-
-            {/* Text Input - Secondary */}
-            <View style={styles.inputRow}>
-              <View
-                style={[
-                  styles.inputContainer,
-                  inputFocused && styles.inputContainerFocused,
-                ]}
-              >
-                <TextInput
-                className=''
-                  placeholder="Or type your question..."
-                  placeholderTextColor={c.textMuted}
-                  value={inputText}
-                  onChangeText={setInputText}
-                  onFocus={() => setInputFocused(true)}
-                  onBlur={() => setInputFocused(false)}
-                  style={styles.textInput}
-                />
-                <TouchableOpacity
-                  style={[styles.micSmall, inputText.length > 0 && styles.micSmallHidden]}
-                >
-                  <Mic size={20} color={c.textMuted} />
-                </TouchableOpacity>
-              </View>
-
-              <TouchableOpacity
-                activeOpacity={0.85}
-                style={[
-                  styles.sendButton,
-                  inputText.length === 0 && styles.sendButtonDisabled,
-                ]}
-                disabled={inputText.length === 0}
-              >
-                <LinearGradient
-                  colors={
-                    inputText.length > 0
-                      ? [c.primaryDark, c.primary]
-                      : [c.border, c.border]
-                  }
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.sendGradient}
-                >
-                  <Send size={18} color={inputText.length > 0 ? '#FFFFFF' : c.textMuted} />
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </BlurView>
+    <View style={[styles.messageRow, isUser ? styles.messageRowUser : styles.messageRowAI]}>
+      {!isUser && (
+        <View style={styles.aiAvatarContainer}>
+          <LinearGradient
+            colors={[Colors.light.primary, '#14B8A6']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.aiAvatar}
+          >
+            <Sparkles size={16} color="#FFFFFF" />
+          </LinearGradient>
         </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      )}
+
+      <View style={[styles.bubbleWrapper, isUser && styles.bubbleWrapperUser]}>
+        {!isUser && (
+          <Text style={styles.aiNameLabel}>Kisna AI</Text>
+        )}
+
+        <View
+          style={[
+            styles.bubble,
+            isUser ? styles.bubbleUser : styles.bubbleAI,
+          ]}
+        >
+          <Text style={[styles.bubbleText, isUser ? styles.bubbleTextUser : styles.bubbleTextAI]}>
+            {item.content}
+          </Text>
+        </View>
+
+        <View style={styles.bubbleFooter}>
+          <Text style={styles.timestamp}>{item.timestamp}</Text>
+          {!isUser && (
+            <TouchableOpacity style={styles.listenButton}>
+              <Volume2 size={14} color={Colors.light.primary} />
+              <Text style={styles.listenLabel}>Listen</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+    </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   root: {
@@ -464,3 +341,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+export default MessageBubble;

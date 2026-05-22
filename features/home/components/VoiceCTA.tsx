@@ -4,16 +4,17 @@ import { Text, TouchableOpacity, View } from "react-native";
 
 export default function VoiceCTA() {
   return (
-    <View className="flex-1 mt-10 items-center justify-center">
+    <View className="flex-1 mt-10 items-center justify-center" >
       <TouchableOpacity
-        activeOpacity={0.9}
+        activeOpacity={0.8}
         className="w-full overflow-hidden rounded-full"
+        onPress={() => router.push("/ai-chat")}
       >
 
         <View className="flex-1 flex-row w-full h-16 items-center justify-center rounded-full bg-green-600">
           <Mic size={24} color="#FFFFFF" />
 
-          <Text onPress={() => router.push("/chat")} className="ml-3 text-2xl font-extrabold text-white shadow-xl shadow-black">
+          <Text  className="ml-3 text-2xl font-extrabold text-white shadow-xl shadow-black">
             Start Asking AI
           </Text>
         </View>
