@@ -6,7 +6,7 @@ import { uploadVoice } from '@/features/voice/services/voice.service';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { ArrowLeft, Mic, Send, Sparkles } from 'lucide-react-native';
+import { ArrowLeft, Sparkles } from 'lucide-react-native';
 import { useState } from 'react';
 import {
   FlatList,
@@ -15,18 +15,22 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AIThinking from '../components/AIThinking';
+import ListeningState from '../components/states/ListeningState';
+import ThinkingState from '../components/states/ThinkingState';
+import { ChatMessage } from '../types/types';
 
 // const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const messages = [
+const messages: ChatMessage[] = [
   {
     id: '1',
     role: 'assistant',
+    type: "message",
     content:
       'Namaste Farmer! How can I help you today with your crops or farming questions?',
     timestamp: '10:30 AM',
@@ -34,23 +38,62 @@ const messages = [
   {
     id: '2',
     role: 'user',
+    type: "message",
+    content: 'Mere gehun mein peele patte aa rahe hain',
+    timestamp: '10:31 AM',
+  },
+  {
+    id: '2',
+    role: 'user',
+    type: "message",
+    content: 'Mere gehun mein peele patte aa rahe hain',
+    timestamp: '10:31 AM',
+  },
+  {
+    id: '2',
+    role: 'user',
+    type: "message",
+    content: 'Mere gehun mein peele patte aa rahe hain',
+    timestamp: '10:31 AM',
+  },
+  {
+    id: '2',
+    role: 'user',
+    type: "message",
+    content: 'Mere gehun mein peele patte aa rahe hain',
+    timestamp: '10:31 AM',
+  },
+  {
+    id: '2',
+    role: 'user',
+    type: "message",
     content: 'Mere gehun mein peele patte aa rahe hain',
     timestamp: '10:31 AM',
   },
   {
     id: '3',
     role: 'assistant',
-    content:
-      'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
+    type: "thinking",
+    content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
+    timestamp: '10:31 AM',
+  },
+  {
+    id: '3',
+    role: 'assistant',
+    type: "listening",
+    content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
     timestamp: '10:31 AM',
   },
 ];
+
+type TAIState = "idle" | "listening" | "uploading" | "thinking"| "responding";
 
 export default function AIChatScreen() {
   const c = Colors.light;
 
   const [inputText, setInputText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
+  const [aiState, setAiState] = useState<TAIState>("idle");
 
   const { isRecording, startRecording, stopRecording } = useVoiceRecorder();
 
@@ -62,6 +105,7 @@ export default function AIChatScreen() {
         const audioUri = await stopRecording();
 
         if(!audioUri) {
+
           console.log("No audio URI returned from stopRecording");
           return;
         }
@@ -126,7 +170,20 @@ export default function AIChatScreen() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.messagesList}
             ItemSeparatorComponent={() => <View style={styles.messageGap} />}
-            renderItem={({ item }) => <MessageBubble item={item} />}
+            renderItem={({ item }) => {
+              switch(item.type) {
+                case "listening":
+                  return <ListeningState  />;
+                case "uploading":
+                  return <AIThinking   />;
+                case "thinking":
+                  return <ThinkingState   />;
+                case "error":
+                  return <AIThinking  />;
+                default:
+                  return <MessageBubble item={item} />;
+              }
+            }}
           />
 
           {/* Voice Status */}
@@ -148,7 +205,7 @@ export default function AIChatScreen() {
             </View>
 
             {/* Text Input - Secondary */}
-            <View style={styles.inputRow}>
+            {/* <View style={styles.inputRow}>
               <View
                 style={[
                   styles.inputContainer,
@@ -193,7 +250,7 @@ export default function AIChatScreen() {
                   <Send size={18} color={inputText.length > 0 ? '#FFFFFF' : c.textMuted} />
                 </LinearGradient>
               </TouchableOpacity>
-            </View>
+            </View> */}
 
           </BlurView>
         </View>

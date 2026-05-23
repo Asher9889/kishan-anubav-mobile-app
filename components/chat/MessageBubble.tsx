@@ -1,10 +1,11 @@
 import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
+import { ChatMessage } from "@/features/chat/types/types";
 import { LinearGradient } from "expo-linear-gradient";
 import { Sparkles, Volume2 } from "lucide-react-native";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 
-function MessageBubble({item}: {item: { id: string; role: string; content: string; timestamp: string }}) {
+function MessageBubble({item}: {item: ChatMessage}) {
   const isUser = item.role === 'user';
 
   return (
