@@ -4,33 +4,25 @@ import { VoiceButton } from '@/features/voice';
 import { useVoiceRecorder } from '@/features/voice/hooks/useVoiceRecorder';
 import { uploadVoice } from '@/features/voice/services/voice.service';
 import { BlurView } from 'expo-blur';
+import * as crypto from "expo-crypto";
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { ArrowLeft, Sparkles } from 'lucide-react-native';
-import { useState } from 'react';
-import {
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { useRef, useState } from 'react';
+import { FlatList, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AIThinking from '../components/AIThinking';
+import GeneratingState from '../components/states/GeneratingState';
 import ListeningState from '../components/states/ListeningState';
 import ThinkingState from '../components/states/ThinkingState';
+import UploadingState from '../components/states/UploadingState';
 import { ChatMessage } from '../types/types';
-
 // const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const messages: ChatMessage[] = [
   {
     id: '1',
-    role: 'assistant',
-    type: "message",
+    role: 'ai',
+    type: "reply",
     content:
       'Namaste Farmer! How can I help you today with your crops or farming questions?',
     timestamp: '10:30 AM',
@@ -43,82 +35,174 @@ const messages: ChatMessage[] = [
     timestamp: '10:31 AM',
   },
   {
-    id: '2',
-    role: 'user',
-    type: "message",
-    content: 'Mere gehun mein peele patte aa rahe hain',
-    timestamp: '10:31 AM',
-  },
-  {
-    id: '2',
-    role: 'user',
-    type: "message",
-    content: 'Mere gehun mein peele patte aa rahe hain',
-    timestamp: '10:31 AM',
-  },
-  {
-    id: '2',
-    role: 'user',
-    type: "message",
-    content: 'Mere gehun mein peele patte aa rahe hain',
-    timestamp: '10:31 AM',
-  },
-  {
-    id: '2',
-    role: 'user',
-    type: "message",
-    content: 'Mere gehun mein peele patte aa rahe hain',
-    timestamp: '10:31 AM',
-  },
-  {
     id: '3',
-    role: 'assistant',
+    role: 'user',
+    type: "message",
+    content: 'Mere gehun mein peele patte aa rahe hain',
+    timestamp: '10:31 AM',
+  },
+  {
+    id: '4',
+    role: 'user',
+    type: "message",
+    content: 'Mere gehun mein peele patte aa rahe hain',
+    timestamp: '10:31 AM',
+  },
+  {
+    id: '5',
+    role: 'user',
+    type: "message",
+    content: 'Mere gehun mein peele patte aa rahe hain',
+    timestamp: '10:31 AM',
+  },
+  {
+    id: '6',
+    role: 'user',
     type: "thinking",
+    content: 'Mere gehun mein peele patte aa rahe hain',
+    timestamp: '10:31 AM',
+  },
+  {
+    id: '7',
+    role: 'ai',
+    type: "generating",
     content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
     timestamp: '10:31 AM',
   },
   {
-    id: '3',
-    role: 'assistant',
-    type: "listening",
+    id: '8',
+    role: 'user',
+    type: "message",
     content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
     timestamp: '10:31 AM',
   },
 ];
 
-type TAIState = "idle" | "listening" | "uploading" | "thinking"| "responding";
+type TAIState = "idle" | "listening" | "uploading" | "thinking" | "generating";
 
 export default function AIChatScreen() {
-  const c = Colors.light;
 
   const [inputText, setInputText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
   const [aiState, setAiState] = useState<TAIState>("idle");
+  const [chats, setChats] = useState<ChatMessage[]>(messages);
+
+  const activeAIMessageId = useRef<string | null>(null);
+  const flatListRef = useRef<FlatList>(null); // to scroll to bottom on new messages
+
+  const thinkingTimeoutRef = useRef<number | null>(null); // to store thinking timeout ID
+  const generatingTimeoutRef = useRef<number | null>(null); // to store generating timeout ID
 
   const { isRecording, startRecording, stopRecording } = useVoiceRecorder();
 
+  const c = Colors.light;
   console.log('Recording State:', { isRecording });
 
   const toggleListening = async () => {
     try {
       if (isRecording) {
         const audioUri = await stopRecording();
-
-        if(!audioUri) {
-
+        if (!audioUri) {
           console.log("No audio URI returned from stopRecording");
           return;
         }
+        setAiState("uploading");
+        replaceMessage(activeAIMessageId.current!, { type: "uploading" });
+
+        // after 800 ms switing to thinking state
+        thinkingTimeoutRef.current = setTimeout(() => {
+          setAiState("thinking");
+          replaceMessage(activeAIMessageId.current!, { type: "thinking" });
+        }, 800);
+        // after total 2600 sec switching to generating state
+        generatingTimeoutRef.current = setTimeout(() => {
+          setAiState("generating");
+            replaceMessage(activeAIMessageId.current!, { type: "generating"});
+          }, 2600);
+
         console.log("Audio URI:", audioUri);
 
         const data = await uploadVoice(audioUri);
 
+        // now clear time out
+        if (thinkingTimeoutRef.current) {
+          clearTimeout(thinkingTimeoutRef.current);
+        }
+
+        if (generatingTimeoutRef.current) {
+          clearTimeout(generatingTimeoutRef.current);
+        }
+
+        // remove the message with listening/uploading/thinking/generating state
+        removeMessage(activeAIMessageId.current!);
+
+        // add the user message with actual content
+        addMessage({
+          id: crypto.randomUUID(),
+          role: "user",
+          type: "message",
+          content:  "i am dummy user message for voice input",
+        });
+        
+        // add AI response message
+        addMessage({
+          id: crypto.randomUUID(),
+          role: "ai",
+          type: "reply",
+          content:  "Here's a response based on your voice input.",
+        });
+
       } else {
+        const uniqueId = crypto.randomUUID();
+        activeAIMessageId.current = uniqueId;
         await startRecording();
+
+        setAiState("listening");
+        addMessage({
+          id: uniqueId,
+          role: "ai",
+          type: "listening",
+        });
       }
     } catch (error) {
       console.log(error);
     }
+  };
+
+  // Helpers 
+  const addMessage = (message: ChatMessage) => {
+    setChats((prev) => [
+      ...prev,
+      message,
+    ]);
+    scrollToBottom();
+  };
+
+  const replaceMessage = (id: string, updated: Partial<ChatMessage>) => {
+    setChats((prev) =>
+      prev.map((msg) =>
+        msg.id === id ? { ...msg, ...updated } : msg
+      )
+    );
+    scrollToBottom();
+  };
+
+  const removeMessage = (id: string) => {
+    setChats((prev) =>
+      prev.filter(
+        (msg) => msg.id !== id
+      )
+    );
+    scrollToBottom();
+  };
+
+  const scrollToBottom = () => {
+    requestAnimationFrame(() => {
+      flatListRef.current?.scrollToEnd({
+        animated: true,
+
+      });
+    });
   };
 
   return (
@@ -150,7 +234,7 @@ export default function AIChatScreen() {
                 <Sparkles size={16} color="#FFFFFF" />
               </LinearGradient>
               <View style={styles.headerText}>
-                <Text style={styles.headerTitle}>Kisna AI</Text>
+                <Text style={styles.headerTitle}>Krishi Anubhav AI</Text>
                 <View style={styles.onlineRow}>
                   <View style={styles.onlineDot} />
                   <Text style={styles.onlineLabel}>Online</Text>
@@ -165,21 +249,25 @@ export default function AIChatScreen() {
         {/* Messages */}
         <View style={styles.flex}>
           <FlatList
-            data={messages}
+            ref={flatListRef}
+            data={chats}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.messagesList}
             ItemSeparatorComponent={() => <View style={styles.messageGap} />}
             renderItem={({ item }) => {
-              switch(item.type) {
+              switch (item.type) {
                 case "listening":
-                  return <ListeningState  />;
+                  return <ListeningState />;
                 case "uploading":
-                  return <AIThinking   />;
+                  return <UploadingState />;
                 case "thinking":
-                  return <ThinkingState   />;
-                case "error":
-                  return <AIThinking  />;
+                  return <ThinkingState />;
+
+                case "generating":
+                  return <GeneratingState />;
+                // case "error":
+                //   return <AIThinking />;
                 default:
                   return <MessageBubble item={item} />;
               }
@@ -187,12 +275,12 @@ export default function AIChatScreen() {
           />
 
           {/* Voice Status */}
-          {isRecording && (
+          {/* {isRecording && (
             <View style={styles.listeningBar}>
               <View style={styles.listeningDot} />
               <Text style={styles.listeningText}>Listening...</Text>
             </View>
-          )}
+          )} */}
 
           {/* Bottom Bar */}
           <BlurView intensity={60} tint="light" style={styles.bottomBar}>

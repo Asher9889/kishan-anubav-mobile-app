@@ -1,7 +1,10 @@
+
+export type ChatMessageType = "reply" | "message" | "listening" | "uploading" | "thinking" | "generating";
+
 export interface ChatMessage {
   id: string;
-  role: "user" | "assistant";
-  type: "message" | "thinking" | "uploading" | "error" | "listening";
+  role: "user" | "ai";
+  type: ChatMessageType;
   content?: string;
   timestamp?: string;
 }
