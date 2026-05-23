@@ -5,7 +5,7 @@ export const endPoints = {
         method: "POST",
     },
     VOICE: {
-        url: "/ai/voice",
+        url: "/ask-audio",
         method: "POST",
     },
   },

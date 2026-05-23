@@ -122,8 +122,7 @@ export default function AIChatScreen() {
 
         console.log("Audio URI:", audioUri);
 
-        const data = await uploadVoice(audioUri);
-
+        const { data } = await uploadVoice(audioUri);
         // now clear time out
         if (thinkingTimeoutRef.current) {
           clearTimeout(thinkingTimeoutRef.current);
@@ -141,7 +140,7 @@ export default function AIChatScreen() {
           id: crypto.randomUUID(),
           role: "user",
           type: "message",
-          content:  "i am dummy user message for voice input",
+          content:  data.query ?? "Unable to process audio input. Please try again.",
         });
         
         // add AI response message
@@ -149,7 +148,7 @@ export default function AIChatScreen() {
           id: crypto.randomUUID(),
           role: "ai",
           type: "reply",
-          content:  "Here's a response based on your voice input.",
+          content:  data.answer?.answer ?? "Unable to process audio input. Please try again.",
         });
 
       } else {
@@ -165,7 +164,7 @@ export default function AIChatScreen() {
         });
       }
     } catch (error) {
-      console.log(error);
+      console.log("error inside chat component" ,error);
     }
   };
 
@@ -286,7 +285,7 @@ export default function AIChatScreen() {
           <BlurView intensity={60} tint="light" style={styles.bottomBar}>
             {/* Voice Button - Primary CTA */}
             <View style={styles.voiceSection}>
-              <VoiceButton isListening={isRecording} onPress={toggleListening} />
+              <VoiceButton isListening={true} onPress={toggleListening} />
               <Text style={styles.voiceHint}>
                 {isRecording ? 'Tap to stop' : 'Tap to speak'}
               </Text>

@@ -1,8 +1,8 @@
 import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
 import { LinearGradient } from "expo-linear-gradient";
 import { AudioWaveform, Mic } from "lucide-react-native";
-import { useEffect, useRef } from "react";
-import { Animated, Easing, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Animated, Easing, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 function VoiceButton({ isListening, onPress }: { isListening: boolean; onPress: () => void }) {
   const pulse1 = useRef(new Animated.Value(0)).current;
@@ -10,8 +10,20 @@ function VoiceButton({ isListening, onPress }: { isListening: boolean; onPress: 
   const pulse3 = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
+  // Timer state
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const timerRef = useRef<number | null>(null);
+  const startTimeRef = useRef<number>(0);
+
   useEffect(() => {
     if (isListening) {
+      startTimeRef.current = Date.now();
+      setElapsedMs(0);
+
+      timerRef.current = setInterval(() => {
+        setElapsedMs(Date.now() - startTimeRef.current);
+      }, 100); 
+
       const createPulse = (anim: Animated.Value, delay: number) =>
         Animated.loop(
           Animated.sequence([
@@ -58,14 +70,29 @@ function VoiceButton({ isListening, onPress }: { isListening: boolean; onPress: 
         a1.stop();
         a2.stop();
         a3.stop();
-        // scaleAnim.stop();
-        pulse1.setValue(0);
-        pulse2.setValue(0);
-        pulse3.setValue(0);
-        scaleAnim.setValue(1);
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        setElapsedMs(0);
       };
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      setElapsedMs(0);
     }
   }, [isListening]);
+
+  // Format elapsed time: MM:SS.ms (e.g., 00:12.4)
+  const formatTime = (ms: number) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    const tenths = Math.floor((ms % 1000) / 100);
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}.${tenths}`;
+  };
 
   const pulseStyle = (anim: Animated.Value) => ({
     position: 'absolute' as const,
@@ -113,6 +140,15 @@ function VoiceButton({ isListening, onPress }: { isListening: boolean; onPress: 
               <AudioWaveform size={28} color="#FFFFFF" strokeWidth={2.5} />
             ) : (
               <Mic size={28} color="#FFFFFF" strokeWidth={2.5} />
+            )}
+
+            {/* Timer overlay — appears when recording */}
+            {isListening && (
+              <View style={styles.timerOverlay}>
+                <Text style={styles.timerText}>
+                  {formatTime(elapsedMs)}
+                </Text>
+              </View>
             )}
           </LinearGradient>
         </TouchableOpacity>
@@ -340,9 +376,10 @@ const styles = StyleSheet.create({
     borderRadius: 44,
   },
   voiceButtonGradient: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: Colors.light.primary,
@@ -351,6 +388,31 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
   },
+
+  // Timer overlay inside button
+  timerOverlay: {
+    position: 'absolute',
+    bottom: -20,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timerText: {
+    ...Typography.small,
+    fontSize: 13,
+    fontWeight: '700',
+    color: Colors.light.primaryDark,
+    letterSpacing: 0.5,
+    backgroundColor: Colors.light.surface,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.light.borderLight,
+    overflow: 'hidden',
+  },
+
   voiceHint: {
     ...Typography.caption,
     color: Colors.light.textMuted,
