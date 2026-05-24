@@ -7,7 +7,6 @@ export async function getCurrentWeather(lat: number, long: number): Promise<IWea
             `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&current=temperature_2m,relative_humidity_2m,rain,windspeed_10m&timezone=Asia/Kolkata`
         );
 
-    console.log('Weather API Response:', response);
     const weatherData = {
         temperature: response.data.current.temperature_2m,
         humidity: response.data.current.relative_humidity_2m,
