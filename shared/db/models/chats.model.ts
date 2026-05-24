@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 const chats = sqliteTable("chats", {
@@ -6,7 +7,7 @@ const chats = sqliteTable("chats", {
     createdAt: integer("created_at").notNull(),
     updatedAt: integer("updated_at").notNull(),
     lastMessageAt: integer("last_message_at").notNull(),
-    archived: integer("archived", { mode: "boolean" }).default(false),
+    archived: integer("archived", { mode: "boolean" }).default(sql`0`),
 });
 
 export default chats;

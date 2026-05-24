@@ -77,7 +77,7 @@ export default function HomeScreen() {
                 <View className="mt-1 flex-row items-center justify-between">
                   <View>
                     <Text className="text-[28px] font-bold leading-none" style={{ color: c.primary }}>
-                      {isWeatherLoading ? "--°C" : `${weather?.temperature}°C`}
+                      {isWeatherLoading ? "--°C" : `${weather?.temperature ?? "--"}°C`}
                     </Text>
                     <Text className="mt-1 text-[11px] font-medium" style={{ color: c.secondary }}>
                     {isWeatherLoading ? "--km/h • --%" : `हवा: ${weather?.windSpeed ?? '--'}km/h • नमी: ${weather?.humidity ?? '--'}%`}
@@ -176,7 +176,7 @@ export default function HomeScreen() {
                 <Text className="text-[12px] font-semibold uppercase tracking-[0.14em]" style={{ color: c.primary }}>
                   नई योजना सूचना
                 </Text>
-                <Text className="mt-1 text-[22px] font-extrabold leading-7" style={{ color: c.onSurface }}>
+                <Text className="mt-1 pt-2 text-[22px] font-extrabold leading-7" style={{ color: c.onSurface }}>
                   पीएम-किसान 15वीं किस्त जारी
                 </Text>
                 <Text className="mt-2 text-[14px] leading-6" style={{ color: c.onSurfaceVariant }}>

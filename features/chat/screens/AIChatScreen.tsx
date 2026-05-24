@@ -6,11 +6,11 @@ import { uploadVoice } from '@/features/voice/services/voice.service';
 import { BlurView } from 'expo-blur';
 import * as crypto from "expo-crypto";
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
-import { ArrowLeft, Sparkles } from 'lucide-react-native';
+import { Sparkles } from 'lucide-react-native';
 import { useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SideSheetRef } from '../components/side-sheet/chat-history-sheet';
 import GeneratingState from '../components/states/GeneratingState';
 import ListeningState from '../components/states/ListeningState';
 import ThinkingState from '../components/states/ThinkingState';
@@ -89,6 +89,7 @@ export default function AIChatScreen() {
 
   const activeAIMessageId = useRef<string | null>(null);
   const flatListRef = useRef<FlatList>(null); // to scroll to bottom on new messages
+  const sideSheetRef = useRef<SideSheetRef>(null);
 
   const thinkingTimeoutRef = useRef<number | null>(null); // to store thinking timeout ID
   const generatingTimeoutRef = useRef<number | null>(null); // to store generating timeout ID
@@ -117,8 +118,8 @@ export default function AIChatScreen() {
         // after total 2600 sec switching to generating state
         generatingTimeoutRef.current = setTimeout(() => {
           setAiState("generating");
-            replaceMessage(activeAIMessageId.current!, { type: "generating"});
-          }, 2600);
+          replaceMessage(activeAIMessageId.current!, { type: "generating" });
+        }, 2600);
 
         console.log("Audio URI:", audioUri);
 
@@ -140,15 +141,15 @@ export default function AIChatScreen() {
           id: crypto.randomUUID(),
           role: "user",
           type: "message",
-          content:  data.query ?? "Unable to process audio input. Please try again.",
+          content: data.query ?? "Unable to process audio input. Please try again.",
         });
-        
+
         // add AI response message
         addMessage({
           id: crypto.randomUUID(),
           role: "ai",
           type: "reply",
-          content:  data.answer?.answer ?? "Unable to process audio input. Please try again.",
+          content: data.answer?.answer ?? "Unable to process audio input. Please try again.",
         });
 
       } else {
@@ -164,7 +165,7 @@ export default function AIChatScreen() {
         });
       }
     } catch (error) {
-      console.log("error inside chat component" ,error);
+      console.log("error inside chat component", error);
     }
   };
 
@@ -215,12 +216,20 @@ export default function AIChatScreen() {
         {/* Header */}
         <BlurView intensity={50} tint="light" style={styles.headerBlur}>
           <View style={styles.headerContent}>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => router.back()}
               style={styles.backButton}
               activeOpacity={0.7}
             >
               <ArrowLeft size={22} color={c.text} />
+            </TouchableOpacity> */}
+
+            <TouchableOpacity
+              onPress={() => sideSheetRef.current?.open()}
+              style={styles.backButton}
+              activeOpacity={0.7}
+            >
+              <Text style={{ fontSize: 24 }}>☰</Text>
             </TouchableOpacity>
 
             <View style={styles.headerCenter}>
@@ -341,7 +350,11 @@ export default function AIChatScreen() {
 
           </BlurView>
         </View>
+
+        
       </KeyboardAvoidingView>
+
+     
     </SafeAreaView>
   );
 }

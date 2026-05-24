@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1779642971598,
+      "tag": "0000_married_molten_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1779644430436,
+      "tag": "0001_broken_praxagora",
+      "breakpoints": true
+    }
+  ]
+}
