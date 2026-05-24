@@ -89,61 +89,101 @@ import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    // Primary - Deep Teal
-    primary: '#0096FF', // Bright Blue
-    primaryDark: '#0F766E',
-    primaryLight: '#CCFBF1',
-    primaryMuted: 'rgba(13,148,136,0.12)',
+    background: '#FBF9F4',
+    surface: '#FBF9F4',
+    surfaceBright: '#FBF9F4',
+    surfaceDim: '#DBDAD5',
+    surfaceContainerLowest: '#FFFFFF',
+    surfaceContainerLow: '#F5F3EE',
+    surfaceContainer: '#F0EEE9',
+    surfaceContainerHigh: '#EAE8E3',
+    surfaceContainerHighest: '#E4E2DD',
+    surfaceVariant: '#E4E2DD',
 
-    // Accent - Warm Amber
-    accent: '#F59E0B',
-    accentDark: '#D97706',
-    accentLight: 'rgba(245,158,11,0.12)',
+    primary: '#8F4E00',
+    primaryDark: '#693800',
+    primaryLight: '#FFDCC2',
+    primaryContainer: '#FF9933',
+    primaryFixed: '#FFDCC2',
+    primaryFixedDim: '#FFB77A',
+    onPrimary: '#FFFFFF',
+    onPrimaryContainer: '#693800',
+    onPrimaryFixed: '#2E1500',
+    onPrimaryFixedVariant: '#6D3A00',
+    inversePrimary: '#FFB77A',
+    primaryMuted: 'rgba(143, 78, 0, 0.12)',
 
-    // Backgrounds
-    background: '#F8FAFB',
-    surface: '#FFFFFF',
-    surfaceSecondary: '#F1F5F9',
+    secondary: '#056E00',
+    secondaryContainer: '#8DFC75',
+    secondaryFixed: '#8DFC75',
+    secondaryFixedDim: '#72DE5C',
+    onSecondary: '#FFFFFF',
+    onSecondaryContainer: '#067500',
+    onSecondaryFixed: '#012200',
+    onSecondaryFixedVariant: '#035300',
+    success: '#056E00',
+    successLight: 'rgba(5, 110, 0, 0.10)',
+
+    tertiary: '#79573F',
+    tertiaryContainer: '#D4A98D',
+    tertiaryFixed: '#FFDCC6',
+    tertiaryFixedDim: '#EABDA0',
+    onTertiary: '#FFFFFF',
+    onTertiaryContainer: '#5C3D28',
+    onTertiaryFixed: '#2D1604',
+    onTertiaryFixedVariant: '#5F402A',
+
+    backgroundVariant: '#F0EEE9',
+    text: '#1B1C19',
+    textSecondary: '#554336',
+    textMuted: '#887364',
+    textInverse: '#F2F1EC',
+    onBackground: '#1B1C19',
+    onSurface: '#1B1C19',
+    onSurfaceVariant: '#554336',
+    inverseSurface: '#30312E',
+    inverseOnSurface: '#F2F1EC',
+
+    border: '#DBC2B0',
+    borderLight: '#E4E2DD',
+    outline: '#887364',
+    outlineVariant: '#DBC2B0',
+
     card: '#FFFFFF',
+    cardSecondary: '#F5F3EE',
     glass: 'rgba(255,255,255,0.72)',
-    input: '#F1F5F9',
+    input: '#F5F3EE',
 
-    // Text
-    text: '#0F172A',
-    textSecondary: '#64748B',
-    textMuted: '#94A3B8',
-    textInverse: '#FFFFFF',
+    warning: '#D97706',
+    error: '#BA1A1A',
+    errorLight: 'rgba(186, 26, 26, 0.10)',
+    onError: '#FFFFFF',
+    onErrorContainer: '#93000A',
 
-    // Borders
-    border: '#E2E8F0',
-    borderLight: 'rgba(0,0,0,0.04)',
+    glow: 'rgba(143, 78, 0, 0.12)',
+    voiceGlow: 'rgba(255, 153, 51, 0.32)',
+    voicePulse: 'rgba(255, 153, 51, 0.16)',
+    voiceRing: 'rgba(255, 153, 51, 0.08)',
 
-    // Status
-    success: '#10B981',
-    successLight: 'rgba(16,185,129,0.1)',
-    warning: '#F59E0B',
-    error: '#EF4444',
-    errorLight: 'rgba(239,68,68,0.1)',
-
-    // Voice
-    voiceGlow: 'rgba(13,148,136,0.3)',
-    voicePulse: 'rgba(13,148,136,0.15)',
-    voiceRing: 'rgba(13,148,136,0.08)',
+    tint: '#8F4E00',
+    icon: '#887364',
+    tabIconDefault: '#887364',
+    tabIconSelected: '#8F4E00',
   },
-    dark: {
-    background: "#06111F",
-    surface: "#0B1F3A",
-
-    primary: "#60A5FA",
-    accent: "#4ADE80",
-
-    text: "#F8FBFF",
-    textSecondary: "#CBD5E1",
-
-    border: "rgba(255,255,255,0.08)",
-
-    card: "#0F172A",
-  }
+  dark: {
+    background: '#06111F',
+    surface: '#0B1F3A',
+    primary: '#60A5FA',
+    accent: '#4ADE80',
+    text: '#F8FBFF',
+    textSecondary: '#CBD5E1',
+    border: 'rgba(255,255,255,0.08)',
+    card: '#0F172A',
+    tint: '#60A5FA',
+    icon: '#CBD5E1',
+    tabIconDefault: '#94A3B8',
+    tabIconSelected: '#60A5FA',
+  },
 };
 
 export const Typography = {
@@ -166,11 +206,11 @@ export const Spacing = {
 };
 
 export const Radius = {
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 28,
+  sm: 4,
+  md: 8,
+  lg: 12,
+  xl: 16,
+  xxl: 24,
   full: 9999,
 };
 

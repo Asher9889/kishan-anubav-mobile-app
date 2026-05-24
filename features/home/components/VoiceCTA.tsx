@@ -1,30 +1,55 @@
+import { Colors } from "@/constants/theme";
 import { router } from "expo-router";
 import { Mic } from "lucide-react-native";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Pressable, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function VoiceCTA() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View className="flex-1 mt-10 items-center justify-center" >
-      <TouchableOpacity
-        activeOpacity={0.8}
-        className="w-full overflow-hidden rounded-full"
-        onPress={() => router.push("/ai-chat")}
+    <View
+      pointerEvents="box-none"
+      className="absolute left-0 right-0 items-center"
+      style={{ bottom: Math.max(insets.bottom, 12) + 70 }}
+    >
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Open AI chat"
+        onPress={() => router.push('/ai-chat')}
+        className="items-center justify-center"
       >
-
-        <View className="flex-1 flex-row w-full h-16 items-center justify-center rounded-full bg-green-600">
-          <Mic size={24} color="#FFFFFF" />
-
-          <Text  className="ml-3 text-2xl font-extrabold text-white shadow-xl shadow-black">
-            Start Asking AI
-          </Text>
+        <View
+          className="absolute rounded-full"
+          style={{
+            width: 92,
+            height: 92,
+            backgroundColor: Colors.light.voiceRing,
+          }}
+        />
+        <View
+          className="absolute rounded-full"
+          style={{
+            width: 76,
+            height: 76,
+            backgroundColor: Colors.light.voicePulse,
+          }}
+        />
+        <View
+          className="h-[72px] w-[72px] items-center justify-center rounded-full border"
+          style={{
+            backgroundColor: Colors.light.primaryContainer,
+            borderColor: 'rgba(255,255,255,0.55)',
+            shadowColor: Colors.light.primaryContainer,
+            shadowOpacity: 0.28,
+            shadowRadius: 18,
+            shadowOffset: { width: 0, height: 8 },
+            elevation: 10,
+          }}
+        >
+          <Mic size={32} color="#FFFFFF" />
         </View>
-
-
-      </TouchableOpacity>
-
-      <Text className="mt-2 text-center text-sm text-slate-500">
-        Supports Hindi, Punjabi, Marathi & English
-      </Text>
+      </Pressable>
     </View>
   );
 }

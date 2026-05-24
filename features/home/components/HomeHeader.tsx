@@ -1,6 +1,5 @@
 import { Colors } from "@/constants/theme";
-import { BlurView } from "expo-blur";
-import { Globe, Sprout } from "lucide-react-native";
+import { CircleUserRound, Sprout } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -10,66 +9,51 @@ export default function HomeHeader() {
   const colors = Colors.light;
 
   return (
-    <BlurView
-      intensity={30}
+    <View
       style={{
         paddingTop: insets.top,
-        backgroundColor: "green",
+        backgroundColor: colors.primaryContainer,
         borderBottomWidth: 1,
-        borderBottomColor: colors.border,
+        borderBottomColor: 'rgba(219, 194, 176, 0.35)',
+        shadowColor: '#79573F',
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 2,
       }}
-      className="overflow-hidden px-5 pb-4"
+      className="px-5 pb-4"
     >
-      {/* <LinearGradient
-        colors={[colors.primaryDark, colors.primary, colors.accent]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="absolute inset-0"
-      /> */}
 
       <View className="flex-row items-center justify-between">
         {/* Left Side */}
         <View className="flex-row items-center gap-3">
           <View
-            className="h-11 w-11 items-center justify-center rounded-full border bg-white/14"
+            className="h-10 w-10 items-center justify-center rounded-full border"
             style={{
-              borderColor: "rgba(255,255,255,0.18)",
+              backgroundColor: colors.secondaryContainer,
+              borderColor: colors.secondary,
             }}
           >
-            <Sprout color="#FFFFFF" size={24} />
+            <Sprout color={colors.primary} size={20} />
           </View>
 
-          <Text
-            className="text-2xl font-extrabold"
-            style={{
-              color: "#FFFFFF",
-            }}
-          >
+          <Text className="text-[22px] font-extrabold" style={{ color: colors.text }}>
             Krishi Anubhav AI
           </Text>
         </View>
 
         {/* Language Button */}
         <TouchableOpacity
-          className="flex-row items-center rounded-full px-4 py-2"
+          className="h-10 w-10 items-center justify-center rounded-full"
           style={{
-            backgroundColor: "rgba(255,255,255,0.92)",
+            backgroundColor: colors.surfaceContainerHigh,
             borderWidth: 1,
-            borderColor: "rgba(255,255,255,0.65)",
+            borderColor: colors.outlineVariant,
           }}
         >
-          <Globe color={colors.primaryDark} size={18} />
-
-          <Text
-            className="ml-2 font-semibold"
-            style={{
-              color: colors.primaryDark,
-            }}
-          >
-            हिंदी
-          </Text>
+          <CircleUserRound color={colors.primary} size={20} />
         </TouchableOpacity>
       </View>
-    </BlurView>
+    </View>
   );
 }
