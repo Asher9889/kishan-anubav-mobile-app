@@ -8,3 +8,9 @@ export interface ChatMessage {
   content?: string;
   timestamp?: string;
 }
+
+export type TSheetHandle = {
+  open: () => void;
+  close: () => void;
+  isOpen: boolean;
+};

@@ -10,12 +10,12 @@ import { Sparkles } from 'lucide-react-native';
 import { useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SideSheetRef } from '../components/side-sheet/chat-history-sheet';
+import { ChatHistorySheet } from '../components/side-sheet/ChatHistorySheet';
 import GeneratingState from '../components/states/GeneratingState';
 import ListeningState from '../components/states/ListeningState';
 import ThinkingState from '../components/states/ThinkingState';
 import UploadingState from '../components/states/UploadingState';
-import { ChatMessage } from '../types/types';
+import { ChatMessage, TSheetHandle } from '../types/types';
 // const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const messages: ChatMessage[] = [
@@ -80,6 +80,7 @@ const messages: ChatMessage[] = [
 
 type TAIState = "idle" | "listening" | "uploading" | "thinking" | "generating";
 
+
 export default function AIChatScreen() {
 
   const [inputText, setInputText] = useState('');
@@ -89,10 +90,10 @@ export default function AIChatScreen() {
 
   const activeAIMessageId = useRef<string | null>(null);
   const flatListRef = useRef<FlatList>(null); // to scroll to bottom on new messages
-  const sideSheetRef = useRef<SideSheetRef>(null);
 
   const thinkingTimeoutRef = useRef<number | null>(null); // to store thinking timeout ID
   const generatingTimeoutRef = useRef<number | null>(null); // to store generating timeout ID
+  const sideSheetRef = useRef<TSheetHandle>(null); // for controlling side sheet from header
 
   const { isRecording, startRecording, stopRecording } = useVoiceRecorder();
 
@@ -294,7 +295,7 @@ export default function AIChatScreen() {
           <BlurView intensity={60} tint="light" style={styles.bottomBar}>
             {/* Voice Button - Primary CTA */}
             <View style={styles.voiceSection}>
-              <VoiceButton isListening={true} onPress={toggleListening} />
+              <VoiceButton isListening={isRecording} onPress={toggleListening} />
               <Text style={styles.voiceHint}>
                 {isRecording ? 'Tap to stop' : 'Tap to speak'}
               </Text>
@@ -353,6 +354,8 @@ export default function AIChatScreen() {
 
         
       </KeyboardAvoidingView>
+          
+      <ChatHistorySheet ref={sideSheetRef} />
 
      
     </SafeAreaView>
@@ -384,7 +387,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.light.surfaceSecondary,
+    backgroundColor: Colors.light.surfaceContainerLow,
     alignItems: 'center',
     justifyContent: 'center',
   },
