@@ -11,13 +11,12 @@ const useAppBootstrap = () => {
         console.log("Database migrated successfully");
     }
 
-//     (async () => {
-//         const tables = await sqlite.getAllAsync(`
-//   SELECT name FROM sqlite_master WHERE type='table';
-// `);
+   
+    // (async () => {
+    //     const chats = (await db.query.chats.findMany({})).length;
 
-//         console.log(tables);
-//     })()
+    //     console.log("chats are", chats);
+    // })()
     return { db, migrationSuccess: success, migrationError: error };
 }
 

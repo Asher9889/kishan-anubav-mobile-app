@@ -6,7 +6,7 @@ export const messages = sqliteTable("messages", {
 
       chatId: text("chat_id").references(() => chats.id).notNull(),
 
-      role: text("role").$type<"user"| "ai"| "system">().notNull(),
+      role: text("role").$type<"user"| "ai">().notNull(),
 
       messageType: text("message_type").$type<"text" | "voice" | "image" | "weather">().notNull(),
 

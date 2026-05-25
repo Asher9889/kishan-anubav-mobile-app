@@ -18,7 +18,7 @@ export async function uploadVoice(audioUri: string): Promise<AskAudioApiResponse
         data: formData,
     });
 
-    console.log("Voice upload response:", response);
+    console.log("Voice upload response:", response.data);
     return response;
 
 }

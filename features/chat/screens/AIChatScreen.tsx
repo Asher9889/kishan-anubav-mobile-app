@@ -7,7 +7,7 @@ import { BlurView } from 'expo-blur';
 import * as crypto from "expo-crypto";
 import { LinearGradient } from 'expo-linear-gradient';
 import { Sparkles } from 'lucide-react-native';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChatHistorySheet } from '../components/side-sheet/ChatHistorySheet';
@@ -15,78 +15,87 @@ import GeneratingState from '../components/states/GeneratingState';
 import ListeningState from '../components/states/ListeningState';
 import ThinkingState from '../components/states/ThinkingState';
 import UploadingState from '../components/states/UploadingState';
+import { createChat, getMessagesByChatId, saveConversation } from '../services/chat.service';
+import { useChatStore } from '../store/chat.store';
 import { ChatMessage, TSheetHandle } from '../types/types';
 // const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const messages: ChatMessage[] = [
-  {
-    id: '1',
-    role: 'ai',
-    type: "reply",
-    content:
-      'Namaste Farmer! How can I help you today with your crops or farming questions?',
-    timestamp: '10:30 AM',
-  },
-  // {
-  //   id: '2',
-  //   role: 'user',
-  //   type: "message",
-  //   content: 'Mere gehun mein peele patte aa rahe hain',
-  //   timestamp: '10:31 AM',
-  // },
-  // {
-  //   id: '3',
-  //   role: 'user',
-  //   type: "message",
-  //   content: 'Mere gehun mein peele patte aa rahe hain',
-  //   timestamp: '10:31 AM',
-  // },
-  // {
-  //   id: '4',
-  //   role: 'user',
-  //   type: "message",
-  //   content: 'Mere gehun mein peele patte aa rahe hain',
-  //   timestamp: '10:31 AM',
-  // },
-  // {
-  //   id: '5',
-  //   role: 'user',
-  //   type: "message",
-  //   content: 'Mere gehun mein peele patte aa rahe hain',
-  //   timestamp: '10:31 AM',
-  // },
-  // {
-  //   id: '6',
-  //   role: 'user',
-  //   type: "thinking",
-  //   content: 'Mere gehun mein peele patte aa rahe hain',
-  //   timestamp: '10:31 AM',
-  // },
-  // {
-  //   id: '7',
-  //   role: 'ai',
-  //   type: "generating",
-  //   content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
-  //   timestamp: '10:31 AM',
-  // },
-  // {
-  //   id: '8',
-  //   role: 'user',
-  //   type: "message",
-  //   content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
-  //   timestamp: '10:31 AM',
-  // },
-];
+// const messages: ChatMessage[] = [
+//   {
+//     id: '1',
+//     role: 'ai',
+//     type: "reply",
+//     content:
+//       'Namaste Farmer! How can I help you today with your crops or farming questions?',
+//     timestamp: '10:30 AM',
+//   },
+//   // {
+//   //   id: '2',
+//   //   role: 'user',
+//   //   type: "message",
+//   //   content: 'Mere gehun mein peele patte aa rahe hain',
+//   //   timestamp: '10:31 AM',
+//   // },
+//   // {
+//   //   id: '3',
+//   //   role: 'user',
+//   //   type: "message",
+//   //   content: 'Mere gehun mein peele patte aa rahe hain',
+//   //   timestamp: '10:31 AM',
+//   // },
+//   // {
+//   //   id: '4',
+//   //   role: 'user',
+//   //   type: "message",
+//   //   content: 'Mere gehun mein peele patte aa rahe hain',
+//   //   timestamp: '10:31 AM',
+//   // },
+//   // {
+//   //   id: '5',
+//   //   role: 'user',
+//   //   type: "message",
+//   //   content: 'Mere gehun mein peele patte aa rahe hain',
+//   //   timestamp: '10:31 AM',
+//   // },
+//   // {
+//   //   id: '6',
+//   //   role: 'user',
+//   //   type: "thinking",
+//   //   content: 'Mere gehun mein peele patte aa rahe hain',
+//   //   timestamp: '10:31 AM',
+//   // },
+//   // {
+//   //   id: '7',
+//   //   role: 'ai',
+//   //   type: "generating",
+//   //   content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
+//   //   timestamp: '10:31 AM',
+//   // },
+//   // {
+//   //   id: '8',
+//   //   role: 'user',
+//   //   type: "message",
+//   //   content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
+//   //   timestamp: '10:31 AM',
+//   // },
+// ];
 
 type TAIState = "idle" | "listening" | "uploading" | "thinking" | "generating";
 
+let WELCOME_MESSAGE = {
+  id: 'welcome',
+  role: 'ai',
+  type: 'reply',
+  content: 'Hello 👋 How can I help you today?',
+}
 
 export default function AIChatScreen() {
 
   const [inputText, setInputText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
-  const [aiState, setAiState] = useState<TAIState>("idle");
-  const [chats, setChats] = useState<ChatMessage[]>(messages);
+  // const [aiState, setAiState] = useState<TAIState>("idle");
+  const [messages, setMessages] = useState<ChatMessage[]>([]); // db orienetd messages
+  const [uiMessages, setUiMessages] = useState<ChatMessage[]>([]); // messages state management like listening/thinking/uploading/generating
 
   const activeAIMessageId = useRef<string | null>(null);
   const flatListRef = useRef<FlatList>(null); // to scroll to bottom on new messages
@@ -97,8 +106,9 @@ export default function AIChatScreen() {
 
   const { isRecording, startRecording, stopRecording } = useVoiceRecorder();
 
+  const { activeChatIdState, setActiveChatId } = useChatStore();
+
   const c = Colors.light;
-  console.log('Recording State:', { isRecording });
 
   const toggleListening = async () => {
     try {
@@ -108,23 +118,53 @@ export default function AIChatScreen() {
           console.log("No audio URI returned from stopRecording");
           return;
         }
-        setAiState("uploading");
+        // setAiState("uploading");
         replaceMessage(activeAIMessageId.current!, { type: "uploading" });
 
         // after 800 ms switing to thinking state
         thinkingTimeoutRef.current = setTimeout(() => {
-          setAiState("thinking");
+          // setAiState("thinking");
           replaceMessage(activeAIMessageId.current!, { type: "thinking" });
         }, 800);
         // after total 2600 sec switching to generating state
         generatingTimeoutRef.current = setTimeout(() => {
-          setAiState("generating");
+          // setAiState("generating");
           replaceMessage(activeAIMessageId.current!, { type: "generating" });
         }, 2600);
 
         console.log("Audio URI:", audioUri);
 
         const { data } = await uploadVoice(audioUri);
+
+        // save conversation in db
+        let currentChatId = activeChatIdState;
+        if (!currentChatId) {
+          currentChatId = await createChat({
+            title: data.query,
+          });
+        }
+
+        /**
+         * Remove temporary UI state FIRST
+         */
+        removeUiMessage(activeAIMessageId.current!);
+
+        await saveConversation({
+          chatId: currentChatId,
+          query: data.query,
+          answer: data.answer?.answer ?? "Unable to process audio input. Please try again.",
+          audioUri,
+        });
+        // refresh messages from db
+        await loadMessages(currentChatId);
+
+        /**
+         * NOW activate chat
+         */
+        if (!activeChatIdState) {
+          setActiveChatId(currentChatId);
+        }
+
         // now clear time out
         if (thinkingTimeoutRef.current) {
           clearTimeout(thinkingTimeoutRef.current);
@@ -134,32 +174,13 @@ export default function AIChatScreen() {
           clearTimeout(generatingTimeoutRef.current);
         }
 
-        // remove the message with listening/uploading/thinking/generating state
-        removeMessage(activeAIMessageId.current!);
-
-        // add the user message with actual content
-        addMessage({
-          id: crypto.randomUUID(),
-          role: "user",
-          type: "message",
-          content: data.query ?? "Unable to process audio input. Please try again.",
-        });
-
-        // add AI response message
-        addMessage({
-          id: crypto.randomUUID(),
-          role: "ai",
-          type: "reply",
-          content: data.answer?.answer ?? "Unable to process audio input. Please try again.",
-        });
-
       } else {
         const uniqueId = crypto.randomUUID();
         activeAIMessageId.current = uniqueId;
         await startRecording();
 
-        setAiState("listening");
-        addMessage({
+        // setAiState("listening");
+        addUiMessage({
           id: uniqueId,
           role: "ai",
           type: "listening",
@@ -171,8 +192,8 @@ export default function AIChatScreen() {
   };
 
   // Helpers 
-  const addMessage = (message: ChatMessage) => {
-    setChats((prev) => [
+  const addUiMessage = (message: ChatMessage) => {
+    setUiMessages((prev) => [
       ...prev,
       message,
     ]);
@@ -180,7 +201,7 @@ export default function AIChatScreen() {
   };
 
   const replaceMessage = (id: string, updated: Partial<ChatMessage>) => {
-    setChats((prev) =>
+    setUiMessages((prev) =>
       prev.map((msg) =>
         msg.id === id ? { ...msg, ...updated } : msg
       )
@@ -188,8 +209,8 @@ export default function AIChatScreen() {
     scrollToBottom();
   };
 
-  const removeMessage = (id: string) => {
-    setChats((prev) =>
+  const removeUiMessage = (id: string) => {
+    setUiMessages((prev) =>
       prev.filter(
         (msg) => msg.id !== id
       )
@@ -205,6 +226,51 @@ export default function AIChatScreen() {
       });
     });
   };
+
+  // for the initial loading of messages when chat is selected or created
+
+  const loadMessages = async (chatId: string) => {
+    const dbMessages = await getMessagesByChatId(chatId);
+
+    const formattedMessages: ChatMessage[] = dbMessages.map((message) => ({
+      id: message.id,
+      role: message.role,
+      type: message.role === 'user' ? 'message' : 'reply',
+      content: message.content ?? 'Unable to display message.',
+    }));
+
+    setMessages(formattedMessages);
+  };
+
+  useEffect(() => {
+    async function initializeChat() {
+
+      if (!activeChatIdState) {
+        setMessages([]);
+        return;
+      }
+
+      await loadMessages(activeChatIdState);
+    }
+    initializeChat();
+
+  }, [activeChatIdState]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, uiMessages]);
+
+  useEffect(() => {
+    return () => {
+      if (thinkingTimeoutRef.current) {
+        clearTimeout(thinkingTimeoutRef.current);
+      }
+
+      if (generatingTimeoutRef.current) {
+        clearTimeout(generatingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <SafeAreaView style={styles.root}>
@@ -259,7 +325,7 @@ export default function AIChatScreen() {
         <View style={styles.flex}>
           <FlatList
             ref={flatListRef}
-            data={chats}
+            data={messages.length === 0 ? [WELCOME_MESSAGE] : [...messages, ...uiMessages]} // combine initial messages with UI messages
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.messagesList}

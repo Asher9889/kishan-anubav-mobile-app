@@ -1,13 +1,14 @@
 import React, {
   forwardRef,
+  useEffect,
   useImperativeHandle,
-  useMemo,
-  useState,
+  useState
 } from 'react';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
+  FlatList,
   Pressable,
   StyleSheet,
   TouchableOpacity,
@@ -28,6 +29,8 @@ import { Text } from '@/components/ui/text';
 import { View } from '@/components/ui/view';
 import { Colors } from '@/constants/theme';
 
+import { getChats } from '../../services/chat.service';
+import { useChatStore } from '../../store/chat.store';
 import { TSheetHandle } from '../../types/types';
 
 export const ChatHistorySheet = forwardRef<TSheetHandle>(
@@ -35,9 +38,11 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
     const [isOpen, setIsOpen] = useState(false);
 
     const [activeChat, setActiveChat] = useState('1');
+    const [chatList, setChatList] = useState<{ id: string; title: string, lastMessageAt: number }[]>([]);
 
     const c = Colors.light;
     const insets = useSafeAreaInsets();
+    const { setActiveChatId } = useChatStore();
 
     useImperativeHandle(
       ref,
@@ -52,40 +57,23 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
     /**
      * Replace later with SQLite data
      */
-    const chats = useMemo(
-      () => [
-        {
-          id: '1',
-          title: 'Wheat crop discussion',
-        },
-        {
-          id: '2',
-          title: 'Weather advice',
-        },
-        {
-          id: '3',
-          title: 'Tomato disease solution',
-        },
-        {
-          id: '4',
-          title: 'Best fertilizer for rice',
-        },
-      ],
-      []
-    );
+    // const chats = useMemo();
 
-    const handleSelectChat = (
-      chatId: string
-    ) => {
+    const handleSelectChat = (chatId: string) => {
       setActiveChat(chatId);
-
-      /**
-       * Later:
-       * load messages by chatId
-       */
-
+      setActiveChatId(chatId);
       setIsOpen(false);
     };
+
+    useEffect(() => {
+      if (!isOpen) return;
+      async function loadChats() {
+
+        const result = await getChats();
+        setChatList(result);
+      }
+      loadChats();
+    }, [isOpen])
 
     return (
       <Sheet
@@ -102,11 +90,12 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
               paddingHorizontal: 0,
               backgroundColor: c.background,
               borderRightColor: c.border,
+              flex: 1,
             }
           }
         >
           {/* HEADER */}
-          <View style={[styles.header, { paddingTop: insets.top + 10 }  ]}>
+          <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
             <View style={styles.headerTop}>
               <View>
                 <Text
@@ -159,6 +148,11 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
                     c.primary,
                 },
               ]}
+              onPress={() => {
+                setActiveChatId(null)
+                setActiveChat('');
+                setIsOpen(false);
+              }}
             >
               <MessageSquarePlus
                 size={18}
@@ -189,24 +183,20 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
             </Text>
           </View>
 
-          {/* CHAT LIST */}
+          {/* CHAT LIST
           <View style={styles.chatList}>
-            {chats.map((chat) => {
-              const isActive =
-                activeChat === chat.id;
+            {chatList.map((chat) => {
+              const isActive = activeChat === chat.id;
 
               return (
                 <TouchableOpacity
                   key={chat.id}
                   activeOpacity={0.75}
-                  onPress={() =>
-                    handleSelectChat(
-                      chat.id
-                    )
-                  }
+                  onPress={() => {
+                    handleSelectChat(chat.id)
+                  }}
                   style={[
                     styles.chatItem,
-
                     {
                       backgroundColor:
                         isActive
@@ -223,39 +213,26 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
                   <View
                     style={[
                       styles.chatIconContainer,
-
                       {
-                        backgroundColor:
-                          isActive
-                            ? c.primary
-                            : c.surface,
+                        backgroundColor: isActive ? c.primary : c.surface,
                       },
                     ]}
                   >
                     <MessageSquareText
                       size={16}
                       color={
-                        isActive
-                          ? '#FFFFFF'
-                          : c.textMuted
+                        isActive ? '#FFFFFF' : c.textMuted
                       }
                     />
                   </View>
 
-                  <View
-                    style={
-                      styles.chatContent
-                    }
-                  >
+                  <View style={ styles.chatContent}>
                     <Text
                       numberOfLines={1}
                       style={[
                         styles.chatTitle,
                         {
-                          color:
-                            isActive
-                              ? c.text
-                              : c.textMuted,
+                          color: isActive ? c.text : c.textMuted,
                         },
                       ]}
                     >
@@ -277,7 +254,93 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
                 </TouchableOpacity>
               );
             })}
-          </View>
+          </View> 
+          */}
+
+          <FlatList
+            data={chatList}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={true}
+            contentContainerStyle={[styles.chatList]}
+            renderItem={({ item: chat }) => {
+
+              const isActive = activeChat === chat.id;
+
+              return (
+                <TouchableOpacity
+                  activeOpacity={0.75}
+                  onPress={() => {
+                    handleSelectChat(chat.id);
+                  }}
+                  style={[
+                    styles.chatItem,
+                    {
+                      backgroundColor:
+                        isActive
+                          ? c.primaryContainer
+                          : 'transparent',
+
+                      borderColor:
+                        isActive
+                          ? c.primary
+                          : 'transparent',
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.chatIconContainer,
+                      {
+                        backgroundColor:
+                          isActive
+                            ? c.primary
+                            : c.surface,
+                      },
+                    ]}
+                  >
+                    <MessageSquareText
+                      size={16}
+                      color={
+                        isActive
+                          ? '#FFFFFF'
+                          : c.textMuted
+                      }
+                    />
+                  </View>
+
+                  <View style={styles.chatContent}>
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        styles.chatTitle,
+                        {
+                          color: isActive
+                            ? c.text
+                            : c.textMuted,
+                        },
+                      ]}
+                    >
+                      {chat.title}
+                    </Text>
+
+                    <Text
+                      style={[
+                        styles.chatMeta,
+                        {
+                          color: c.textMuted,
+                        },
+                      ]}
+                    >
+                      {new Date(chat.lastMessageAt).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            }}
+          />
 
           {/* FOOTER */}
           <View
@@ -391,7 +454,6 @@ const styles = StyleSheet.create({
   },
 
   chatList: {
-    flex: 1,
     paddingHorizontal: 12,
     gap: 4,
   },
