@@ -3,7 +3,6 @@ import { Text } from '@/components/ui/text';
 import { View } from '@/components/ui/view';
 import { useColor } from '@/hooks/useColor';
 import { BORDER_RADIUS, FONT_SIZE } from '@/theme/globals';
-import { X } from 'lucide-react-native';
 import React, { useEffect } from 'react';
 import {
   Dimensions,
@@ -11,8 +10,7 @@ import {
   Platform,
   Pressable,
   StyleSheet,
-  TouchableOpacity,
-  ViewStyle,
+  ViewStyle
 } from 'react-native';
 import Animated, {
   Easing,
@@ -201,7 +199,7 @@ export function SheetContent({ children, style }: SheetContentProps) {
           ]}
         >
           {/* Close button */}
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={[
               styles.closeButton,
               {
@@ -213,7 +211,7 @@ export function SheetContent({ children, style }: SheetContentProps) {
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <X size={20} color={iconColor} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           {/* Content */}
           <View style={styles.contentContainer}>{children}</View>

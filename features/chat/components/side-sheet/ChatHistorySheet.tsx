@@ -1,19 +1,3 @@
-import { Icon } from '@/components/ui/icon';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader
-} from '@/components/ui/sheet';
-import { Text } from '@/components/ui/text';
-import { View } from '@/components/ui/view';
-import { Colors } from '@/constants/theme';
-import {
-  Bell,
-  Home,
-  Plus,
-  Search
-} from 'lucide-react-native';
-
 import React, {
   forwardRef,
   useImperativeHandle,
@@ -21,20 +5,39 @@ import React, {
   useState,
 } from 'react';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import {
+  Pressable,
   StyleSheet,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
+
+import {
+  MessageSquarePlus,
+  MessageSquareText,
+  X,
+} from 'lucide-react-native';
+
+import {
+  Sheet,
+  SheetContent,
+} from '@/components/ui/sheet';
+
+import { Text } from '@/components/ui/text';
+import { View } from '@/components/ui/view';
+import { Colors } from '@/constants/theme';
 
 import { TSheetHandle } from '../../types/types';
 
 export const ChatHistorySheet = forwardRef<TSheetHandle>(
   function ChatHistorySheet(_, ref) {
     const [isOpen, setIsOpen] = useState(false);
-    const [activeItem, setActiveItem] = useState('home');
+
+    const [activeChat, setActiveChat] = useState('1');
 
     const c = Colors.light;
-
+    const insets = useSafeAreaInsets();
 
     useImperativeHandle(
       ref,
@@ -49,135 +52,188 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
     /**
      * Replace later with SQLite data
      */
-    const navigationItems = useMemo(
+    const chats = useMemo(
       () => [
-
         {
-          id: 'wheat',
-          label: 'Wheat Discussion',
-          icon: Home,
+          id: '1',
+          title: 'Wheat crop discussion',
         },
         {
-          id: 'weather',
-          label: 'Weather Advice',
-          icon: Search,
+          id: '2',
+          title: 'Weather advice',
         },
         {
-          id: 'disease',
-          label: 'Tomato Disease',
-          icon: Bell,
-        }
+          id: '3',
+          title: 'Tomato disease solution',
+        },
+        {
+          id: '4',
+          title: 'Best fertilizer for rice',
+        },
       ],
       []
     );
 
-    const handleItemPress = (itemId: string) => {
-      setActiveItem(itemId);
+    const handleSelectChat = (
+      chatId: string
+    ) => {
+      setActiveChat(chatId);
 
       /**
        * Later:
-       * setActiveChat(itemId)
+       * load messages by chatId
        */
 
       setIsOpen(false);
     };
 
     return (
-
       <Sheet
         open={isOpen}
         onOpenChange={setIsOpen}
         side="left"
       >
-
-
         <SheetContent
-          style={[
-            styles.sheetContent,
+          style={
             {
+              width: '84%',
+              maxWidth: 360,
+              borderRightWidth: 1,
+              paddingHorizontal: 0,
               backgroundColor: c.background,
               borderRightColor: c.border,
-            },
-          ]}
+            }
+          }
         >
           {/* HEADER */}
-          <SheetHeader style={styles.header}>
+          <View style={[styles.header, { paddingTop: insets.top + 10 }  ]}>
+            <View style={styles.headerTop}>
+              <View>
+                <Text
+                  style={[
+                    styles.title,
+                    {
+                      color: c.text,
+                    },
+                  ]}
+                >
+                  Krishi Anubhav AI
+                </Text>
 
+                <Text
+                  style={[
+                    styles.subtitle,
+                    {
+                      color: c.textMuted,
+                    },
+                  ]}
+                >
+                  Recent conversations
+                </Text>
+              </View>
 
-            <Text >
-              Recent Chats
-            </Text>
+              <Pressable
+                onPress={() => setIsOpen(false)}
+                style={[
+                  styles.closeButton,
+                  {
+                    backgroundColor:
+                      c.primaryContainer,
+                  },
+                ]}
+              >
+                <X
+                  size={18}
+                  color={c.text}
+                />
+              </Pressable>
+            </View>
 
-            <Text
+            {/* NEW CHAT */}
+            <TouchableOpacity
+              activeOpacity={0.88}
               style={[
-                styles.description,
-                { color: c.textMuted },
+                styles.newChatButton,
+                {
+                  backgroundColor:
+                    c.primary,
+                },
               ]}
             >
-              Access your previous AI conversations.
-            </Text>
-          </SheetHeader>
+              <MessageSquarePlus
+                size={18}
+                color="#FFFFFF"
+              />
 
-          {/* NEW CHAT BUTTON */}
-          <TouchableOpacity
-            activeOpacity={0.85}
-            style={[
-              styles.newChatButton,
-              {
-                backgroundColor: c.primary,
-              },
-            ]}
-          >
-            <Icon
-              name={Plus}
-              size={18}
-              color="#FFFFFF"
-            />
+              <Text
+                style={
+                  styles.newChatText
+                }
+              >
+                New Chat
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-            <Text style={styles.newChatText}>
-              New Chat
+          {/* SECTION LABEL */}
+          <View style={styles.sectionHeader}>
+            <Text
+              style={[
+                styles.sectionTitle,
+                {
+                  color: c.textMuted,
+                },
+              ]}
+            >
+              RECENT CHATS
             </Text>
-          </TouchableOpacity>
+          </View>
 
           {/* CHAT LIST */}
-          <View style={styles.navigationContainer}>
-            {navigationItems.map((item) => {
+          <View style={styles.chatList}>
+            {chats.map((chat) => {
               const isActive =
-                activeItem === item.id;
+                activeChat === chat.id;
 
               return (
                 <TouchableOpacity
-                  key={item.id}
-                  activeOpacity={0.7}
+                  key={chat.id}
+                  activeOpacity={0.75}
+                  onPress={() =>
+                    handleSelectChat(
+                      chat.id
+                    )
+                  }
                   style={[
-                    styles.navigationItem,
-                    {
-                      backgroundColor: isActive
-                        ? c.primaryContainer
-                        : 'transparent',
+                    styles.chatItem,
 
-                      borderColor: isActive
-                        ? c.primary
-                        : 'transparent',
+                    {
+                      backgroundColor:
+                        isActive
+                          ? c.primaryContainer
+                          : 'transparent',
+
+                      borderColor:
+                        isActive
+                          ? c.primary
+                          : 'transparent',
                     },
                   ]}
-                  onPress={() =>
-                    handleItemPress(item.id)
-                  }
                 >
                   <View
                     style={[
-                      styles.iconContainer,
+                      styles.chatIconContainer,
+
                       {
-                        backgroundColor: isActive
-                          ? c.primary
-                          : c.surface,
+                        backgroundColor:
+                          isActive
+                            ? c.primary
+                            : c.surface,
                       },
                     ]}
                   >
-                    <Icon
-                      name={item.icon}
-                      size={18}
+                    <MessageSquareText
+                      size={16}
                       color={
                         isActive
                           ? '#FFFFFF'
@@ -186,19 +242,38 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
                     />
                   </View>
 
-                  <Text
-                    numberOfLines={1}
-                    style={[
-                      styles.navigationText,
-                      {
-                        color: isActive
-                          ? c.text
-                          : c.textMuted,
-                      },
-                    ]}
+                  <View
+                    style={
+                      styles.chatContent
+                    }
                   >
-                    {item.label}
-                  </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        styles.chatTitle,
+                        {
+                          color:
+                            isActive
+                              ? c.text
+                              : c.textMuted,
+                        },
+                      ]}
+                    >
+                      {chat.title}
+                    </Text>
+
+                    <Text
+                      style={[
+                        styles.chatMeta,
+                        {
+                          color:
+                            c.textMuted,
+                        },
+                      ]}
+                    >
+                      Today
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               );
             })}
@@ -209,25 +284,32 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
             style={[
               styles.footer,
               {
-                borderTopColor: c.border,
+                borderTopColor:
+                  c.border,
               },
             ]}
           >
-            <View style={styles.footerContent}>
+            <View
+              style={
+                styles.onlineRow
+              }
+            >
               <View
                 style={[
-                  styles.statusDot,
+                  styles.onlineDot,
                   {
-                    backgroundColor: c.success,
+                    backgroundColor:
+                      c.success,
                   },
                 ]}
               />
 
               <Text
                 style={[
-                  styles.footerText,
+                  styles.onlineText,
                   {
-                    color: c.textMuted,
+                    color:
+                      c.textMuted,
                   },
                 ]}
               >
@@ -237,7 +319,6 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
           </View>
         </SheetContent>
       </Sheet>
-
     );
   }
 );
@@ -247,61 +328,45 @@ const styles = StyleSheet.create({
     width: '84%',
     maxWidth: 360,
     borderRightWidth: 1,
+    paddingHorizontal: 0,
   },
 
   header: {
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 8,
-    gap: 8,
+    // paddingTop: 10,
+    paddingBottom: 16,
   },
 
   headerTop: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
   },
 
-  logoContainer: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  closeButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  closeText: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
-    letterSpacing: 1,
-    color: "pink",
-    backgroundColor: "red",
+    letterSpacing: -0.6,
   },
 
-  description: {
+  subtitle: {
+    marginTop: 4,
     fontSize: 14,
     lineHeight: 20,
   },
 
+  closeButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   newChatButton: {
-    marginHorizontal: 20,
-    marginTop: 18,
-    marginBottom: 10,
-    height: 52,
-    borderRadius: 18,
+    marginTop: 22,
+    height: 54,
+    borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -314,35 +379,53 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  navigationContainer: {
-    flex: 1,
-    paddingHorizontal: 14,
-    paddingTop: 8,
-    gap: 6,
+  sectionHeader: {
+    paddingHorizontal: 20,
+    paddingBottom: 10,
   },
 
-  navigationItem: {
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    letterSpacing: 1.2,
+  },
+
+  chatList: {
+    flex: 1,
+    paddingHorizontal: 12,
+    gap: 4,
+  },
+
+  chatItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
-    paddingVertical: 12,
     paddingHorizontal: 12,
+    paddingVertical: 12,
     borderRadius: 18,
     borderWidth: 1,
   },
 
-  iconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
+  chatIconContainer: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  navigationText: {
+  chatContent: {
     flex: 1,
+  },
+
+  chatTitle: {
     fontSize: 15,
     fontWeight: '600',
+  },
+
+  chatMeta: {
+    marginTop: 2,
+    fontSize: 12,
   },
 
   footer: {
@@ -351,19 +434,19 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
   },
 
-  footerContent: {
+  onlineRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
   },
 
-  statusDot: {
+  onlineDot: {
     width: 10,
     height: 10,
     borderRadius: 999,
   },
 
-  footerText: {
+  onlineText: {
     fontSize: 13,
     fontWeight: '500',
   },

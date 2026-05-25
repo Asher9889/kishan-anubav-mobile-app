@@ -27,55 +27,55 @@ const messages: ChatMessage[] = [
       'Namaste Farmer! How can I help you today with your crops or farming questions?',
     timestamp: '10:30 AM',
   },
-  {
-    id: '2',
-    role: 'user',
-    type: "message",
-    content: 'Mere gehun mein peele patte aa rahe hain',
-    timestamp: '10:31 AM',
-  },
-  {
-    id: '3',
-    role: 'user',
-    type: "message",
-    content: 'Mere gehun mein peele patte aa rahe hain',
-    timestamp: '10:31 AM',
-  },
-  {
-    id: '4',
-    role: 'user',
-    type: "message",
-    content: 'Mere gehun mein peele patte aa rahe hain',
-    timestamp: '10:31 AM',
-  },
-  {
-    id: '5',
-    role: 'user',
-    type: "message",
-    content: 'Mere gehun mein peele patte aa rahe hain',
-    timestamp: '10:31 AM',
-  },
-  {
-    id: '6',
-    role: 'user',
-    type: "thinking",
-    content: 'Mere gehun mein peele patte aa rahe hain',
-    timestamp: '10:31 AM',
-  },
-  {
-    id: '7',
-    role: 'ai',
-    type: "generating",
-    content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
-    timestamp: '10:31 AM',
-  },
-  {
-    id: '8',
-    role: 'user',
-    type: "message",
-    content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
-    timestamp: '10:31 AM',
-  },
+  // {
+  //   id: '2',
+  //   role: 'user',
+  //   type: "message",
+  //   content: 'Mere gehun mein peele patte aa rahe hain',
+  //   timestamp: '10:31 AM',
+  // },
+  // {
+  //   id: '3',
+  //   role: 'user',
+  //   type: "message",
+  //   content: 'Mere gehun mein peele patte aa rahe hain',
+  //   timestamp: '10:31 AM',
+  // },
+  // {
+  //   id: '4',
+  //   role: 'user',
+  //   type: "message",
+  //   content: 'Mere gehun mein peele patte aa rahe hain',
+  //   timestamp: '10:31 AM',
+  // },
+  // {
+  //   id: '5',
+  //   role: 'user',
+  //   type: "message",
+  //   content: 'Mere gehun mein peele patte aa rahe hain',
+  //   timestamp: '10:31 AM',
+  // },
+  // {
+  //   id: '6',
+  //   role: 'user',
+  //   type: "thinking",
+  //   content: 'Mere gehun mein peele patte aa rahe hain',
+  //   timestamp: '10:31 AM',
+  // },
+  // {
+  //   id: '7',
+  //   role: 'ai',
+  //   type: "generating",
+  //   content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
+  //   timestamp: '10:31 AM',
+  // },
+  // {
+  //   id: '8',
+  //   role: 'user',
+  //   type: "message",
+  //   content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
+  //   timestamp: '10:31 AM',
+  // },
 ];
 
 type TAIState = "idle" | "listening" | "uploading" | "thinking" | "generating";
@@ -352,12 +352,12 @@ export default function AIChatScreen() {
           </BlurView>
         </View>
 
-        
+
       </KeyboardAvoidingView>
-          
+
       <ChatHistorySheet ref={sideSheetRef} />
 
-     
+
     </SafeAreaView>
   );
 }

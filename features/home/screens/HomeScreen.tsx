@@ -51,9 +51,9 @@ export default function HomeScreen() {
                   नमस्ते, राम सिंह
                 </Text>
 
-                <View className="mt-2 flex-row items-center gap-1.5" style={{}}>
+                <View className="mt-2 flex-row items-center gap-1.5" >
                   <MapPin size={18} color={c.onSurfaceVariant} />
-                  <Text className="text-[14px] font-semibold" style={{ color: c.onSurfaceVariant }}>
+                  <Text className="text-[14px] font-semibold flex-1" style={{ color: c.onSurfaceVariant , flexWrap: 'wrap'}}>
                     {isLoading ? "आपका स्थान लोड हो रहा है..." : `${location?.street}, ${location?.city}, ${location?.region}`}
                   </Text>
                 </View>
