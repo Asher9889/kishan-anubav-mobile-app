@@ -159,6 +159,8 @@ export const Colors = {
     errorLight: 'rgba(186, 26, 26, 0.10)',
     onError: '#FFFFFF',
     onErrorContainer: '#93000A',
+    red: '#BA1A1A',
+    green: '#056E00',
 
     glow: 'rgba(143, 78, 0, 0.12)',
     voiceGlow: 'rgba(255, 153, 51, 0.32)',
@@ -173,16 +175,23 @@ export const Colors = {
   dark: {
     background: '#06111F',
     surface: '#0B1F3A',
+    primaryContainer: '#3B82F6',
     primary: '#60A5FA',
+    secondary: '#4ADE80',
     accent: '#4ADE80',
+    textMuted: '#94A3B8',
     text: '#F8FBFF',
     textSecondary: '#CBD5E1',
     border: 'rgba(255,255,255,0.08)',
     card: '#0F172A',
+    red: '#F87171',
+    green: '#4ADE80',
     tint: '#60A5FA',
     icon: '#CBD5E1',
     tabIconDefault: '#94A3B8',
     tabIconSelected: '#60A5FA',
+
+    primaryLight: 'rgba(96, 165, 250, 0.10)',
   },
 };
 

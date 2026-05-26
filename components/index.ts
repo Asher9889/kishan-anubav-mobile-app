@@ -1,5 +1,6 @@
 import MessageBubble from "./chat/MessageBubble";
+import { AudioRecorder } from "./ui/audio-recorder";
 import Dot from "./ui/dot";
 
-export { Dot, MessageBubble };
+export { AudioRecorder, Dot, MessageBubble };
 

@@ -1,5 +1,4 @@
 import '@/global.css';
-
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import queryClient from "@/shared/api/queryClient";
 import useAppBootstrap from '@/shared/bootstrap/useAppBootstrap';

@@ -1,15 +1,13 @@
 import { MessageBubble } from '@/components';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
-import { VoiceButton } from '@/features/voice';
-import { useVoiceRecorder } from '@/features/voice/hooks/useVoiceRecorder';
 import { uploadVoice } from '@/features/voice/services/voice.service';
-import { BlurView } from 'expo-blur';
-import * as crypto from "expo-crypto";
+import * as crypto from 'expo-crypto';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Sparkles } from 'lucide-react-native';
-import { useEffect, useRef, useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Mic, Send, Sparkles } from 'lucide-react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { FlatList, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import ChatAudioRecorder from '../components/audio-recorder/ChatAudioRecorder';
 import { ChatHistorySheet } from '../components/side-sheet/ChatHistorySheet';
 import GeneratingState from '../components/states/GeneratingState';
 import ListeningState from '../components/states/ListeningState';
@@ -18,67 +16,6 @@ import UploadingState from '../components/states/UploadingState';
 import { createChat, getMessagesByChatId, saveConversation } from '../services/chat.service';
 import { useChatStore } from '../store/chat.store';
 import { ChatMessage, TSheetHandle } from '../types/types';
-// const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-// const messages: ChatMessage[] = [
-//   {
-//     id: '1',
-//     role: 'ai',
-//     type: "reply",
-//     content:
-//       'Namaste Farmer! How can I help you today with your crops or farming questions?',
-//     timestamp: '10:30 AM',
-//   },
-//   // {
-//   //   id: '2',
-//   //   role: 'user',
-//   //   type: "message",
-//   //   content: 'Mere gehun mein peele patte aa rahe hain',
-//   //   timestamp: '10:31 AM',
-//   // },
-//   // {
-//   //   id: '3',
-//   //   role: 'user',
-//   //   type: "message",
-//   //   content: 'Mere gehun mein peele patte aa rahe hain',
-//   //   timestamp: '10:31 AM',
-//   // },
-//   // {
-//   //   id: '4',
-//   //   role: 'user',
-//   //   type: "message",
-//   //   content: 'Mere gehun mein peele patte aa rahe hain',
-//   //   timestamp: '10:31 AM',
-//   // },
-//   // {
-//   //   id: '5',
-//   //   role: 'user',
-//   //   type: "message",
-//   //   content: 'Mere gehun mein peele patte aa rahe hain',
-//   //   timestamp: '10:31 AM',
-//   // },
-//   // {
-//   //   id: '6',
-//   //   role: 'user',
-//   //   type: "thinking",
-//   //   content: 'Mere gehun mein peele patte aa rahe hain',
-//   //   timestamp: '10:31 AM',
-//   // },
-//   // {
-//   //   id: '7',
-//   //   role: 'ai',
-//   //   type: "generating",
-//   //   content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
-//   //   timestamp: '10:31 AM',
-//   // },
-//   // {
-//   //   id: '8',
-//   //   role: 'user',
-//   //   type: "message",
-//   //   content: 'Yeh nitrogen ki kami ya fungal sankraman ka sanket ho sakta hai. Kya aap pattiyon ki photo bhej sakte hain?',
-//   //   timestamp: '10:31 AM',
-//   // },
-// ];
 
 type TAIState = "idle" | "listening" | "uploading" | "thinking" | "generating";
 
@@ -93,130 +30,17 @@ export default function AIChatScreen() {
 
   const [inputText, setInputText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
+  const [composerMode, setComposerMode] = useState<'text' | 'audio'>('text');
   // const [aiState, setAiState] = useState<TAIState>("idle");
   const [messages, setMessages] = useState<ChatMessage[]>([]); // db orienetd messages
-  const [uiMessages, setUiMessages] = useState<ChatMessage[]>([]); // messages state management like listening/thinking/uploading/generating
+  const [uiMessages, setUiMessages] = useState<ChatMessage[]>([]); // messages formatted for UI (with states like 'thinking', 'listening' etc)
 
-  const activeAIMessageId = useRef<string | null>(null);
   const flatListRef = useRef<FlatList>(null); // to scroll to bottom on new messages
-
-  const thinkingTimeoutRef = useRef<number | null>(null); // to store thinking timeout ID
-  const generatingTimeoutRef = useRef<number | null>(null); // to store generating timeout ID
   const sideSheetRef = useRef<TSheetHandle>(null); // for controlling side sheet from header
-
-  const { isRecording, startRecording, stopRecording } = useVoiceRecorder();
 
   const { activeChatIdState, setActiveChatId } = useChatStore();
 
   const c = Colors.light;
-
-  const toggleListening = async () => {
-    try {
-      if (isRecording) {
-        const audioUri = await stopRecording();
-        if (!audioUri) {
-          console.log("No audio URI returned from stopRecording");
-          return;
-        }
-        // setAiState("uploading");
-        replaceMessage(activeAIMessageId.current!, { type: "uploading" });
-
-        // after 800 ms switing to thinking state
-        thinkingTimeoutRef.current = setTimeout(() => {
-          // setAiState("thinking");
-          replaceMessage(activeAIMessageId.current!, { type: "thinking" });
-        }, 800);
-        // after total 2600 sec switching to generating state
-        generatingTimeoutRef.current = setTimeout(() => {
-          // setAiState("generating");
-          replaceMessage(activeAIMessageId.current!, { type: "generating" });
-        }, 2600);
-
-        console.log("Audio URI:", audioUri);
-
-        const { data } = await uploadVoice(audioUri);
-
-        // save conversation in db
-        let currentChatId = activeChatIdState;
-        if (!currentChatId) {
-          currentChatId = await createChat({
-            title: data.query,
-          });
-        }
-
-        /**
-         * Remove temporary UI state FIRST
-         */
-        removeUiMessage(activeAIMessageId.current!);
-
-        await saveConversation({
-          chatId: currentChatId,
-          query: data.query,
-          answer: data.answer?.answer ?? "Unable to process audio input. Please try again.",
-          audioUri,
-        });
-        // refresh messages from db
-        await loadMessages(currentChatId);
-
-        /**
-         * NOW activate chat
-         */
-        if (!activeChatIdState) {
-          setActiveChatId(currentChatId);
-        }
-
-        // now clear time out
-        if (thinkingTimeoutRef.current) {
-          clearTimeout(thinkingTimeoutRef.current);
-        }
-
-        if (generatingTimeoutRef.current) {
-          clearTimeout(generatingTimeoutRef.current);
-        }
-
-      } else {
-        const uniqueId = crypto.randomUUID();
-        activeAIMessageId.current = uniqueId;
-        await startRecording();
-
-        // setAiState("listening");
-        addUiMessage({
-          id: uniqueId,
-          role: "ai",
-          type: "listening",
-        });
-      }
-    } catch (error) {
-      console.log("error inside chat component", error);
-    }
-  };
-
-  // Helpers 
-  const addUiMessage = (message: ChatMessage) => {
-    setUiMessages((prev) => [
-      ...prev,
-      message,
-    ]);
-    scrollToBottom();
-  };
-
-  const replaceMessage = (id: string, updated: Partial<ChatMessage>) => {
-    setUiMessages((prev) =>
-      prev.map((msg) =>
-        msg.id === id ? { ...msg, ...updated } : msg
-      )
-    );
-    scrollToBottom();
-  };
-
-  const removeUiMessage = (id: string) => {
-    setUiMessages((prev) =>
-      prev.filter(
-        (msg) => msg.id !== id
-      )
-    );
-    scrollToBottom();
-  };
 
   const scrollToBottom = () => {
     requestAnimationFrame(() => {
@@ -226,9 +50,20 @@ export default function AIChatScreen() {
       });
     });
   };
+  // helpers
+  const addUiMessage = (message: ChatMessage) => {
+    setUiMessages((prev) => [...prev, message]);
+  };
+
+  const replaceUiMessage = (id: string, message: Partial<ChatMessage>) => {
+    setUiMessages((prev) => prev.map((msg) => msg.id === id ? { ...msg, ...message } : msg));
+  };
+
+  const removeUiMessage = (id: string) => {
+    setUiMessages((prev) => prev.filter((msg) => msg.id !== id));
+  };
 
   // for the initial loading of messages when chat is selected or created
-
   const loadMessages = async (chatId: string) => {
     const dbMessages = await getMessagesByChatId(chatId);
 
@@ -241,6 +76,60 @@ export default function AIChatScreen() {
 
     setMessages(formattedMessages);
   };
+
+  const handleAudioComplete = async (audioUri: string) => {
+    try {
+      const aiStateId = crypto.randomUUID();
+      addUiMessage({
+        id: aiStateId,
+        role: 'ai',
+        type: 'uploading',
+      });
+      setComposerMode('text');
+
+      const { data } = await uploadVoice(audioUri);
+
+
+      setTimeout(() => {
+        replaceUiMessage(aiStateId, { type: 'thinking', });
+      }, 800);
+
+      setTimeout(() => {
+        replaceUiMessage(aiStateId, { type: 'generating' });
+      }, 2200);
+
+
+      let currentChatId = activeChatIdState;
+      if (!currentChatId) {
+        currentChatId = await createChat({
+          title: data.query,
+        });
+      }
+
+      await saveConversation({
+        chatId: currentChatId,
+        query: data.query,
+        answer: data.answer?.answer ?? 'Unable to process audio input. Please try again.', audioUri
+      });
+
+      await loadMessages(currentChatId);
+      removeUiMessage(aiStateId);
+
+      if (!activeChatIdState) {
+        setActiveChatId(currentChatId);
+      }
+
+    } catch (error) {
+      console.log('error inside audio upload flow', error);
+    }
+  };
+
+  const closeAudioComposer = () => {
+    setComposerMode('text');
+  };
+
+
+
 
   useEffect(() => {
     async function initializeChat() {
@@ -256,21 +145,40 @@ export default function AIChatScreen() {
 
   }, [activeChatIdState]);
 
-  useEffect(() => {
-    scrollToBottom();
+
+  const renderedMessages = useMemo(() => {
+
+    return messages.length === 0
+      ? [
+        WELCOME_MESSAGE,
+        ...uiMessages,
+      ]
+      : [
+        ...messages,
+        ...uiMessages,
+      ];
+
   }, [messages, uiMessages]);
 
   useEffect(() => {
-    return () => {
-      if (thinkingTimeoutRef.current) {
-        clearTimeout(thinkingTimeoutRef.current);
-      }
+    if (renderedMessages.length > 0) {
+      scrollToBottom();
+    }
+  }, [renderedMessages.length]);
 
-      if (generatingTimeoutRef.current) {
-        clearTimeout(generatingTimeoutRef.current);
-      }
-    };
-  }, []);
+  // const renderedMessages = useMemo(() => {
+
+  //   return messages.length === 0
+  //     ? [
+  //         WELCOME_MESSAGE,
+  //         ...uiMessages,
+  //       ]
+  //     : [
+  //         ...messages,
+  //         ...uiMessages,
+  //       ];
+
+  // }, [messages, uiMessages]);
 
   return (
     <SafeAreaView style={styles.root}>
@@ -281,7 +189,7 @@ export default function AIChatScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Header */}
-        <BlurView intensity={50} tint="light" style={styles.headerBlur}>
+        <View   style={styles.headerBlur}>
           <View style={styles.headerContent}>
             {/* <TouchableOpacity
               onPress={() => router.back()}
@@ -319,13 +227,13 @@ export default function AIChatScreen() {
 
             <View style={styles.headerRight} />
           </View>
-        </BlurView>
+        </View>
 
         {/* Messages */}
         <View style={styles.flex}>
           <FlatList
             ref={flatListRef}
-            data={messages.length === 0 ? [WELCOME_MESSAGE] : [...messages, ...uiMessages]} // combine initial messages with UI messages
+            data={renderedMessages}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.messagesList}
@@ -358,64 +266,67 @@ export default function AIChatScreen() {
           )} */}
 
           {/* Bottom Bar */}
-          <BlurView intensity={60} tint="light" style={styles.bottomBar}>
-            {/* Voice Button - Primary CTA */}
-            <View style={styles.voiceSection}>
-              <VoiceButton isListening={isRecording} onPress={toggleListening} />
-              <Text style={styles.voiceHint}>
-                {isRecording ? 'Tap to stop' : 'Tap to speak'}
-              </Text>
-            </View>
+          <View style={styles.bottomBar}>
+            {composerMode === 'audio' ? (
+              <ChatAudioRecorder
+                onClose={closeAudioComposer}
+                onRecordingComplete={handleAudioComplete}
+              />
+            ) : (
+              <>
+                <View style={styles.inputRow}>
+                  <View
+                    style={[
+                      styles.inputContainer,
+                      inputFocused && styles.inputContainerFocused,
+                    ]}
+                  >
+                    <TextInput
+                      className=''
+                      placeholder="Or type your question..."
+                      placeholderTextColor={c.textMuted}
+                      value={inputText}
+                      onChangeText={setInputText}
+                      onFocus={() => setInputFocused(true)}
+                      onBlur={() => setInputFocused(false)}
+                      style={styles.textInput}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setComposerMode('audio')}
+                      style={[styles.micSmall, inputText.length > 0 && styles.micSmallHidden]}
+                      activeOpacity={0.8}
+                    >
+                      <Mic size={20} color={c.textMuted} />
+                    </TouchableOpacity>
+                  </View>
 
-            {/* Text Input - Secondary */}
-            {/* <View style={styles.inputRow}>
-              <View
-                style={[
-                  styles.inputContainer,
-                  inputFocused && styles.inputContainerFocused,
-                ]}
-              >
-                <TextInput
-                  className=''
-                  placeholder="Or type your question..."
-                  placeholderTextColor={c.textMuted}
-                  value={inputText}
-                  onChangeText={setInputText}
-                  onFocus={() => setInputFocused(true)}
-                  onBlur={() => setInputFocused(false)}
-                  style={styles.textInput}
-                />
-                <TouchableOpacity
-                  style={[styles.micSmall, inputText.length > 0 && styles.micSmallHidden]}
-                >
-                  <Mic size={20} color={c.textMuted} />
-                </TouchableOpacity>
-              </View>
+                  <TouchableOpacity
+                    onPress={closeAudioComposer}
+                    activeOpacity={0.85}
+                    style={[
+                      styles.sendButton,
+                      inputText.length === 0 && styles.sendButtonDisabled,
+                    ]}
+                    disabled={inputText.length === 0}
+                  >
+                    <LinearGradient
+                      colors={
+                        inputText.length > 0
+                          ? [c.primaryDark, c.primary]
+                          : [c.border, c.border]
+                      }
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.sendGradient}
+                    >
+                      <Send size={18} color={inputText.length > 0 ? '#FFFFFF' : c.textMuted} />
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
 
-              <TouchableOpacity
-                activeOpacity={0.85}
-                style={[
-                  styles.sendButton,
-                  inputText.length === 0 && styles.sendButtonDisabled,
-                ]}
-                disabled={inputText.length === 0}
-              >
-                <LinearGradient
-                  colors={
-                    inputText.length > 0
-                      ? [c.primaryDark, c.primary]
-                      : [c.border, c.border]
-                  }
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.sendGradient}
-                >
-                  <Send size={18} color={inputText.length > 0 ? '#FFFFFF' : c.textMuted} />
-                </LinearGradient>
-              </TouchableOpacity>
-            </View> */}
-
-          </BlurView>
+          </View>
         </View>
 
 
