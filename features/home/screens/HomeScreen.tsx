@@ -23,11 +23,10 @@ import { Colors } from '@/constants/theme';
 import { useCurrentLocation } from '@/shared/hooks/useCurrentLocation';
 import useCurrentWeather from '@/shared/hooks/useCurrentWeather';
 import HomeHeader from '../components/HomeHeader';
-import VoiceCTA from '../components/VoiceCTA';
 
 export default function HomeScreen() {
   const c = Colors.light;
-
+  
   const { isLoading, data: locationData } = useCurrentLocation();
   const { isLoading: isWeatherLoading, data: weatherData } = useCurrentWeather();
   const location = locationData;
@@ -252,7 +251,7 @@ export default function HomeScreen() {
             </View>
 
             <Pressable
-              onPress={() => router.push('/ai-chat')}
+              onPress={() => router.navigate('/ai-chat')}
               className="mt-8 flex-row items-center justify-between rounded-[24px] border bg-white px-5 py-5"
               style={{
                 borderColor: c.borderLight,
@@ -314,7 +313,6 @@ export default function HomeScreen() {
           </View>
         </ScrollView>
 
-        <VoiceCTA />
       </View>
     </SafeAreaProvider>
   );

@@ -5,6 +5,24 @@ import db from '@/shared/db/sqlite';
 import * as crypto from "expo-crypto";
 
 import { asc, desc, eq } from 'drizzle-orm';
+import { api, endPoints } from '@/shared/api';
+
+export async function askQuestion(query: string, chatId?: string | null) {
+  const { method, url } = endPoints.AI.ASK;
+
+  const data: any = { query };
+  if (chatId) {
+    data.thread_id = chatId;
+  }
+
+  const response = await api.request<any, any>({
+    url,
+    method,
+    data,
+  });
+
+  return response;
+}
 
 type SaveConversationParams = {
   chatId: string;

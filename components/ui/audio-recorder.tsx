@@ -248,7 +248,6 @@ export function AudioRecorder({
 
       if (uri) {
         setRecordingUri(uri);
-        // onRecordingComplete?.(uri);
       }
 
       await setAudioModeAsync({

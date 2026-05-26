@@ -13,7 +13,7 @@ import GeneratingState from '../components/states/GeneratingState';
 import ListeningState from '../components/states/ListeningState';
 import ThinkingState from '../components/states/ThinkingState';
 import UploadingState from '../components/states/UploadingState';
-import { createChat, getMessagesByChatId, saveConversation } from '../services/chat.service';
+import { createChat, getMessagesByChatId, saveConversation, askQuestion } from '../services/chat.service';
 import { useChatStore } from '../store/chat.store';
 import { ChatMessage, TSheetHandle } from '../types/types';
 
@@ -46,7 +46,6 @@ export default function AIChatScreen() {
     requestAnimationFrame(() => {
       flatListRef.current?.scrollToEnd({
         animated: true,
-
       });
     });
   };
@@ -87,7 +86,7 @@ export default function AIChatScreen() {
       });
       setComposerMode('text');
 
-      const { data } = await uploadVoice(audioUri);
+      const { data } = await uploadVoice(audioUri, activeChatIdState);
 
 
       setTimeout(() => {
@@ -128,8 +127,51 @@ export default function AIChatScreen() {
     setComposerMode('text');
   };
 
+  const handleSendText = async () => {
+    if (!inputText.trim()) return;
 
+    const queryText = inputText.trim();
+    setInputText('');
+    setInputFocused(false);
 
+    try {
+      const aiStateId = crypto.randomUUID();
+      addUiMessage({
+        id: aiStateId,
+        role: 'ai',
+        type: 'thinking',
+      });
+
+      const response = await askQuestion(queryText, activeChatIdState);
+      console.log('Text AI response:', response);
+
+      const answerData = response?.data || response;
+      const answerText = answerData?.answer?.answer || answerData?.answer || 'Unable to process question. Please try again.';
+
+      let currentChatId = activeChatIdState;
+      if (!currentChatId) {
+        currentChatId = await createChat({
+          title: queryText,
+        });
+      }
+
+      await saveConversation({
+        chatId: currentChatId,
+        query: queryText,
+        answer: answerText,
+      });
+
+      await loadMessages(currentChatId);
+      removeUiMessage(aiStateId);
+
+      if (!activeChatIdState) {
+        setActiveChatId(currentChatId);
+      }
+    } catch (error) {
+      console.log('error inside text send flow', error);
+      setUiMessages((prev) => prev.filter((msg) => msg.role !== 'ai' || msg.type !== 'thinking'));
+    }
+  };
 
   useEffect(() => {
     async function initializeChat() {
@@ -166,19 +208,6 @@ export default function AIChatScreen() {
     }
   }, [renderedMessages.length]);
 
-  // const renderedMessages = useMemo(() => {
-
-  //   return messages.length === 0
-  //     ? [
-  //         WELCOME_MESSAGE,
-  //         ...uiMessages,
-  //       ]
-  //     : [
-  //         ...messages,
-  //         ...uiMessages,
-  //       ];
-
-  // }, [messages, uiMessages]);
 
   return (
     <SafeAreaView style={styles.root}>
@@ -236,6 +265,8 @@ export default function AIChatScreen() {
             data={renderedMessages}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps={'handled'}
+            keyboardDismissMode={'none'}
             contentContainerStyle={styles.messagesList}
             ItemSeparatorComponent={() => <View style={styles.messageGap} />}
             renderItem={({ item }) => {
@@ -275,33 +306,48 @@ export default function AIChatScreen() {
             ) : (
               <>
                 <View style={styles.inputRow}>
+                  {/* Voice Centric Mic Button */}
+                  <TouchableOpacity
+                    onPress={() => setComposerMode('audio')}
+                    style={styles.micButtonVoiceCentric}
+                    activeOpacity={0.8}
+                  >
+                    <LinearGradient
+                      colors={[c.primaryContainer, '#FFB77A']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.micGradientVoiceCentric}
+                    >
+                      <Mic size={22} color="#FFFFFF" fill="rgba(255, 255, 255, 0.25)" />
+                    </LinearGradient>
+                  </TouchableOpacity>
+
                   <View
                     style={[
                       styles.inputContainer,
                       inputFocused && styles.inputContainerFocused,
                     ]}
+                    collapsable={false}
                   >
-                    <TextInput
-                      className=''
-                      placeholder="Or type your question..."
-                      placeholderTextColor={c.textMuted}
-                      value={inputText}
-                      onChangeText={setInputText}
-                      onFocus={() => setInputFocused(true)}
-                      onBlur={() => setInputFocused(false)}
-                      style={styles.textInput}
-                    />
-                    <TouchableOpacity
-                      onPress={() => setComposerMode('audio')}
-                      style={[styles.micSmall, inputText.length > 0 && styles.micSmallHidden]}
-                      activeOpacity={0.8}
+                    <View
+                      style={styles.textInputArea}
+                      collapsable={false}
                     >
-                      <Mic size={20} color={c.textMuted} />
-                    </TouchableOpacity>
+                      <TextInput
+                        placeholder="Ask a question..."
+                        placeholderTextColor={c.textMuted}
+                        value={inputText}
+                        onChangeText={setInputText}
+                        onFocus={() => setInputFocused(true)}
+                        onBlur={() => setInputFocused(false)}
+                        style={styles.textInput}
+                        collapsable={false}
+                      />
+                    </View>
                   </View>
 
                   <TouchableOpacity
-                    onPress={closeAudioComposer}
+                    onPress={handleSendText}
                     activeOpacity={0.85}
                     style={[
                       styles.sendButton,
@@ -606,23 +652,40 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
     paddingVertical: Spacing.sm,
   },
-  micSmall: {},
-  micSmallHidden: {
-    width: 0,
-    opacity: 0,
+  textInputArea: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  micButtonVoiceCentric: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    shadowColor: Colors.light.primaryContainer,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  micGradientVoiceCentric: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   // Send Button
   sendButton: {
-    borderRadius: 26,
+    borderRadius: 25,
   },
   sendButtonDisabled: {
     opacity: 0.6,
   },
   sendGradient: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -9,14 +9,13 @@ export default function VoiceCTA() {
 
   return (
     <View
-      pointerEvents="box-none"
       className="absolute left-0 right-0 items-center"
       style={{ bottom: Math.max(insets.bottom, 12) + 70 }}
     >
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Open AI chat"
-        onPress={() => router.push('/ai-chat')}
+        onPress={() => router.navigate('/ai-chat')}
         className="items-center justify-center"
       >
         <View
