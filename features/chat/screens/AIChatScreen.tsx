@@ -35,6 +35,16 @@ export default function AIChatScreen() {
   // const [aiState, setAiState] = useState<TAIState>("idle");
   const [messages, setMessages] = useState<ChatMessage[]>([]); // db orienetd messages
   const [uiMessages, setUiMessages] = useState<ChatMessage[]>([]); // messages formatted for UI (with states like 'thinking', 'listening' etc)
+  const [isGenerating, setIsGenerating] = useState(false);
+  const typingTimerRef = useRef<any>(null);
+
+  useEffect(() => {
+    return () => {
+      if (typingTimerRef.current) {
+        clearInterval(typingTimerRef.current);
+      }
+    };
+  }, []);
 
   const flatListRef = useRef<FlatList>(null); // to scroll to bottom on new messages
   const sideSheetRef = useRef<TSheetHandle>(null); // for controlling side sheet from header
@@ -146,49 +156,110 @@ export default function AIChatScreen() {
   };
 
   const handleSendText = async () => {
-    if (!inputText.trim()) return;
+    if (!inputText.trim() || isGenerating) return;
 
     const queryText = inputText.trim();
     setInputText('');
     setInputFocused(false);
+    setIsGenerating(true);
 
     const thinkingMessageId = crypto.randomUUID();
     const userUiMessageId = crypto.randomUUID();
     const aiReplyMessageId = crypto.randomUUID();
     let hasCreatedAiReply = false;
     let fullAnswer = '';
+    let displayedAnswer = '';
+    let isStreamComplete = false;
     let currentChatId = activeChatIdState;
 
-    try {
+    // Immediately display the user's question in the UI
+    addUiMessage({
+      id: userUiMessageId,
+      role: 'user',
+      type: 'message',
+      content: queryText,
+    });
 
+    // Immediately display the thinking bubble
+    addUiMessage({
+      id: thinkingMessageId,
+      role: 'ai',
+      type: 'thinking',
+    });
+
+    const completeChatFlow = async () => {
+      try {
+        await saveAIMessage({
+          chatId: currentChatId!,
+          query: fullAnswer,
+        });
+        await loadMessages(currentChatId!);
+        removeUiMessage(userUiMessageId);
+        removeUiMessage(aiReplyMessageId);
+      } catch (err) {
+        console.log('Error completing chat flow:', err);
+      } finally {
+        setIsGenerating(false);
+      }
+    };
+
+    const startTyping = () => {
+      if (typingTimerRef.current) return;
+
+      typingTimerRef.current = setInterval(() => {
+        if (displayedAnswer.length < fullAnswer.length) {
+          const remaining = fullAnswer.slice(displayedAnswer.length);
+          if (!remaining) return;
+
+          // Word by word typing effect
+          const match = remaining.match(/^(\s*\S+)/);
+          if (match) {
+            const nextWord = match[1];
+            displayedAnswer += nextWord;
+          } else {
+            displayedAnswer = fullAnswer;
+          }
+
+          if (!hasCreatedAiReply) {
+            hasCreatedAiReply = true;
+            removeUiMessage(thinkingMessageId);
+
+            addUiMessage({
+              id: aiReplyMessageId,
+              role: 'ai',
+              type: 'reply',
+              content: displayedAnswer,
+            });
+          } else {
+            replaceUiMessage(aiReplyMessageId, {
+              content: displayedAnswer,
+            });
+          }
+        } else if (isStreamComplete) {
+          if (typingTimerRef.current) {
+            clearInterval(typingTimerRef.current);
+            typingTimerRef.current = null;
+          }
+          completeChatFlow();
+        }
+      }, 30);
+    };
+
+    try {
       /**
        * CREATE NEW CHAT
        * ONLY IF USER STARTED NEW CHAT
        */
       if (!currentChatId) {
-        // currentChatId = crypto.randomUUID();
         currentChatId = await createChat({ title: queryText });
         setActiveChatId(currentChatId);
       }
-      /**
-      * SHOW THINKING BUBBLE
-      */
-      addUiMessage({
-        id: thinkingMessageId,
-        role: 'ai',
-        type: 'thinking',
-      });
 
       /** START STREAM */
-
       await askQuestionStream(queryText, currentChatId, {
-
-        // meta data handeling
+        // metadata handling
         async onMetadata(data) {
-          addUiMessage({
-            id: userUiMessageId,
-            role: 'user',
-            type: 'message',
+          replaceUiMessage(userUiMessageId, {
             content: data.query,
           });
 
@@ -197,9 +268,7 @@ export default function AIChatScreen() {
             title: data.query,
           });
 
-
           await saveUserMessage({ chatId: data.thread_id, query: data.query });
-
         },
 
         onStart() {
@@ -208,54 +277,44 @@ export default function AIChatScreen() {
 
         onChunk(chunk) {
           fullAnswer += chunk;
-          if (!hasCreatedAiReply) {
-
-            hasCreatedAiReply = true;
-            removeUiMessage(thinkingMessageId);
-
-            addUiMessage({
-              id: aiReplyMessageId,
-              role: 'ai',
-              type: 'reply',
-              content: fullAnswer,
-            });
-            return;
-          }
-
-          // NEXT CHUNKS
-
-          replaceUiMessage(aiReplyMessageId, {
-            content: fullAnswer,
-          }
-          );
-
-          // Handle chunk if needed
+          startTyping();
         },
+
         async onComplete(data) {
-          /**
-           * SAVE FINAL AI MESSAGE
-           */
-          await saveAIMessage({
-            chatId: currentChatId!,
-            query: fullAnswer,
-          });
-          /**
-           * RELOAD DB MESSAGES
-           */
-          await loadMessages(currentChatId!);
-          // Handle complete if needed
-          //  clearUiMessages();
+          isStreamComplete = true;
+          // If the typing timer is not active or we've already finished typing everything
+          if (!typingTimerRef.current || displayedAnswer.length >= fullAnswer.length) {
+            if (typingTimerRef.current) {
+              clearInterval(typingTimerRef.current);
+              typingTimerRef.current = null;
+            }
+            await completeChatFlow();
+          }
         },
+
         onError(error) {
           console.log('error', error);
+          if (typingTimerRef.current) {
+            clearInterval(typingTimerRef.current);
+            typingTimerRef.current = null;
+          }
           removeUiMessage(thinkingMessageId);
+          removeUiMessage(userUiMessageId);
+          removeUiMessage(aiReplyMessageId);
+          setIsGenerating(false);
         }
       });
 
     } catch (error) {
       console.log('error inside text send flow', error);
+      if (typingTimerRef.current) {
+        clearInterval(typingTimerRef.current);
+        typingTimerRef.current = null;
+      }
       removeUiMessage(thinkingMessageId);
-    } finally {
+      removeUiMessage(userUiMessageId);
+      removeUiMessage(aiReplyMessageId);
+      setIsGenerating(false);
     }
   };
 
@@ -394,8 +453,9 @@ export default function AIChatScreen() {
                 <View style={styles.inputRow}>
                   {/* Voice Centric Mic Button */}
                   <TouchableOpacity
-                    onPress={() => setComposerMode('audio')}
-                    style={styles.micButtonVoiceCentric}
+                    onPress={() => !isGenerating && setComposerMode('audio')}
+                    style={[styles.micButtonVoiceCentric, isGenerating && { opacity: 0.5 }]}
+                    disabled={isGenerating}
                     activeOpacity={0.8}
                   >
                     <LinearGradient
@@ -420,7 +480,7 @@ export default function AIChatScreen() {
                       collapsable={false}
                     >
                       <TextInput
-                        placeholder="Ask a question..."
+                        placeholder={isGenerating ? "AI is typing..." : "Ask a question..."}
                         placeholderTextColor={c.textMuted}
                         value={inputText}
                         onChangeText={setInputText}
@@ -428,6 +488,7 @@ export default function AIChatScreen() {
                         onBlur={() => setInputFocused(false)}
                         style={styles.textInput}
                         collapsable={false}
+                        editable={!isGenerating}
                       />
                     </View>
                   </View>
@@ -437,13 +498,13 @@ export default function AIChatScreen() {
                     activeOpacity={0.85}
                     style={[
                       styles.sendButton,
-                      inputText.length === 0 && styles.sendButtonDisabled,
+                      (inputText.length === 0 || isGenerating) && styles.sendButtonDisabled,
                     ]}
-                    disabled={inputText.length === 0}
+                    disabled={inputText.length === 0 || isGenerating}
                   >
                     <LinearGradient
                       colors={
-                        inputText.length > 0
+                        inputText.length > 0 && !isGenerating
                           ? [c.primaryDark, c.primary]
                           : [c.border, c.border]
                       }
@@ -451,7 +512,7 @@ export default function AIChatScreen() {
                       end={{ x: 1, y: 1 }}
                       style={styles.sendGradient}
                     >
-                      <Send size={18} color={inputText.length > 0 ? '#FFFFFF' : c.textMuted} />
+                      <Send size={18} color={inputText.length > 0 && !isGenerating ? '#FFFFFF' : c.textMuted} />
                     </LinearGradient>
                   </TouchableOpacity>
                 </View>
