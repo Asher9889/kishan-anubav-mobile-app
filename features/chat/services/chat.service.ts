@@ -4,22 +4,18 @@ import messages from '@/shared/db/models/messages.model';
 import db from '@/shared/db/sqlite';
 import * as crypto from "expo-crypto";
 
-import { asc, desc, eq } from 'drizzle-orm';
 import { api, endPoints } from '@/shared/api';
+import { asc, desc, eq } from 'drizzle-orm';
 
 export async function askQuestion(query: string, chatId?: string | null) {
   const { method, url } = endPoints.AI.ASK;
 
-  const data: any = { query };
+  const data: any = { text: query };
   if (chatId) {
     data.thread_id = chatId;
   }
 
-  const response = await api.request<any, any>({
-    url,
-    method,
-    data,
-  });
+  const response = await api.request({url, method, data});
 
   return response;
 }
@@ -97,6 +93,44 @@ export async function saveConversation({chatId, query, answer, audioUri}: SaveCo
   };
 }
 
+export async function saveUserMessage({ chatId, query }: { chatId: string; query: string }) {
+  const now = Date.now();
+  const userMessageId = crypto.randomUUID();
+
+  await db.insert(messages).values({
+    id: userMessageId,
+    chatId,
+    role: 'user',
+    messageType: 'text',
+    status: 'completed',
+    content: query,
+    translatedContent: null,
+    createdAt: now,
+    metadata: null,
+  });
+
+  return userMessageId;
+}
+
+export async function saveAIMessage({ chatId, query }: { chatId: string; query: string }) {
+  const now = Date.now();
+  const aiMessageId = crypto.randomUUID();
+
+  await db.insert(messages).values({
+    id: aiMessageId,
+    chatId,
+    role: 'ai',
+    messageType: 'text',
+    status: 'completed',
+    content: query,
+    translatedContent: null,
+    createdAt: now,
+    metadata: null,
+  });
+
+  return aiMessageId;
+}
+
 export async function createChat({ title }: {title: string;}) {
 
   const chatId = crypto.randomUUID();
@@ -111,6 +145,16 @@ export async function createChat({ title }: {title: string;}) {
   });
 
   return chatId;
+}
+
+export async function updateChatTitle({ chatId, title }: { chatId: string; title: string }) {
+
+  return db.update(chats)
+    .set({
+      title: title.slice(0, 80),
+      updatedAt: Date.now(),
+    })
+    .where(eq(chats.id, chatId));
 }
 
 export async function getMessagesByChatId(chatId: string) {

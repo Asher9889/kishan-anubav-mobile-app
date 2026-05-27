@@ -1,4 +1,5 @@
 import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
+import ChatMarkdown from "@/features/chat/components/chat-markdown";
 import { ChatMessage } from "@/features/chat/types/types";
 import { LinearGradient } from "expo-linear-gradient";
 import { Sparkles, Volume2 } from "lucide-react-native";
@@ -34,9 +35,9 @@ function MessageBubble({item}: {item: ChatMessage}) {
             isUser ? styles.bubbleUser : styles.bubbleAI,
           ]}
         >
-          <Text style={[styles.bubbleText, isUser ? styles.bubbleTextUser : styles.bubbleTextAI]}>
-            {item.content}
-          </Text>
+          <View>
+            <ChatMarkdown content={item.content ?? ""} isUser={isUser} />
+          </View>
         </View>
 
         <View style={styles.bubbleFooter}>
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.light.surfaceSecondary,
+    backgroundColor: Colors.light.card,
     alignItems: 'center',
     justifyContent: 'center',
   },

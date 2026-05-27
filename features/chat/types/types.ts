@@ -14,3 +14,11 @@ export type TSheetHandle = {
   close: () => void;
   isOpen: boolean;
 };
+
+export type StreamHandlers = {
+  onMetadata?: ( data: { thread_id: string, query: string } ) => void;
+  onStart?: () => void;
+  onChunk?: ( data: { content: string } ) => void;
+  onComplete?: (data: any) => void;
+  onError?: (error: unknown) => void;
+};

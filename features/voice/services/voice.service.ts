@@ -1,7 +1,7 @@
 import { api, endPoints } from "@/shared/api";
-import { AskAudioApiResponse } from "@/shared/api/types";
+import { AskAudioApiResponse, AskAudioResponseData } from "@/shared/api/types";
 
-export async function uploadVoice(audioUri: string, chatId?: string | null): Promise<AskAudioApiResponse> {
+export async function uploadVoice(audioUri: string, chatId?: string | null): Promise<AskAudioResponseData> {
     const formData = new FormData();
 
     formData.append("file", {
@@ -16,12 +16,14 @@ export async function uploadVoice(audioUri: string, chatId?: string | null): Pro
 
     const { method, url } = endPoints.AI.VOICE;
 
-    const response = await api.request<AskAudioApiResponse, AskAudioApiResponse>({
+    const response = await api.request<AskAudioApiResponse | AskAudioResponseData, AskAudioApiResponse | AskAudioResponseData>({
         url,
         method,
         data: formData,
     });
 
-    console.log("Voice upload response:", response.data);
-    return response;
+    const normalized = (response as AskAudioApiResponse)?.data ?? (response as AskAudioResponseData);
+
+    console.log("Voice upload response:", normalized);
+    return normalized;
 }

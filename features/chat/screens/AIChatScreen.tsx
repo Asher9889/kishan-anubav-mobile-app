@@ -7,13 +7,14 @@ import { Mic, Send, Sparkles } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { askQuestionStream } from '../api/ask-text-stream.api';
 import ChatAudioRecorder from '../components/audio-recorder/ChatAudioRecorder';
 import { ChatHistorySheet } from '../components/side-sheet/ChatHistorySheet';
 import GeneratingState from '../components/states/GeneratingState';
 import ListeningState from '../components/states/ListeningState';
 import ThinkingState from '../components/states/ThinkingState';
 import UploadingState from '../components/states/UploadingState';
-import { createChat, getMessagesByChatId, saveConversation, askQuestion } from '../services/chat.service';
+import { createChat, getMessagesByChatId, saveAIMessage, saveConversation, saveUserMessage, updateChatTitle } from '../services/chat.service';
 import { useChatStore } from '../store/chat.store';
 import { ChatMessage, TSheetHandle } from '../types/types';
 
@@ -54,8 +55,25 @@ export default function AIChatScreen() {
     setUiMessages((prev) => [...prev, message]);
   };
 
-  const replaceUiMessage = (id: string, message: Partial<ChatMessage>) => {
-    setUiMessages((prev) => prev.map((msg) => msg.id === id ? { ...msg, ...message } : msg));
+  // const replaceUiMessage = (id: string, message: Partial<ChatMessage>) => {
+  //   setUiMessages((prev) => prev.map((msg) => msg.id === id ? { ...msg, ...message } : msg));
+  // };
+
+  const replaceUiMessage = (id: string, updater: Partial<ChatMessage> | ((prev: ChatMessage) => Partial<ChatMessage>)) => {
+    setUiMessages((prev) => prev.map((msg) => {
+
+      if (msg.id !== id) {
+        return msg;
+      }
+
+      const updates = typeof updater === 'function' ? updater(msg) : updater;
+
+      return {
+        ...msg,
+        ...updates,
+      };
+    })
+    );
   };
 
   const removeUiMessage = (id: string) => {
@@ -86,7 +104,7 @@ export default function AIChatScreen() {
       });
       setComposerMode('text');
 
-      const { data } = await uploadVoice(audioUri, activeChatIdState);
+      const voiceData = await uploadVoice(audioUri, activeChatIdState);
 
 
       setTimeout(() => {
@@ -101,14 +119,14 @@ export default function AIChatScreen() {
       let currentChatId = activeChatIdState;
       if (!currentChatId) {
         currentChatId = await createChat({
-          title: data.query,
+          title: voiceData.query,
         });
       }
 
       await saveConversation({
         chatId: currentChatId,
-        query: data.query,
-        answer: data.answer?.answer ?? 'Unable to process audio input. Please try again.', audioUri
+        query: voiceData.query,
+        answer: voiceData.answer?.answer ?? 'Unable to process audio input. Please try again.', audioUri
       });
 
       await loadMessages(currentChatId);
@@ -134,42 +152,110 @@ export default function AIChatScreen() {
     setInputText('');
     setInputFocused(false);
 
+    const thinkingMessageId = crypto.randomUUID();
+    const userUiMessageId = crypto.randomUUID();
+    const aiReplyMessageId = crypto.randomUUID();
+    let hasCreatedAiReply = false;
+    let fullAnswer = '';
+    let currentChatId = activeChatIdState;
+
     try {
-      const aiStateId = crypto.randomUUID();
+
+      /**
+       * CREATE NEW CHAT
+       * ONLY IF USER STARTED NEW CHAT
+       */
+      if (!currentChatId) {
+        // currentChatId = crypto.randomUUID();
+        currentChatId = await createChat({ title: queryText });
+        setActiveChatId(currentChatId);
+      }
+      /**
+      * SHOW THINKING BUBBLE
+      */
       addUiMessage({
-        id: aiStateId,
+        id: thinkingMessageId,
         role: 'ai',
         type: 'thinking',
       });
 
-      const response = await askQuestion(queryText, activeChatIdState);
-      console.log('Text AI response:', response);
+      /** START STREAM */
 
-      const answerData = response?.data || response;
-      const answerText = answerData?.answer?.answer || answerData?.answer || 'Unable to process question. Please try again.';
+      await askQuestionStream(queryText, currentChatId, {
 
-      let currentChatId = activeChatIdState;
-      if (!currentChatId) {
-        currentChatId = await createChat({
-          title: queryText,
-        });
-      }
+        // meta data handeling
+        async onMetadata(data) {
+          addUiMessage({
+            id: userUiMessageId,
+            role: 'user',
+            type: 'message',
+            content: data.query,
+          });
 
-      await saveConversation({
-        chatId: currentChatId,
-        query: queryText,
-        answer: answerText,
+          await updateChatTitle({
+            chatId: data.thread_id,
+            title: data.query,
+          });
+
+
+          await saveUserMessage({ chatId: data.thread_id, query: data.query });
+
+        },
+
+        onStart() {
+          console.log('streaming started....');
+        },
+
+        onChunk(chunk) {
+          fullAnswer += chunk;
+          if (!hasCreatedAiReply) {
+
+            hasCreatedAiReply = true;
+            removeUiMessage(thinkingMessageId);
+
+            addUiMessage({
+              id: aiReplyMessageId,
+              role: 'ai',
+              type: 'reply',
+              content: fullAnswer,
+            });
+            return;
+          }
+
+          // NEXT CHUNKS
+
+          replaceUiMessage(aiReplyMessageId, {
+            content: fullAnswer,
+          }
+          );
+
+          // Handle chunk if needed
+        },
+        async onComplete(data) {
+          /**
+           * SAVE FINAL AI MESSAGE
+           */
+          await saveAIMessage({
+            chatId: currentChatId!,
+            query: fullAnswer,
+          });
+          /**
+           * RELOAD DB MESSAGES
+           */
+          await loadMessages(currentChatId!);
+          // Handle complete if needed
+          //  clearUiMessages();
+        },
+        onError(error) {
+          console.log('error', error);
+          removeUiMessage(thinkingMessageId);
+        }
       });
 
-      await loadMessages(currentChatId);
-      removeUiMessage(aiStateId);
-
-      if (!activeChatIdState) {
-        setActiveChatId(currentChatId);
-      }
     } catch (error) {
       console.log('error inside text send flow', error);
-      setUiMessages((prev) => prev.filter((msg) => msg.role !== 'ai' || msg.type !== 'thinking'));
+      removeUiMessage(thinkingMessageId);
+    } finally {
     }
   };
 
@@ -218,7 +304,7 @@ export default function AIChatScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Header */}
-        <View   style={styles.headerBlur}>
+        <View style={styles.headerBlur}>
           <View style={styles.headerContent}>
             {/* <TouchableOpacity
               onPress={() => router.back()}

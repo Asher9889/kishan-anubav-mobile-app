@@ -1,7 +1,7 @@
 export const endPoints = {
   AI: {
     ASK: {
-        url: "/ai/ask",
+        url: "/ask",
         method: "POST",
     },
     VOICE: {
