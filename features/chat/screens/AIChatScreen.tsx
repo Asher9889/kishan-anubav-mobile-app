@@ -1,12 +1,12 @@
 import { MessageBubble } from '@/components';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
-import { uploadVoice } from '@/features/voice/services/voice.service';
 import * as crypto from 'expo-crypto';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Mic, Send, Sparkles } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { askAudioStream } from '../api/ask-audio-stream.api';
 import { askQuestionStream } from '../api/ask-text-stream.api';
 import ChatAudioRecorder from '../components/audio-recorder/ChatAudioRecorder';
 import { ChatHistorySheet } from '../components/side-sheet/ChatHistorySheet';
@@ -14,7 +14,7 @@ import GeneratingState from '../components/states/GeneratingState';
 import ListeningState from '../components/states/ListeningState';
 import ThinkingState from '../components/states/ThinkingState';
 import UploadingState from '../components/states/UploadingState';
-import { createChat, getMessagesByChatId, saveAIMessage, saveConversation, saveUserMessage, updateChatTitle } from '../services/chat.service';
+import { createChat, getMessagesByChatId, saveAIMessage, saveUserMessage, updateChatTitle } from '../services/chat.service';
 import { useChatStore } from '../store/chat.store';
 import { ChatMessage, TSheetHandle } from '../types/types';
 
@@ -105,49 +105,155 @@ export default function AIChatScreen() {
   };
 
   const handleAudioComplete = async (audioUri: string) => {
+    if (isGenerating) return;
+
+    setComposerMode('text');
+    setIsGenerating(true);
+
     try {
-      const aiStateId = crypto.randomUUID();
+      const thinkingMessageId = crypto.randomUUID();
+      const userUiMessageId = crypto.randomUUID();
+      const aiReplyMessageId = crypto.randomUUID();
+      let hasCreatedAiReply = false;
+      let fullAnswer = '';
+      let displayedAnswer = '';
+      let isStreamComplete = false;
+      let currentChatId = activeChatIdState;
+
       addUiMessage({
-        id: aiStateId,
+        id: thinkingMessageId,
         role: 'ai',
         type: 'uploading',
       });
-      setComposerMode('text');
 
-      const voiceData = await uploadVoice(audioUri, activeChatIdState);
+      const completeAudioChatFlow = async () => {
+        try {
+          await saveAIMessage({
+            chatId: currentChatId!,
+            query: fullAnswer,
+          });
+          await loadMessages(currentChatId!);
+          removeUiMessage(userUiMessageId);
+          removeUiMessage(aiReplyMessageId);
+        } catch (error) {
+          console.log('Error completing audio chat flow:', error);
+        } finally {
+          setIsGenerating(false);
+        }
+      };
 
+      const startAudioTyping = () => {
+        if (typingTimerRef.current) return;
 
-      setTimeout(() => {
-        replaceUiMessage(aiStateId, { type: 'thinking', });
-      }, 800);
+        typingTimerRef.current = setInterval(() => {
+          if (displayedAnswer.length < fullAnswer.length) {
+            const remaining = fullAnswer.slice(displayedAnswer.length);
+            if (!remaining) return;
 
-      setTimeout(() => {
-        replaceUiMessage(aiStateId, { type: 'generating' });
-      }, 2200);
+            const match = remaining.match(/^(\s*\S+)/);
+            if (match) {
+              displayedAnswer += match[1];
+            } else {
+              displayedAnswer = fullAnswer;
+            }
 
+            if (!hasCreatedAiReply) {
+              hasCreatedAiReply = true;
+              removeUiMessage(thinkingMessageId);
 
-      let currentChatId = activeChatIdState;
+              addUiMessage({
+                id: aiReplyMessageId,
+                role: 'ai',
+                type: 'reply',
+                content: displayedAnswer,
+              });
+              return;
+            }
+
+            replaceUiMessage(aiReplyMessageId, {
+              content: displayedAnswer,
+            });
+          } else if (isStreamComplete) {
+            if (typingTimerRef.current) {
+              clearInterval(typingTimerRef.current);
+              typingTimerRef.current = null;
+            }
+            completeAudioChatFlow();
+          }
+        }, 30);
+      };
+
       if (!currentChatId) {
-        currentChatId = await createChat({
-          title: voiceData.query,
-        });
-      }
-
-      await saveConversation({
-        chatId: currentChatId,
-        query: voiceData.query,
-        answer: voiceData.answer?.answer ?? 'Unable to process audio input. Please try again.', audioUri
-      });
-
-      await loadMessages(currentChatId);
-      removeUiMessage(aiStateId);
-
-      if (!activeChatIdState) {
+        currentChatId = await createChat({ title: "Voice is processing...." });
         setActiveChatId(currentChatId);
       }
 
+
+      await askAudioStream(audioUri, currentChatId, {
+        async onMetadata(data) {
+          console.log('Metadata received from audio stream:', data);
+          const resolvedChatId = currentChatId ?? data.thread_id ?? await createChat({ title: data.query });
+          currentChatId = resolvedChatId;
+          setActiveChatId(resolvedChatId);
+
+          addUiMessage({
+            id: userUiMessageId,
+            role: 'user',
+            type: 'message',
+            content: data.query,
+          });
+
+          await saveUserMessage({
+            chatId: resolvedChatId,
+            query: data.query,
+            audioUri,
+          });
+
+          await updateChatTitle({
+            chatId: resolvedChatId,
+            title: data.query,
+          });
+        },
+
+        onStart() {
+          replaceUiMessage(thinkingMessageId, { type: 'thinking' });
+        },
+
+        onChunk(chunk) {
+          fullAnswer += chunk;
+          startAudioTyping();
+        },
+
+        async onComplete() {
+          isStreamComplete = true;
+          if (!typingTimerRef.current || displayedAnswer.length >= fullAnswer.length) {
+            if (typingTimerRef.current) {
+              clearInterval(typingTimerRef.current);
+              typingTimerRef.current = null;
+            }
+            await completeAudioChatFlow();
+          }
+        },
+
+        onError(error) {
+          console.log('error inside askAudioStream', error);
+          if (typingTimerRef.current) {
+            clearInterval(typingTimerRef.current);
+            typingTimerRef.current = null;
+          }
+          removeUiMessage(thinkingMessageId);
+          removeUiMessage(userUiMessageId);
+          removeUiMessage(aiReplyMessageId);
+          setIsGenerating(false);
+        },
+      });
     } catch (error) {
       console.log('error inside audio upload flow', error);
+      if (typingTimerRef.current) {
+        clearInterval(typingTimerRef.current);
+        typingTimerRef.current = null;
+      }
+      setIsGenerating(false);
     }
   };
 
@@ -351,7 +457,7 @@ export default function AIChatScreen() {
     if (renderedMessages.length > 0) {
       scrollToBottom();
     }
-  }, [renderedMessages.length]);
+  }, [renderedMessages]);
 
 
   return (

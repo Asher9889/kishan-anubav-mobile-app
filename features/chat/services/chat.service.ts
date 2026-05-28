@@ -93,7 +93,7 @@ export async function saveConversation({chatId, query, answer, audioUri}: SaveCo
   };
 }
 
-export async function saveUserMessage({ chatId, query }: { chatId: string; query: string }) {
+export async function saveUserMessage({ chatId, query, audioUri }: { chatId: string; query: string; audioUri?: string }) {
   const now = Date.now();
   const userMessageId = crypto.randomUUID();
 
@@ -108,6 +108,16 @@ export async function saveUserMessage({ chatId, query }: { chatId: string; query
     createdAt: now,
     metadata: null,
   });
+
+  if (audioUri) {
+    await db.insert(attachments).values({
+      id: crypto.randomUUID(),
+      messageId: userMessageId,
+      type: 'audio',
+      localUri: audioUri,
+      createdAt: now,
+    });
+  }
 
   return userMessageId;
 }

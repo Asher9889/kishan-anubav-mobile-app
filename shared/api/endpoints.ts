@@ -1,3 +1,5 @@
+export const API_BASE_URL = "https://krishianubhav.mssplonline.in";
+
 export const endPoints = {
   AI: {
     ASK: {
