@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/features/auth/store/auth.store";
 import axios from "axios";
 
 const API_BASE_URL = "https://krishianubhav.mssplonline.in";
@@ -27,6 +28,19 @@ api.interceptors.response.use(
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
     throw error.response?.data.message || error.message || "An unknown error occurred";
+  }
+);
+
+// adding bearer token to nodeApi requests
+nodeApi.interceptors.request.use(
+  (config) => {
+    const accessToken = useAuthStore.getState().accessToken;
+
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+
+    return config;
   }
 );
 

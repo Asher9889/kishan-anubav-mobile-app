@@ -1,10 +1,17 @@
-import { Stack } from "expo-router";
+import { useAuthStore } from "@/features/auth/store/auth.store";
+import { Redirect, Slot } from "expo-router";
 
 export default function PrivateLayout() {
-  return (
-    <Stack screenOptions={{headerShown: false}}>
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="(stack)" />
-    </Stack>
-  );
+  console.log('PrivateLayout mounted');
+  const isAuthenticated =useAuthStore(s => s.isAuthenticated);
+
+  if (!isAuthenticated) {
+    return (
+      <Redirect
+        href="/login"
+      />
+    );
+  }
+
+  return <Slot />;
 }

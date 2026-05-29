@@ -21,6 +21,10 @@ export const endPoints = {
       url: "/auth/verify-otp",
       method: "POST",
     },
+    REFRESH_TOKEN: {
+      url: "/auth/refresh-token",
+      method: "POST",
+    },
     LOGIN: {
         url: "/auth/login",
         method: "POST",

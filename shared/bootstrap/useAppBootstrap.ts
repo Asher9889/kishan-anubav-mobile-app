@@ -4,25 +4,56 @@ import db from '@/shared/db/sqlite';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import * as SecureStore from 'expo-secure-store';
 import { useEffect } from 'react';
+import { endPoints } from '../api';
+import { nodeApi } from '../api/axios';
 
 const useAppBootstrap = () => {
     const { success, error } = useMigrations(db, migrations); // db
-    const { setBootstrapping, logout } = useAuthStore();
+    const { setBootstrapping, logout, login } = useAuthStore();
 
     useEffect(() => {
-        const bootstrap = async () => {
-            setBootstrapping(true);
-            const refreshToken = await SecureStore.getItemAsync("refreshToken");
+        if(!success)  return;
 
+        const bootstrap = async () => {
+            try {
+            // 1. boot strapping true
+            setBootstrapping(true);
+            //2. getting refresh Token
+            const refreshToken = await SecureStore.getItemAsync("refreshToken");
+            // 3. if not exits call logout
             if (!refreshToken) {
                 logout();
+                return 
+            }
+            //4. if exits and correct. get new pair of tokens.
+            const { url, method } = endPoints.AUTH.REFRESH_TOKEN
+                const response = await nodeApi.request<{ tokens: { accessToken: string; refreshToken: string }, user: {id: string, phone: string} }>({
+                    url,
+                    method,
+                    data: { refreshToken },
+                })
+                const data = response.data;
+                const user = data.user;
+                const token = data.tokens
+                const newAccessToken = token?.accessToken;
+                const newRefreshToken = token?.refreshToken;
+                console.log("[BOOTSTRAP]Token refresh response:", data);
+                //5. setting user and accesToken to Zustand
+                login({user, accessToken: newAccessToken,});
+                // 6. setting new refresh token to secure store
+                await SecureStore.setItemAsync("refreshToken", newRefreshToken);
+            } catch (error) {
+                // console.error("Error refreshing token:", error);
+                await SecureStore.deleteItemAsync("refreshToken");
+                return logout();
+            } finally {
+                setBootstrapping(false);
             }
 
-            setBootstrapping(false);
         };
 
         bootstrap();
-    }, []);
+    }, [success]);
 
 
 

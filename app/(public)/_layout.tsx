@@ -1,14 +1,20 @@
-import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-export default function PublicLayout({isAuthenticated}: { isAuthenticated: boolean }) {
+import { useAuthStore } from "@/features/auth/store/auth.store";
+import { Redirect, Slot } from "expo-router";
 
+export default function PublicLayout() {
+
+    const isAuthenticated = useAuthStore(s => s.isAuthenticated);
+
+    if (isAuthenticated) {
+        return (
+            <Redirect
+                href="/(public)"
+            />
+        );
+    }
     return (
         <>
-            <StatusBar />
-            <Stack>
-                <Stack.Screen name="login"  options={{ headerShown: false }} />
-                <Stack.Screen name="verify-otp"  options={{ headerShown: false }} />
-            </Stack>
+            <Slot />
         </>
     )
 
