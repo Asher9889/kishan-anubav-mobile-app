@@ -3,19 +3,23 @@ export const API_BASE_URL = "https://krishianubhav.mssplonline.in";
 export const endPoints = {
   AI: {
     ASK: {
-        url: "/ask",
-        method: "POST",
+      url: "/ask",
+      method: "POST",
     },
     VOICE: {
-        url: "/ask-audio",
-        method: "POST",
+      url: "/ask-audio",
+      method: "POST",
     },
   },
 
   AUTH: {
+    ME: {
+      url: "/auth/me",
+      method: "GET",
+    },
     SEND_OTP: {
-        url: "/auth/send-otp",
-        method: "POST",
+      url: "/auth/send-otp",
+      method: "POST",
     },
     VERIFY_OTP: {
       url: "/auth/verify-otp",
@@ -26,19 +30,19 @@ export const endPoints = {
       method: "POST",
     },
     LOGIN: {
-        url: "/auth/login",
-        method: "POST",
+      url: "/auth/login",
+      method: "POST",
     },
     REGISTER: {
-        url: "/auth/register",
-        method: "POST",
+      url: "/auth/register",
+      method: "POST",
     },
   },
 
   WEATHER: {
     CURRENT: {
-        url: "/weather/current",
-        method: "GET",
+      url: "/weather/current",
+      method: "GET",
     },
   },
 };

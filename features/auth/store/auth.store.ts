@@ -1,19 +1,18 @@
 import { create } from "zustand";
 
-type User = { 
-    id: string;
-    phone: string;
-};
+import type { AuthUser } from "../types/user";
+
 // refresh token not in zustand, It wiped on every refresh.
 type AuthState = {
-  user: User | null;
+  user: AuthUser | null;
   accessToken: string | null;
   isAuthenticated: boolean;
   isBootstrapping: boolean;
   login: (payload: {
-    user: User;
+    user: AuthUser;
     accessToken: string;
   }) => void;
+  setUser: (user: AuthUser | null) => void;
   logout: () => void;
   setBootstrapping: (value: boolean) => void;
   setAccessToken: (token: string | null) => void;
@@ -33,6 +32,11 @@ export const useAuthStore = create<AuthState>((set) => ({
       user,
       accessToken,
       isAuthenticated: true,
+    }),
+
+  setUser: (user) =>
+    set({
+      user,
     }),
 
   logout: () =>

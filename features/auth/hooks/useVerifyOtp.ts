@@ -8,7 +8,9 @@ const useVerifyOtp = () => {
 
   return useMutation({
     mutationFn: verifyOTP,
-    onSuccess: async (data, variables) => {
+    onSuccess: async (res, variables) => {
+        console.log("OTP verification successful, API response:", res);
+      const data = res.data // Adjust this if your API response structure is different
       const user = data?.user;
       const tokens = data?.tokens;
 

@@ -8,7 +8,7 @@ export default function PublicLayout() {
     if (isAuthenticated) {
         return (
             <Redirect
-                href="/(public)"
+                href="/(private)"
             />
         );
     }

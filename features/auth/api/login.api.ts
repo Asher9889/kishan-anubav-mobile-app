@@ -19,14 +19,20 @@ type SendOtpResponse = {
 };
 
 type VerifyOtpResponse = {
-    user: {
-        id: string;
-        phone: string;
-    };
-    tokens: {
-        accessToken: string;
-        refreshToken: string;
+    success: boolean;
+    statusCode: number;
+    message: string;
+    data: {
+        user: {
+            id: string;
+            phone: string;
+        };
+        tokens: {
+            accessToken: string;
+            refreshToken: string;
+        }
     }
+
 };
 
 const sendOTP = async ({ phone }: SendOtpPayload): Promise<SendOtpResponse> => {
@@ -34,23 +40,22 @@ const sendOTP = async ({ phone }: SendOtpPayload): Promise<SendOtpResponse> => {
     // how mutate() is called (mutate({ phone: `+91${phoneNumber}` })).
     const { url, method } = endPoints.AUTH.SEND_OTP;
     console.log("Sending OTP to:", phone);
-    const response = await nodeApi.request<SendOtpResponse>({
+    return await nodeApi.request<SendOtpResponse>({
         url: url,
         method: method,
         data: { phone },
     });
-    return (response as any)?.data ?? (response as any);
 };
 
 const verifyOTP = async ({ phone, otp, reqId }: VerifyOtpPayload): Promise<VerifyOtpResponse> => {
     const { url, method } = endPoints.AUTH.VERIFY_OTP;
-    const response = await nodeApi.request<VerifyOtpResponse>({
+    const data =  await nodeApi.request({
         url: url,
         method: method,
         data: { phone, otp, reqId },
     });
-
-    return response.data;
+    console.log("API response from verifyOTP:", data);
+    return data as unknown as VerifyOtpResponse;
 };
 
 export { sendOTP, verifyOTP };

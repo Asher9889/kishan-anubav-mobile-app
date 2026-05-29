@@ -32,12 +32,12 @@ const useAppBootstrap = () => {
                     method,
                     data: { refreshToken },
                 })
-                const data = response.data;
+                const data = response.data as { tokens: { accessToken: string; refreshToken: string }, user: {id: string, phone: string} };
                 const user = data.user;
                 const token = data.tokens
                 const newAccessToken = token?.accessToken;
                 const newRefreshToken = token?.refreshToken;
-                console.log("[BOOTSTRAP]Token refresh response:", data);
+                console.log("[BOOTSTRAP]Token refresh response:", Object.keys(data));
                 //5. setting user and accesToken to Zustand
                 login({user, accessToken: newAccessToken,});
                 // 6. setting new refresh token to secure store
