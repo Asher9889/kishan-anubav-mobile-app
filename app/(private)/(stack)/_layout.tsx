@@ -6,7 +6,6 @@ export default function ChatLayout() {
       screenOptions={{
         headerShown: false,
         animation: "slide_from_right",
-        
       }}
     >
     </Stack>

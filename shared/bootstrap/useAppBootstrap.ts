@@ -11,6 +11,7 @@ const useAppBootstrap = () => {
 
     useEffect(() => {
         const bootstrap = async () => {
+            setBootstrapping(true);
             const refreshToken = await SecureStore.getItemAsync("refreshToken");
 
             if (!refreshToken) {

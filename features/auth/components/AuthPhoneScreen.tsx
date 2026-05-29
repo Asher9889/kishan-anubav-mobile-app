@@ -23,6 +23,7 @@ import { Images } from '@/assets';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { loginSchema } from "../validation/login.schema";
 
 // ============================================================================
 // Types
@@ -325,7 +326,7 @@ const AuthPhoneScreen: React.FC<AuthPhoneScreenProps> = ({ onContinue }) => {
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
 
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [error, setError] = useState('');
 
   // Entrance animation values
@@ -349,12 +350,16 @@ const AuthPhoneScreen: React.FC<AuthPhoneScreenProps> = ({ onContinue }) => {
   }));
 
   const handleContinue = useCallback(() => {
-    if (phoneNumber.length !== 10) {
-      setError('Please enter a valid 10-digit mobile number');
+    const result = loginSchema.safeParse(phoneNumber);
+
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+
       return;
     }
     setError('');
-    onContinue?.(phoneNumber);
+    let formattedNumber = `+91${phoneNumber}`;
+    onContinue?.(formattedNumber);
   }, [phoneNumber, onContinue]);
 
   const isValid = phoneNumber.length === 10;

@@ -28,15 +28,14 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1 }}>
 
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
+          <Stack screenOptions={{headerShown: false}}>
             {/* Public Screens */}
             {isAuthenticated ? <>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="(stack)" options={{ headerShown: false }} />
-              <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+              <Stack.Screen name="(private)" />
+              
             </>
               :
-              <Stack.Screen name="(public)" options={{ headerShown: false }} />
+              <Stack.Screen name="(public)" />
             }
           </Stack>
           <StatusBar style="auto" />

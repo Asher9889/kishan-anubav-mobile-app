@@ -13,6 +13,14 @@ export const endPoints = {
   },
 
   AUTH: {
+    SEND_OTP: {
+        url: "/auth/send-otp",
+        method: "POST",
+    },
+    VERIFY_OTP: {
+      url: "/auth/verify-otp",
+      method: "POST",
+    },
     LOGIN: {
         url: "/auth/login",
         method: "POST",
