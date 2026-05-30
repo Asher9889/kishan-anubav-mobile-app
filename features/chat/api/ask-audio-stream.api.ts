@@ -1,5 +1,6 @@
+import { api } from '@/shared/api';
 import { API_BASE_URL, endPoints } from '@/shared/api/endpoints';
-import { StreamHandlers } from '../types/types';
+import { StreamHandlers, TranscriptionResponse } from '../types/types';
 
 
 export async function askAudioStream(audioUri: string, chatId: string, handlers: StreamHandlers,) {
@@ -94,4 +95,27 @@ export async function askAudioStream(audioUri: string, chatId: string, handlers:
             }
         }
     }
+}
+
+export async function convertAudioToText(audioUri: string): Promise<TranscriptionResponse> {
+    const { method, url } = endPoints.AI.VOICE_TO_TEXT;
+    const fullUrl = API_BASE_URL + url;
+
+    const formData = new FormData();
+
+    formData.append("file", {
+        uri: audioUri,
+        type: "audio/mp4",
+        name: `audio.m4a`,
+    } as any);
+
+    const response = await api.request({
+        url,
+        method,
+        data: formData,
+    }) as TranscriptionResponse;
+
+    return response as unknown as TranscriptionResponse;
+
+
 }

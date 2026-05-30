@@ -10,6 +10,10 @@ export const endPoints = {
       url: "/ask-audio",
       method: "POST",
     },
+    VOICE_TO_TEXT: {
+      url: "/transcribe",
+      method: "POST",
+    },
   },
 
   AUTH: {
