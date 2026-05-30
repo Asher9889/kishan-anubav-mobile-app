@@ -5,7 +5,7 @@ export default function ChatLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
         headerTitle: 'STACK_LAYOUT',
         animation: "slide_from_right",
       }}
