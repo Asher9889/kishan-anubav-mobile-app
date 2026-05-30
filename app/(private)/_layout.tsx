@@ -1,6 +1,6 @@
 import { fetchMe } from "@/features/auth/api/me.api";
 import { useAuthStore } from "@/features/auth/store/auth.store";
-import { Redirect, Slot } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { useEffect, useRef } from "react";
 
 export default function PrivateLayout() {
@@ -41,5 +41,40 @@ export default function PrivateLayout() {
     );
   }
 
-  return <Slot />;
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: "slide_from_right",
+      }}
+    >
+      <Stack.Screen
+        name="index"
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="ai-chat"
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="(tabs)"
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name="(stack)"
+        options={{
+          headerShown: false,
+        }}
+      />
+    </Stack>
+  );
 }

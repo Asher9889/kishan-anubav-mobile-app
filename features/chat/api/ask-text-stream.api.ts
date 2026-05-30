@@ -4,7 +4,8 @@ import { StreamHandlers } from '../types/types';
 
 export async function askQuestionStream(query: string, chatId: string | null, handlers: StreamHandlers,) {
 
-    const url = "https://krishianubhav.mssplonline.in/ask";
+    const url = "https://krishianubhav.mssplonline.in/v2/ask";
+
     const response = await fetch(url,
         {
             method: 'POST',

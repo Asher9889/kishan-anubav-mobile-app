@@ -36,6 +36,7 @@ export default function AILogo({
                 size={size}
                 color="#FFFFFF"
             />
+            {/* <Logo width={40} height={40} /> */}
         </LinearGradient>
     );
 }

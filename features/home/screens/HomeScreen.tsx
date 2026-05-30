@@ -251,7 +251,7 @@ export default function HomeScreen() {
             </View>
 
             <Pressable
-              onPress={() => router.navigate('/ai-chat')}
+              onPress={() => router.push("/(private)/ai-chat")}
               className="mt-8 flex-row items-center justify-between rounded-[24px] border bg-white px-5 py-5"
               style={{
                 borderColor: c.borderLight,

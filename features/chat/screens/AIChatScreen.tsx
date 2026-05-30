@@ -1,8 +1,10 @@
 import { MessageBubble } from '@/components';
+import Logo from '@/components/logo';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 import * as crypto from 'expo-crypto';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Mic, Send, Sparkles } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { Home, Mic, Send } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -37,6 +39,7 @@ export default function AIChatScreen() {
   const [uiMessages, setUiMessages] = useState<ChatMessage[]>([]); // messages formatted for UI (with states like 'thinking', 'listening' etc)
   const [isGenerating, setIsGenerating] = useState(false);
   const typingTimerRef = useRef<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
     return () => {
@@ -456,6 +459,7 @@ export default function AIChatScreen() {
         },
 
         async onComplete(data) {
+          console.log('streaming complete', data);
           isStreamComplete = true;
           // If the typing timer is not active or we've already finished typing everything
           if (!typingTimerRef.current || displayedAnswer.length >= fullAnswer.length) {
@@ -628,6 +632,7 @@ export default function AIChatScreen() {
         },
 
         async onComplete(data) {
+          console.log('text streaming complete', data);
           isStreamComplete = true;
           // If the typing timer is not active or we've already finished typing everything
           if (!typingTimerRef.current || displayedAnswer.length >= fullAnswer.length) {
@@ -711,7 +716,7 @@ export default function AIChatScreen() {
       >
         {/* Header */}
         <View style={styles.headerBlur}>
-          <View style={styles.headerContent}>
+          <View style={[  styles.headerContent]}>
             {/* <TouchableOpacity
               onPress={() => router.back()}
               style={styles.backButton}
@@ -729,13 +734,15 @@ export default function AIChatScreen() {
             </TouchableOpacity>
 
             <View style={styles.headerCenter}>
+
               <LinearGradient
                 colors={[c.primary, '#14B8A6']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={styles.headerAvatar}
               >
-                <Sparkles size={16} color="#FFFFFF" />
+              <Logo width={50} height={50} />
+                {/* <Sparkles size={16} color="#FFFFFF" /> */}
               </LinearGradient>
               <View style={styles.headerText}>
                 <Text style={styles.headerTitle}>Krishi Anubhav AI</Text>
@@ -745,6 +752,15 @@ export default function AIChatScreen() {
                 </View>
               </View>
             </View>
+
+            <TouchableOpacity
+              onPress={() => router.back()}
+              activeOpacity={1}
+            >
+              <Home size={22} color={c.text} />
+            </TouchableOpacity>
+ 
+
 
             <View style={styles.headerRight} />
           </View>
@@ -896,7 +912,7 @@ const styles = StyleSheet.create({
   headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: "space-evenly",
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm + 2,
   },
