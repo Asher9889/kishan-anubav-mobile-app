@@ -1,144 +1,75 @@
-import { memo, useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-
-import { Image } from 'expo-image';
-
+import React, { useMemo } from 'react';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
+import { ChevronLeft, AtSign, ChevronRight, Plus, Settings } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '@/constants/theme';
-import type { AuthUser } from '@/features/auth/types/user';
-import type { ProfileStats as ProfileStatsType } from '../types/profile.types';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 type AppTheme = typeof Colors.light;
 
-type ProfileHeaderProps = {
-  theme: AppTheme;
-  user: AuthUser | null;
-  fullName: string;
-  username: string | null | undefined;
-  initials: string;
-  stats: ProfileStatsType;
-};
+interface ProfileHeaderProps {
+  username: string;
+}
 
-const AVATAR_SIZE = 96;
-
-const ProfileHeaderComponent = ({ theme, user, fullName, username, initials, stats }: ProfileHeaderProps) => {
+const ProfileHeader = ({ username }: ProfileHeaderProps) => {
+  const router = useRouter();
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const hasAvatar = Boolean(user?.avatar?.trim());
+
+  const displayUsername = username.trim() || 'username';
 
   return (
-    <View style={styles.container}>
-      <View style={styles.row}>
-        <View style={styles.avatarWrap} accessibilityLabel="Profile picture">
-          {hasAvatar ? (
-            <Image source={{ uri: user?.avatar ?? undefined }} style={styles.avatarImage} contentFit="cover" />
-          ) : (
-            <View style={styles.avatarFallback}>
-              <Text style={styles.initials}>{initials}</Text>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.identityColumn}>
-          <Text style={styles.name} numberOfLines={1}>
-            {fullName}
-          </Text>
-          {username ? <Text style={styles.username}>@{username}</Text> : null}
-
-          <View style={styles.statsRow}>
-            <View style={styles.statCol}>
-              <Text style={styles.statValue}>{stats.posts}</Text>
-              <Text style={styles.statLabel}>Posts</Text>
-            </View>
-
-            <View style={styles.statCol}>
-              <Text style={styles.statValue}>{stats.followers}</Text>
-              <Text style={styles.statLabel}>Followers</Text>
-            </View>
-
-            <View style={styles.statCol}>
-              <Text style={styles.statValue}>{stats.following}</Text>
-              <Text style={styles.statLabel}>Following</Text>
-            </View>
-          </View>
-        </View>
+    <View style={styles.instagramTopBar}>
+      <Pressable onPress={() => router.back()} accessibilityRole="button">
+        <ChevronLeft size={28} color={theme.text} strokeWidth={2.2} />
+      </Pressable>
+      <View style={styles.usernameHeader}>
+        <AtSign size={16} color={theme.text} />
+        <Text style={styles.usernameHeaderText}>{displayUsername}</Text>
+        <ChevronRight size={16} color={theme.text} style={{ transform: [{ rotate: '90deg' }] }} />
+      </View>
+      <View style={styles.topBarRight}>
+        <Pressable style={styles.topBarIcon} accessibilityRole="button">
+          <Plus size={24} color={theme.text} strokeWidth={2} />
+        </Pressable>
+        <Pressable style={styles.topBarIcon} accessibilityRole="button">
+          <Settings size={24} color={theme.text} strokeWidth={2} />
+        </Pressable>
       </View>
     </View>
   );
 };
 
-export const ProfileHeader = memo(ProfileHeaderComponent);
-
 const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
-    container: {
-      paddingVertical: Spacing.sm,
-      paddingHorizontal: Spacing.lg,
-    },
-    row: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      gap: Spacing.md,
-    },
-    avatarWrap: {
-      width: AVATAR_SIZE,
-      height: AVATAR_SIZE,
-      borderRadius: AVATAR_SIZE,
-      overflow: 'hidden',
-      backgroundColor: theme.surfaceContainerLow,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    avatarImage: {
-      width: '100%',
-      height: '100%',
-    },
-    avatarFallback: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    initials: {
-      color: theme.text,
-      fontSize: Typography.h3.fontSize,
-      fontWeight: '800',
-    },
-    identityColumn: {
-      flex: 1,
-      minWidth: 0,
-      gap: 6,
-      paddingTop: 4,
-    },
-    name: {
-      color: theme.text,
-      fontSize: Typography.h3.fontSize,
-      fontWeight: '800',
-      lineHeight: Typography.h3.lineHeight,
-    },
-    username: {
-      color: theme.textMuted,
-      fontSize: Typography.body.fontSize,
-      fontWeight: '600',
-      lineHeight: Typography.body.lineHeight,
-    },
-    statsRow: {
+    instagramTopBar: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginTop: Spacing.sm,
+      paddingHorizontal: Spacing.md,
+      paddingVertical: Spacing.sm,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: theme.borderLight,
     },
-    statCol: {
-      flex: 1,
+    usernameHeader: {
+      flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'center',
+      gap: 4,
     },
-    statValue: {
+    usernameHeaderText: {
       color: theme.text,
-      fontSize: 18,
-      fontWeight: '800',
+      fontSize: Typography.h3.fontSize,
+      fontWeight: '700',
     },
-    statLabel: {
-      marginTop: 4,
-      color: theme.textMuted,
-      fontSize: Typography.small.fontSize,
-      fontWeight: '600',
+    topBarRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: Spacing.md,
+    },
+    topBarIcon: {
+      padding: Spacing.xs,
     },
   });
+
+export default ProfileHeader;

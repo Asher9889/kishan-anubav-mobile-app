@@ -9,6 +9,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  StyleProp,
   StyleSheet,
   ViewStyle
 } from 'react-native';
@@ -34,12 +35,12 @@ interface SheetProps {
 
 interface SheetContentProps {
   children: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 interface SheetHeaderProps {
   children: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 interface SheetTitleProps {
@@ -109,7 +110,6 @@ export function SheetContent({ children, style }: SheetContentProps) {
 
   const backgroundColor = useColor('background');
   const borderColor = useColor('border');
-  const iconColor = useColor('text');
 
   // Animation values using Reanimated's useSharedValue
   const initialPosition = side === 'left' ? -sheetWidth : sheetWidth;
@@ -192,6 +192,8 @@ export function SheetContent({ children, style }: SheetContentProps) {
               backgroundColor,
               borderColor,
               width: sheetWidth,
+              borderLeftWidth: side === 'right' ? 1 : 0,
+              borderRightWidth: side === 'left' ? 1 : 0,
               [side]: 0,
             },
             animatedSheetStyle, // Apply the animated style
@@ -228,15 +230,17 @@ export function SheetHeader({ children, style }: SheetHeaderProps) {
 }
 
 export function SheetTitle({ children }: SheetTitleProps) {
+  const titleColor = useColor('text');
+
   return (
-    <Text variant='title' style={styles.title}>
+    <Text variant='title' style={[styles.title, { color: titleColor }]}>
       {children}
     </Text>
   );
 }
 
 export function SheetDescription({ children }: SheetDescriptionProps) {
-  const mutedColor = useColor('text');
+  const mutedColor = useColor('textMuted');
 
   return (
     <Text style={[styles.description, { color: mutedColor }]}>{children}</Text>
@@ -249,7 +253,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 1)', // Opacity is controlled by animation
+    backgroundColor: '#000000', // Opacity is controlled by animation
   },
   overlayPressable: {
     flex: 1,
@@ -258,8 +262,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     bottom: 0,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -291,7 +293,6 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   title: {
-    color: "#000000",
     marginBottom: 8,
   },
   description: {

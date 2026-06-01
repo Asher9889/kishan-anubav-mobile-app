@@ -1,67 +1,116 @@
-import { memo, useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-
-import { Colors, Fonts, Spacing, Typography } from '@/constants/theme';
-
-import type { ProfileStats as ProfileStatsType } from '../types/profile.types';
+import React, { useMemo } from 'react';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { Image } from 'expo-image';
+import { Camera, Plus } from 'lucide-react-native';
+import { Colors, Spacing, Typography } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 type AppTheme = typeof Colors.light;
 
-type ProfileStatsProps = {
-  theme: AppTheme;
-  stats: ProfileStatsType;
-};
+interface ProfileStatsProps {
+  avatarUri: string;
+  onPickAvatar: () => void;
+}
 
-const ProfileStatsComponent = ({ theme, stats }: ProfileStatsProps) => {
+const ProfileStats = ({ avatarUri, onPickAvatar }: ProfileStatsProps) => {
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   return (
-    <View style={styles.container} accessibilityRole="summary">
-      <View style={styles.statCol} accessibilityRole="button" accessibilityLabel={`${stats.posts} posts`}>
-        <Text style={styles.value}>{stats.posts}</Text>
-        <Text style={styles.label}>Posts</Text>
-      </View>
+    <View style={styles.profileHeader}>
+      <Pressable onPress={onPickAvatar} style={styles.avatarWrapper} accessibilityRole="button">
+        {avatarUri ? (
+          <Image source={{ uri: avatarUri }} style={styles.avatarLarge} contentFit="cover" />
+        ) : (
+          <View style={styles.avatarFallbackLarge}>
+            <Camera size={32} color={theme.textMuted} />
+          </View>
+        )}
+        {avatarUri && (
+          <View style={styles.addStoryBadge}>
+            <Plus size={14} color="#fff" strokeWidth={3} />
+          </View>
+        )}
+      </Pressable>
 
-      <View style={styles.statCol} accessibilityRole="button" accessibilityLabel={`${stats.followers} followers`}>
-        <Text style={styles.value}>{stats.followers}</Text>
-        <Text style={styles.label}>Followers</Text>
-      </View>
-
-      <View style={styles.statCol} accessibilityRole="button" accessibilityLabel={`${stats.following} following`}>
-        <Text style={styles.value}>{stats.following}</Text>
-        <Text style={styles.label}>Following</Text>
+      <View style={styles.statsContainer}>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>46</Text>
+          <Text style={styles.statLabel}>posts</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>1,525</Text>
+          <Text style={styles.statLabel}>followers</Text>
+        </View>
+        <View style={styles.statItem}>
+          <Text style={styles.statNumber}>2,142</Text>
+          <Text style={styles.statLabel}>following</Text>
+        </View>
       </View>
     </View>
   );
 };
 
-export const ProfileStats = memo(ProfileStatsComponent);
-
 const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
-    container: {
+    profileHeader: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      paddingHorizontal: Spacing.lg,
+      paddingVertical: Spacing.lg,
+      gap: Spacing.lg,
     },
-    statCol: {
-      flex: 1,
+    avatarWrapper: {
+      position: 'relative',
+    },
+    avatarLarge: {
+      width: 86,
+      height: 86,
+      borderRadius: 43,
+      backgroundColor: theme.surfaceContainerLow,
+    },
+    avatarFallbackLarge: {
+      width: 86,
+      height: 86,
+      borderRadius: 43,
+      backgroundColor: theme.surfaceContainerLow,
       alignItems: 'center',
       justifyContent: 'center',
-      paddingVertical: Spacing.sm,
+      borderWidth: 1,
+      borderColor: theme.borderLight,
     },
-    value: {
+    addStoryBadge: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      width: 24,
+      height: 24,
+      borderRadius: 12,
+      backgroundColor: theme.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 2,
+      borderColor: theme.background,
+    },
+    statsContainer: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+    },
+    statItem: {
+      alignItems: 'center',
+    },
+    statNumber: {
       color: theme.text,
-      fontSize: 20,
-      lineHeight: 26,
-      fontWeight: '800',
-      fontFamily: Fonts.rounded,
+      fontSize: Typography.h3.fontSize,
+      fontWeight: '700',
     },
-    label: {
-      marginTop: 2,
-      color: theme.textMuted,
+    statLabel: {
+      color: theme.textSecondary,
       fontSize: Typography.small.fontSize,
-      lineHeight: Typography.small.lineHeight,
-      fontWeight: '600',
+      marginTop: 2,
     },
   });
+
+export default ProfileStats;

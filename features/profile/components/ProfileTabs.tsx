@@ -1,120 +1,73 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-
-import { Colors, Spacing, Typography } from '@/constants/theme';
-
-import { PROFILE_TABS } from '../constants/profile.constants';
-import type { ProfileTabKey } from '../types/profile.types';
+import React, { useMemo } from 'react';
+import { StyleSheet, View, Pressable } from 'react-native';
+import { Grid3X3, Camera, User } from 'lucide-react-native';
+import { Colors, Spacing } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 type AppTheme = typeof Colors.light;
 
-type ProfileTabsProps = {
-  theme: AppTheme;
-  value: ProfileTabKey;
-  onChange: (tab: ProfileTabKey) => void;
-};
+interface ProfileTabsProps {
+  activeTab: 'grid' | 'reels' | 'tags';
+  setActiveTab: (tab: 'grid' | 'reels' | 'tags') => void;
+}
 
-type LayoutMap = Record<ProfileTabKey, { x: number; width: number }>;
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-const ProfileTabsComponent = ({ theme, value, onChange }: ProfileTabsProps) => {
+const ProfileTabs = ({ activeTab, setActiveTab }: ProfileTabsProps) => {
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const indicatorX = useSharedValue(0);
-  const indicatorWidth = useSharedValue(0);
-  const layoutsRef = useRef<Partial<LayoutMap>>({});
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const layout = layoutsRef.current[value];
-
-    if (!layout) return;
-
-    indicatorX.value = withSpring(layout.x + 0, { damping: 16, stiffness: 180 });
-    indicatorWidth.value = withSpring(layout.width, { damping: 16, stiffness: 180 });
-  }, [value, indicatorX, indicatorWidth]);
-
-  const animatedIndicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorX.value }],
-    width: indicatorWidth.value,
-    opacity: ready ? 1 : 0,
-  }));
 
   return (
-    <View style={styles.container} accessibilityRole="tablist">
-      <View style={styles.row}>
-        {PROFILE_TABS.map((tab) => {
-          const isActive = tab.key === value;
-
-          return (
-            <AnimatedPressable
-              key={tab.key}
-              onPress={() => onChange(tab.key)}
-              onLayout={(e) => {
-                const { x, width } = e.nativeEvent.layout;
-                layoutsRef.current[tab.key] = { x, width };
-
-                if (tab.key === value) {
-                  indicatorX.value = x;
-                  indicatorWidth.value = width;
-                  setReady(true);
-                }
-              }}
-              style={styles.tabButton}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: isActive }}
-              accessibilityLabel={tab.label}
-            >
-              <Text style={[styles.label, isActive ? styles.labelActive : styles.labelInactive]}>{tab.label}</Text>
-            </AnimatedPressable>
-          );
-        })}
-      </View>
-
-      <Animated.View pointerEvents="none" style={[styles.indicator, animatedIndicatorStyle]} />
+    <View style={styles.tabBar}>
+      <Pressable
+        style={[styles.tabItem, activeTab === 'grid' && styles.tabItemActive]}
+        onPress={() => setActiveTab('grid')}
+      >
+        <Grid3X3
+          size={24}
+          color={activeTab === 'grid' ? theme.text : theme.textMuted}
+          strokeWidth={activeTab === 'grid' ? 2.5 : 1.5}
+        />
+      </Pressable>
+      <Pressable
+        style={[styles.tabItem, activeTab === 'reels' && styles.tabItemActive]}
+        onPress={() => setActiveTab('reels')}
+      >
+        <Camera
+          size={24}
+          color={activeTab === 'reels' ? theme.text : theme.textMuted}
+          strokeWidth={activeTab === 'reels' ? 2.5 : 1.5}
+        />
+      </Pressable>
+      <Pressable
+        style={[styles.tabItem, activeTab === 'tags' && styles.tabItemActive]}
+        onPress={() => setActiveTab('tags')}
+      >
+        <User
+          size={24}
+          color={activeTab === 'tags' ? theme.text : theme.textMuted}
+          strokeWidth={activeTab === 'tags' ? 2.5 : 1.5}
+        />
+      </Pressable>
     </View>
   );
 };
 
-export const ProfileTabs = memo(ProfileTabsComponent);
-
 const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
-    container: {
-      paddingHorizontal: Spacing.lg,
-    },
-    row: {
+    tabBar: {
       flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: theme.borderLight,
     },
-    tabButton: {
+    tabItem: {
       flex: 1,
       alignItems: 'center',
-      justifyContent: 'center',
       paddingVertical: Spacing.sm,
     },
-    label: {
-      fontSize: Typography.body.fontSize,
-      fontWeight: '700',
-    },
-    labelActive: {
-      color: theme.text,
-    },
-    labelInactive: {
-      color: theme.textMuted,
-    },
-    indicator: {
-      height: 2,
-      backgroundColor: theme.text,
-      marginTop: 6,
-      borderRadius: 2,
-      position: 'absolute',
-      left: 0,
-      bottom: 0,
+    tabItemActive: {
+      borderBottomWidth: 1.5,
+      borderBottomColor: theme.text,
     },
   });
 
-export { ProfileTabsComponent };
+export default ProfileTabs;

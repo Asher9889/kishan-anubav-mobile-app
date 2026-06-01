@@ -1,126 +1,72 @@
-import type { ReactNode } from 'react';
-import { memo, useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-
-import { PencilLine, Share2 } from 'lucide-react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
-
+import React, { useMemo } from 'react';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { User } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 type AppTheme = typeof Colors.light;
 
-type ProfileActionsProps = {
-  theme: AppTheme;
-  onEditProfile: () => void;
-  onShareProfile: () => void;
-};
+interface ProfileActionsProps {
+  onEditPress: () => void;
+}
 
-type ActionButtonProps = {
-  theme: AppTheme;
-  label: string;
-  icon: ReactNode;
-  variant: 'primary' | 'secondary';
-  onPress: () => void;
-};
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-const ActionButton = ({ theme, label, icon, variant, onPress }: ActionButtonProps) => {
-  const styles = useMemo(() => createStyles(theme), [theme]);
-  const scale = useSharedValue(1);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-  const onPressIn = () => {
-    scale.value = withSpring(0.97, { damping: 15, stiffness: 220 });
-  };
-
-  const onPressOut = () => {
-    scale.value = withSpring(1, { damping: 15, stiffness: 220 });
-  };
-
-  return (
-    <AnimatedPressable
-      onPress={onPress}
-      onPressIn={onPressIn}
-      onPressOut={onPressOut}
-      style={[
-        styles.buttonBase,
-        variant === 'primary' ? styles.primaryButton : styles.secondaryButton,
-        animatedStyle,
-      ]}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-    >
-      {icon}
-      <Text style={[styles.buttonText, variant === 'primary' ? styles.primaryText : styles.secondaryText]}>
-        {label}
-      </Text>
-    </AnimatedPressable>
-  );
-};
-
-const ProfileActionsComponent = ({ theme, onEditProfile, onShareProfile }: ProfileActionsProps) => {
+const ProfileActions = ({ onEditPress }: ProfileActionsProps) => {
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   return (
-    <View style={styles.container}>
-      <ActionButton
-        theme={theme}
-        label="Edit Profile"
-        variant="primary"
-        onPress={onEditProfile}
-        icon={<PencilLine size={16} color={theme.text} strokeWidth={2.2} />}
-      />
-      <ActionButton
-        theme={theme}
-        label="Share Profile"
-        variant="secondary"
-        onPress={onShareProfile}
-        icon={<Share2 size={16} color={theme.text} strokeWidth={2.2} />}
-      />
+    <View style={styles.actionButtonsRow}>
+      <Pressable
+        style={styles.primaryButton}
+        onPress={onEditPress}
+        accessibilityRole="button"
+      >
+        <Text style={styles.primaryButtonText}>Edit profile</Text>
+      </Pressable>
+      <Pressable style={styles.primaryButton} accessibilityRole="button">
+        <Text style={styles.primaryButtonText}>Share profile</Text>
+      </Pressable>
+      <Pressable style={styles.iconButton} accessibilityRole="button">
+        <User size={18} color={theme.text} />
+      </Pressable>
     </View>
   );
 };
 
-export const ProfileActions = memo(ProfileActionsComponent);
-
 const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
-    container: {
+    actionButtonsRow: {
       flexDirection: 'row',
+      paddingHorizontal: Spacing.lg,
       gap: Spacing.sm,
-    },
-    buttonBase: {
-      flex: 1,
-      minHeight: 42,
-      borderRadius: Radius.full,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 8,
-      borderWidth: StyleSheet.hairlineWidth,
-      paddingHorizontal: Spacing.md,
+      marginBottom: Spacing.md,
     },
     primaryButton: {
-      backgroundColor: 'transparent',
-      borderColor: theme.text,
-    },
-    secondaryButton: {
-      backgroundColor: 'transparent',
+      flex: 1,
+      backgroundColor: theme.surfaceContainerLow,
+      paddingVertical: 8,
+      borderRadius: Radius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: StyleSheet.hairlineWidth,
       borderColor: theme.borderLight,
     },
-    buttonText: {
+    primaryButtonText: {
+      color: theme.text,
       fontSize: Typography.bodyMedium.fontSize,
-      lineHeight: Typography.bodyMedium.lineHeight,
-      fontWeight: '800',
+      fontWeight: '600',
     },
-    primaryText: {
-      color: theme.text,
-    },
-    secondaryText: {
-      color: theme.text,
+    iconButton: {
+      width: 36,
+      height: 36,
+      backgroundColor: theme.surfaceContainerLow,
+      borderRadius: Radius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.borderLight,
     },
   });
+
+export default ProfileActions;

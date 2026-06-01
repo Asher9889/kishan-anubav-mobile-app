@@ -43,6 +43,13 @@ export const endPoints = {
     },
   },
 
+  USER: {
+    UPDATE_PROFILE: {
+      url: "/user/:id",
+      method: "PATCH",
+    },
+  },
+
   WEATHER: {
     CURRENT: {
       url: "/weather/current",

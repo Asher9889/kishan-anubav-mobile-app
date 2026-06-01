@@ -5,12 +5,17 @@ export type AuthUser = {
   name?: string | null;
   username?: string | null;
   bio?: string | null;
+  occupation?: string | null;
   gender?: string | null;
   role?: string | null;
   avatar?: string | null;
+  state?: string | null;
+  city?: string | null;
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   village?: string | null;
   district?: string | null;
-  state?: string | null;
   isProfileCompleted?: boolean;
   createdAt?: string | null;
 };

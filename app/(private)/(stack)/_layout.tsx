@@ -10,6 +10,7 @@ export default function ChatLayout() {
         animation: "slide_from_right",
       }}
     >
+      <Stack.Screen name="client-profile" options={{ headerTitle: 'Client Profile', animation: "slide_from_right" }} />
     </Stack>
   );
 }
