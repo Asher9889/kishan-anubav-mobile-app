@@ -11,7 +11,7 @@ export type AuthUser = {
   avatar?: string | null;
   state?: string | null;
   city?: string | null;
-  address?: string | null;
+  address?: any;
   latitude?: number | null;
   longitude?: number | null;
   village?: string | null;

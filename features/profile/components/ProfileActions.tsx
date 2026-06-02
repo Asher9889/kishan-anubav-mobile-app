@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
-import { User } from 'lucide-react-native';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { User } from 'lucide-react-native';
+import React, { useMemo } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AppTheme = typeof Colors.light;
 
@@ -12,11 +13,12 @@ interface ProfileActionsProps {
 
 const ProfileActions = ({ onEditPress }: ProfileActionsProps) => {
   const colorScheme = useColorScheme();
+  const insets = useSafeAreaInsets();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   return (
-    <View style={styles.actionButtonsRow}>
+    <View style={[styles.actionButtonsRow]}>
       <Pressable
         style={styles.primaryButton}
         onPress={onEditPress}
@@ -69,4 +71,5 @@ const createStyles = (theme: AppTheme) =>
     },
   });
 
-export default ProfileActions;
+
+  export default ProfileActions;

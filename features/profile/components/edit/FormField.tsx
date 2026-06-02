@@ -10,6 +10,8 @@ interface FormFieldProps {
   value: string;
   placeholder: string;
   onChangeText: (value: string) => void;
+  helperText?: string;
+  helperTone?: 'muted' | 'success' | 'error';
   multiline?: boolean;
   numberOfLines?: number;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
@@ -20,6 +22,8 @@ const FormField = ({
   value,
   placeholder,
   onChangeText,
+  helperText,
+  helperTone = 'muted',
   multiline,
   numberOfLines,
   autoCapitalize,
@@ -43,6 +47,17 @@ const FormField = ({
           autoCapitalize={autoCapitalize ?? 'sentences'}
           textAlignVertical={multiline ? 'top' : 'center'}
         />
+        {helperText ? (
+          <Text
+            style={[
+              styles.helperText,
+              helperTone === 'success' && styles.helperTextSuccess,
+              helperTone === 'error' && styles.helperTextError,
+            ]}
+          >
+            {helperText}
+          </Text>
+        ) : null}
       </View>
     </View>
   );
@@ -81,6 +96,18 @@ const createStyles = (theme: AppTheme) =>
     fieldInputMultiline: {
       minHeight: 60,
       paddingVertical: Platform.OS === 'ios' ? 8 : 4,
+    },
+    helperText: {
+      color: theme.textMuted,
+      fontSize: 12,
+      lineHeight: 16,
+      marginTop: 2,
+    },
+    helperTextSuccess: {
+      color: theme.success,
+    },
+    helperTextError: {
+      color: theme.error,
     },
   });
 

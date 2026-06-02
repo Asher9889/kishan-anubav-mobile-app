@@ -1,19 +1,18 @@
-import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
-import { Stack } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import React, { useMemo } from 'react';
+import { ScrollView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useProfileForm } from '../hooks/useProfileForm';
+import PostsGrid from '../components/PostsGrid';
+import ProfileActions from '../components/ProfileActions';
+import ProfileBio from '../components/ProfileBio';
 import ProfileHeader from '../components/ProfileHeader';
 import ProfileStats from '../components/ProfileStats';
-import ProfileBio from '../components/ProfileBio';
-import ProfileActions from '../components/ProfileActions';
-import StoryHighlights from '../components/StoryHighlights';
 import ProfileTabs from '../components/ProfileTabs';
-import PostsGrid from '../components/PostsGrid';
+import StoryHighlights from '../components/StoryHighlights';
 import EditProfileModal from '../components/edit/EditProfileModal';
+import { useProfileForm } from '../hooks/useProfileForm';
 
 type AppTheme = typeof Colors.light;
 
@@ -22,10 +21,10 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const fullName = profileForm.profile.fullName;
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: false }} />
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ProfileHeader username={profileForm.profile.username} />
 
@@ -33,6 +32,7 @@ export default function ProfileScreen() {
           <ProfileStats
             avatarUri={profileForm.profile.avatarUri}
             onPickAvatar={profileForm.onPickAvatar}
+            name={fullName}
           />
 
           <ProfileBio profile={profileForm.profile} />
@@ -48,13 +48,13 @@ export default function ProfileScreen() {
 
           <PostsGrid activeTab={profileForm.activeTab} />
         </ScrollView>
+        <EditProfileModal
+          isOpen={profileForm.isEditing}
+          onClose={() => profileForm.setIsEditing(false)}
+          profileForm={profileForm}
+        />
       </SafeAreaView>
 
-      <EditProfileModal
-        isOpen={profileForm.isEditing}
-        onClose={() => profileForm.setIsEditing(false)}
-        profileForm={profileForm}
-      />
     </>
   );
 }

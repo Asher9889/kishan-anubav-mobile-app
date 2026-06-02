@@ -1,13 +1,13 @@
-import React, { useMemo } from 'react';
-import { Modal, KeyboardAvoidingView, ScrollView, StyleSheet, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import React, { useMemo } from 'react';
+import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import type { UseProfileFormReturn } from '../../hooks/useProfileForm';
-import EditProfileHeader from './EditProfileHeader';
 import AvatarSection from './AvatarSection';
-import ProfileForm from './ProfileForm';
+import EditProfileHeader from './EditProfileHeader';
 import OccupationSheet from './OccupationSheet';
+import ProfileForm from './ProfileForm';
 
 type AppTheme = typeof Colors.light;
 
@@ -24,7 +24,9 @@ const EditProfileModal = ({ isOpen, onClose, profileForm }: EditProfileModalProp
 
   const {
     profile,
+    form,
     updateField,
+    usernameAvailability,
     isSaving,
     isSaveDisabled,
     handleSave,
@@ -41,18 +43,22 @@ const EditProfileModal = ({ isOpen, onClose, profileForm }: EditProfileModalProp
       visible={isOpen}
       onRequestClose={onClose}
     >
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <SafeAreaView style={[styles.safeArea]} edges={['top']}>
+
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.flex}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         >
+          {/* <View style={{marginTop: insets.top}}> */}
+
           <EditProfileHeader
             onClose={onClose}
             handleSave={handleSave}
             isSaveDisabled={isSaveDisabled}
             isSaving={isSaving}
           />
+
 
           <ScrollView
             contentContainerStyle={styles.content}
@@ -65,8 +71,8 @@ const EditProfileModal = ({ isOpen, onClose, profileForm }: EditProfileModalProp
             />
 
             <ProfileForm
-              profile={profile}
-              updateField={updateField}
+              form={form}
+              usernameAvailability={usernameAvailability}
               onPressOccupation={() => setOccupationSheetOpen(true)}
               locationData={locationData}
             />
@@ -81,6 +87,7 @@ const EditProfileModal = ({ isOpen, onClose, profileForm }: EditProfileModalProp
               setOccupationSheetOpen(false);
             }}
           />
+           {/* </View> */}
         </KeyboardAvoidingView>
       </SafeAreaView>
     </Modal>

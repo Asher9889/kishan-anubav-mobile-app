@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
-import { Image } from 'expo-image';
-import { Camera, Plus } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Image } from 'expo-image';
+import { Camera, Plus } from 'lucide-react-native';
+import React, { useMemo } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type AppTheme = typeof Colors.light;
 
@@ -12,7 +12,7 @@ interface ProfileStatsProps {
   onPickAvatar: () => void;
 }
 
-const ProfileStats = ({ avatarUri, onPickAvatar }: ProfileStatsProps) => {
+const ProfileStats = ({ avatarUri, onPickAvatar, name }: ProfileStatsProps & { name: string }) => {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
@@ -34,18 +34,22 @@ const ProfileStats = ({ avatarUri, onPickAvatar }: ProfileStatsProps) => {
         )}
       </Pressable>
 
-      <View style={styles.statsContainer}>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>46</Text>
-          <Text style={styles.statLabel}>posts</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>1,525</Text>
-          <Text style={styles.statLabel}>followers</Text>
-        </View>
-        <View style={styles.statItem}>
-          <Text style={styles.statNumber}>2,142</Text>
-          <Text style={styles.statLabel}>following</Text>
+      <View style={{display: 'flex', flexDirection: 'column', gap: Spacing.sm}}>
+        <Text className='text-red-700 font-bold text-xl'>{name}</Text>
+        <View style={{display: 'flex', flexDirection: 'row', gap: Spacing.lg}}>
+
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>46</Text>
+            <Text style={styles.statLabel}>posts</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>1,525</Text>
+            <Text style={styles.statLabel}>followers</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Text style={styles.statNumber}>2,142</Text>
+            <Text style={styles.statLabel}>following</Text>
+          </View>
         </View>
       </View>
     </View>

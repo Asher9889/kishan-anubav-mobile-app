@@ -45,8 +45,20 @@ export const endPoints = {
 
   USER: {
     UPDATE_PROFILE: {
-      url: "/user/:id",
+      url: "/users/:id",
       method: "PATCH",
+    },
+    
+    CHECK_USERNAME: {
+      url: "/users/check-username",
+      method: "GET",
+    },
+  },
+
+  UPLOAD: {
+    AVATAR: {
+      url: "/uploads/avatar",
+      method: "POST",
     },
   },
 

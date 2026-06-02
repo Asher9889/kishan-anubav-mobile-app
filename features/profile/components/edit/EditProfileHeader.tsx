@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
-import { ChevronLeft } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { ChevronLeft } from 'lucide-react-native';
+import React, { useMemo } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AppTheme = typeof Colors.light;
 
@@ -20,11 +21,12 @@ const EditProfileHeader = ({
   isSaving,
 }: EditProfileHeaderProps) => {
   const colorScheme = useColorScheme();
+  const insets = useSafeAreaInsets();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   return (
-    <View style={styles.topBar}>
+    <View style={[styles.topBar]}>
       <Pressable onPress={onClose} accessibilityRole="button">
         <ChevronLeft size={24} color={theme.text} strokeWidth={2.2} />
       </Pressable>
