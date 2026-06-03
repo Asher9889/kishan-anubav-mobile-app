@@ -1,8 +1,7 @@
-import React, { useMemo } from 'react';
-import { StyleSheet, Text, View, Pressable, Linking } from 'react-native';
-import { Link as LinkIcon } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import React, { useMemo } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import type { ProfileFormState } from '../hooks/useProfileForm';
 
 type AppTheme = typeof Colors.light;
@@ -16,24 +15,14 @@ const ProfileBio = ({ profile }: ProfileBioProps) => {
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const displayName = profile.fullName.trim() || profile.username.trim() || 'Your Name';
-  const displayBio = profile.bio.trim() || 'A Man with Ambition';
-  const displayWebsite = profile.website.trim() || 'saurabhkushwaha.in';
-
+  const displayBio = profile.bio.trim();
   return (
     <View style={styles.bioSection}>
-      <Text style={styles.bioName}>{displayName}</Text>
+      {/* <Text style={styles.bioName}>{displayName}</Text> */}
       <Text style={styles.bioText}>{displayBio}</Text>
       {profile.occupation ? (
         <Text style={styles.bioOccupation}>{profile.occupation}</Text>
       ) : null}
-      <Pressable
-        onPress={() => Linking.openURL(`https://${displayWebsite}`)}
-        style={styles.bioLink}
-      >
-        <LinkIcon size={14} color={theme.primary} />
-        <Text style={styles.bioLinkText}>{displayWebsite}</Text>
-      </Pressable>
     </View>
   );
 };

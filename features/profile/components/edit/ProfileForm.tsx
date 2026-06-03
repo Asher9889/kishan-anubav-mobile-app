@@ -1,10 +1,14 @@
-import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
+import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Check } from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import { Controller, useWatch } from 'react-hook-form';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import type { ProfileFormControl, UseProfileFormReturn } from '../../hooks/useProfileForm';
+import { StyleSheet, Text, View } from 'react-native';
+import type {
+  EditableProfileSelectField,
+  EditableProfileTextField,
+  ProfileFormControl,
+} from '../../hooks/useProfileForm';
 import { GENDER_OPTIONS } from '../../types/profile.types';
 import FormField from './FormField';
 import SelectField from './SelectField';
@@ -13,46 +17,38 @@ type AppTheme = typeof Colors.light;
 
 interface ProfileFormProps {
   form: ProfileFormControl;
-  usernameAvailability: UseProfileFormReturn['usernameAvailability'];
-  onPressOccupation: () => void;
+  onPressField: (field: EditableProfileTextField) => void;
+  onPressSelectField: (field: EditableProfileSelectField) => void;
   locationData: any;
 }
 
 const ProfileForm = ({
   form,
-  usernameAvailability,
-  onPressOccupation,
+  onPressField,
+  onPressSelectField,
   locationData,
 }: ProfileFormProps) => {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const { control, formState } = form;
+  const { control } = form;
   const selectedOccupation = useWatch({ control, name: 'occupation' });
-  const usernameError = formState.errors.username?.message;
-  const usernameHelper =
-    usernameError ?? usernameAvailability.message;
-  const usernameHelperTone = usernameError
-    ? 'error'
-    : usernameAvailability.state === 'available'
-      ? 'success'
-      : usernameAvailability.state === 'unavailable' || usernameAvailability.state === 'error'
-        ? 'error'
-        : 'muted';
+  const selectedGender = useWatch({ control, name: 'gender' });
+  const selectedGenderLabel =
+    GENDER_OPTIONS.find((option) => option.value === selectedGender)?.label ?? '';
 
   return (
     <View style={styles.formContainer}>
       <Controller
         control={control}
         name="fullName"
-        render={({ field: { value, onChange }, fieldState: { error } }) => (
+        render={({ field: { value, onChange } }) => (
           <FormField
             label="Name"
             value={value}
             onChangeText={onChange}
             placeholder="Your full name"
-            helperText={error?.message}
-            helperTone="error"
+            onPress={() => onPressField('fullName')}
           />
         )}
       />
@@ -66,8 +62,7 @@ const ProfileForm = ({
             onChangeText={onChange}
             placeholder="username"
             autoCapitalize="none"
-            helperText={usernameHelper}
-            helperTone={usernameHelperTone}
+            onPress={() => onPressField('username')}
           />
         )}
       />
@@ -89,7 +84,7 @@ const ProfileForm = ({
       <Controller
         control={control}
         name="bio"
-        render={({ field: { value, onChange }, fieldState: { error } }) => (
+        render={({ field: { value, onChange } }) => (
           <FormField
             label="Bio"
             value={value}
@@ -97,8 +92,7 @@ const ProfileForm = ({
             placeholder="Tell people about yourself"
             multiline
             numberOfLines={3}
-            helperText={error?.message}
-            helperTone="error"
+            onPress={() => onPressField('bio')}
           />
         )}
       />
@@ -107,41 +101,39 @@ const ProfileForm = ({
         label="Occupation"
         value={selectedOccupation}
         placeholder="Select occupation"
-        onPress={onPressOccupation}
+        onPress={() => onPressSelectField('occupation')}
       />
 
       <Controller
         control={control}
         name="state"
-        render={({ field: { value, onChange }, fieldState: { error } }) => (
+        render={({ field: { value, onChange } }) => (
           <FormField
             label="State"
             value={value}
             onChangeText={onChange}
             placeholder={locationData?.region?.trim() || 'State'}
-            helperText={error?.message}
-            helperTone="error"
+            onPress={() => onPressField('state')}
           />
         )}
       />
       <Controller
         control={control}
         name="city"
-        render={({ field: { value, onChange }, fieldState: { error } }) => (
+        render={({ field: { value, onChange } }) => (
           <FormField
             label="City"
             value={value}
             onChangeText={onChange}
             placeholder={locationData?.city?.trim() || 'City'}
-            helperText={error?.message}
-            helperTone="error"
+            onPress={() => onPressField('city')}
           />
         )}
       />
       <Controller
         control={control}
         name="address"
-        render={({ field: { value, onChange }, fieldState: { error } }) => (
+        render={({ field: { value, onChange } }) => (
           <FormField
             label="Address"
             value={value}
@@ -154,51 +146,16 @@ const ProfileForm = ({
             }
             multiline
             numberOfLines={2}
-            helperText={error?.message}
-            helperTone="error"
+            onPress={() => onPressField('address')}
           />
         )}
       />
 
-      <Controller
-        control={control}
-        name="gender"
-        render={({ field: { value, onChange }, fieldState: { error } }) => (
-          <>
-            <View style={styles.genderRowContainer}>
-              <Text style={styles.fieldLabel}>Gender</Text>
-              <View style={styles.genderChipsContainer}>
-                {GENDER_OPTIONS.map((option) => {
-                  const active = value === option.value;
-                  return (
-                    <Pressable
-                      key={option.value}
-                      onPress={() => onChange(option.value)}
-                      style={[
-                        styles.genderChip,
-                        active ? styles.genderChipActive : styles.genderChipInactive,
-                      ]}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected: active }}
-                    >
-                      <Text
-                        style={[
-                          styles.genderChipText,
-                          active ? styles.genderChipTextActive : styles.genderChipTextInactive,
-                        ]}
-                      >
-                        {option.label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
-            </View>
-            {error?.message ? (
-              <Text style={styles.errorText}>{error.message}</Text>
-            ) : null}
-          </>
-        )}
+      <SelectField
+        label="Gender"
+        value={selectedGenderLabel}
+        placeholder="Select gender"
+        onPress={() => onPressSelectField('gender')}
       />
 
       <View style={styles.helperBlock}>
@@ -217,51 +174,6 @@ const createStyles = (theme: AppTheme) =>
       backgroundColor: theme.background,
       paddingHorizontal: Spacing.lg,
     },
-    fieldLabel: {
-      width: 100,
-      color: theme.text,
-      fontSize: 15,
-      fontWeight: '500',
-    },
-    genderRowContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingVertical: 14,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: theme.borderLight,
-    },
-    genderChipsContainer: {
-      flex: 1,
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: Spacing.xs,
-    },
-    genderChip: {
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: Radius.lg,
-      borderWidth: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    genderChipActive: {
-      backgroundColor: theme.primary,
-      borderColor: theme.primary,
-    },
-    genderChipInactive: {
-      backgroundColor: 'transparent',
-      borderColor: theme.borderLight,
-    },
-    genderChipText: {
-      fontSize: 13,
-      fontWeight: '600',
-    },
-    genderChipTextActive: {
-      color: theme.onPrimary,
-    },
-    genderChipTextInactive: {
-      color: theme.textSecondary,
-    },
     helperBlock: {
       flexDirection: 'row',
       alignItems: 'flex-start',
@@ -275,13 +187,6 @@ const createStyles = (theme: AppTheme) =>
       fontSize: Typography.small.fontSize,
       lineHeight: Typography.small.lineHeight,
       fontWeight: '400',
-    },
-    errorText: {
-      color: theme.error,
-      fontSize: Typography.small.fontSize,
-      lineHeight: Typography.small.lineHeight,
-      marginTop: Spacing.xs,
-      marginLeft: 100,
     },
   });
 

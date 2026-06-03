@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { StyleSheet, Text, TextInput, View, Platform } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -15,6 +15,7 @@ interface FormFieldProps {
   multiline?: boolean;
   numberOfLines?: number;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  onPress?: () => void;
 }
 
 const FormField = ({
@@ -27,18 +28,20 @@ const FormField = ({
   multiline,
   numberOfLines,
   autoCapitalize,
+  onPress,
 }: FormFieldProps) => {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  return (
-    <View style={[styles.fieldRow, multiline && styles.fieldRowMultiline]}>
+  const fieldContent = (
+    <>
       <Text style={[styles.fieldLabel, multiline && styles.fieldLabelMultiline]}>{label}</Text>
       <View style={styles.fieldInputContainer}>
         <TextInput
           value={value}
           onChangeText={onChangeText}
+          onPressIn={onPress}
           placeholder={placeholder}
           placeholderTextColor={theme.textMuted}
           style={[styles.fieldInput, multiline && styles.fieldInputMultiline]}
@@ -46,6 +49,9 @@ const FormField = ({
           numberOfLines={numberOfLines}
           autoCapitalize={autoCapitalize ?? 'sentences'}
           textAlignVertical={multiline ? 'top' : 'center'}
+          editable={!onPress}
+          showSoftInputOnFocus={!onPress}
+          caretHidden={Boolean(onPress)}
         />
         {helperText ? (
           <Text
@@ -59,6 +65,25 @@ const FormField = ({
           </Text>
         ) : null}
       </View>
+    </>
+  );
+
+  if (onPress) {
+    return (
+      <Pressable
+        onPress={onPress}
+        style={[styles.fieldRow, multiline && styles.fieldRowMultiline]}
+        accessibilityRole="button"
+        accessibilityLabel={`Edit ${label}`}
+      >
+        {fieldContent}
+      </Pressable>
+    );
+  }
+
+  return (
+    <View style={[styles.fieldRow, multiline && styles.fieldRowMultiline]}>
+      {fieldContent}
     </View>
   );
 };

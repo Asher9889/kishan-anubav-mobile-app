@@ -1,12 +1,18 @@
 import { useAuthStore } from '@/features/auth/store/auth.store';
-import type { AuthUser } from '@/features/auth/types/user';
+import type { AuthUser, AuthUserAddress } from '@/features/auth/types/user';
 import { useCurrentLocation } from '@/shared/hooks/useCurrentLocation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useForm, useWatch, type UseFormReturn } from 'react-hook-form';
+import {
+  useForm,
+  useWatch,
+  type Path,
+  type PathValue,
+  type UseFormReturn,
+} from 'react-hook-form';
 import { Alert } from 'react-native';
-import { checkUsernameAvailability } from '../api/profile.api';
+import { checkUsernameAvailability, type UpdateProfileFieldPayload } from '../api/profile.api';
 import type { GenderValue, TOccupation } from '../types/profile.types';
 import {
   editProfileSchema,
@@ -14,9 +20,12 @@ import {
 } from '../validation/edit-profile.schema';
 import { useAvatarPicker } from './useAvatarPicker';
 import { useAvatarUpload } from './useAvatarUpload';
-import useProfileUpdate from './useProfileUpdate';
+import useProfileUpdate, { useProfileFieldUpdate } from './useProfileUpdate';
 
 export type ProfileFormState = EditProfileFormValues;
+export type EditableProfileTextField = 'fullName' | 'username' | 'bio' | 'state' | 'city' | 'address';
+export type EditableProfileSelectField = 'gender' | 'occupation';
+export type EditableProfileField = EditableProfileTextField | EditableProfileSelectField;
 
 type UsernameAvailabilityStatus = {
   state: 'idle' | 'checking' | 'available' | 'unavailable' | 'error';
@@ -51,19 +60,122 @@ const createInitialState = (user: AuthUser | null): ProfileFormDefaults => ({
   bio: user?.bio?.trim() ?? '',
   gender: (user?.gender as GenderValue) ?? '',
   occupation: (user?.occupation as TOccupation) ?? '',
-  state: user?.state?.trim() ?? '',
-  city: user?.city?.trim() ?? '',
-  address: typeof user?.address === 'string' ? user?.address.trim() : '',
+  state: user?.state?.trim() ?? getAddressObject(user).state?.trim() ?? '',
+  city: user?.city?.trim() ?? getAddressObject(user).city?.trim() ?? '',
+  address: getAddressLine1(user),
   avatarUri: user?.avatar?.trim() ?? '',
   website: '',
 });
+
+const getAddressObject = (user: AuthUser | null): AuthUserAddress => {
+  if (!user?.address) return {};
+
+  if (typeof user.address === 'string') {
+    return { line1: user.address };
+  }
+
+
+  return user.address;
+};
+
+const getAddressLine1 = (user: AuthUser | null): string =>
+  getAddressObject(user).line1?.trim() ?? '';
+
+const createFocusedFieldPayload = (
+  field: EditableProfileField,
+  value: string
+): UpdateProfileFieldPayload => {
+  switch (field) {
+    case 'fullName':
+      return { fullName: value };
+    case 'username':
+      return { username: value };
+    case 'bio':
+      return { bio: value };
+    case 'state':
+      return { address: { state: value } };
+    case 'city':
+      return { address: { city: value } };
+    case 'address':
+      return { address: { line1: value } };
+    case 'gender':
+      return { gender: value as GenderValue };
+    case 'occupation':
+      return { occupation: value as TOccupation };
+  }
+};
+
+const applyFocusedFieldToUser = (
+  currentUser: AuthUser,
+  field: EditableProfileField,
+  value: string,
+  updatedProfile?: Partial<AuthUser> | null
+): AuthUser => {
+  const currentAddress = getAddressObject(currentUser);
+  console.log("Updated profile is", updatedProfile);
+  const updatedAddress =
+    updatedProfile?.address && typeof updatedProfile.address !== 'string'
+      ? updatedProfile.address
+      : {};
+  const nextAddress = {
+    ...currentAddress,
+    ...updatedAddress,
+  };
+  const nextUser = {
+    ...currentUser,
+    ...(updatedProfile ?? {}),
+  };
+
+  switch (field) {
+    case 'fullName':
+      return { ...nextUser, fullName: updatedProfile?.fullName ?? value };
+    case 'username':
+      return { ...nextUser, username: updatedProfile?.username ?? value };
+    case 'bio':
+      return { ...nextUser, bio: updatedProfile?.bio ?? value };
+    case 'state':
+      return {
+        ...nextUser,
+        state: updatedProfile?.state ?? updatedAddress.state ?? value,
+        address: {
+          ...nextAddress,
+          state: updatedAddress.state ?? value,
+        },
+      };
+    case 'city':
+      return {
+        ...nextUser,
+        city: updatedProfile?.city ?? updatedAddress.city ?? value,
+        address: {
+          ...nextAddress,
+          city: updatedAddress.city ?? value,
+        },
+      };
+    case 'address':
+      return {
+        ...nextUser,
+        address: {
+          ...nextAddress,
+          line1: updatedAddress.line1 ?? value,
+        },
+      };
+    case 'gender':
+      return { ...nextUser, gender: updatedProfile?.gender ?? value };
+    case 'occupation':
+      return { ...nextUser, occupation: updatedProfile?.occupation ?? value };
+  }
+};
 
 export const useProfileForm = () => {
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const { pickAvatar } = useAvatarPicker();
 
-  const shouldFetchLocation = !user?.state?.trim() || !user?.city?.trim() || !user?.address?.trim();
+  const currentAddress = getAddressObject(user);
+  const shouldFetchLocation =
+    !user?.state?.trim() ||
+    !user?.city?.trim() ||
+    !currentAddress.line1?.trim();
   const { data: locationData } = useCurrentLocation({ enabled: shouldFetchLocation });
 
   const form = useForm<ProfileFormState>({
@@ -84,15 +196,14 @@ export const useProfileForm = () => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [occupationSheetOpen, setOccupationSheetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'grid' | 'reels' | 'tags'>('grid');
   const [debouncedUsername, setDebouncedUsername] = useState('');
 
-  const updateField = useCallback(<K extends keyof ProfileFormState>(
+  const updateField = useCallback(<K extends Path<ProfileFormState>>(
     field: K,
-    value: ProfileFormState[K]
+    value: PathValue<ProfileFormState, K>
   ) => {
-    form.setValue(field as any, value, {
+    form.setValue(field, value, {
       shouldDirty: true,
       shouldTouch: true,
       shouldValidate: true,
@@ -194,23 +305,22 @@ export const useProfileForm = () => {
   ]);
 
 
-  
+
   const avatarMutation = useAvatarUpload();
   const onPickAvatar = async () => {
     const imageBlob = await pickAvatar();
-    if(!imageBlob?.uri) {
+    if (!imageBlob?.uri) {
       Alert.alert('No Image Selected', 'Please select an image to use as your avatar.');
       return;
     }
     console.log('Picked avatar URI:', imageBlob.uri);
-    const currentAvatar = form.getValues('avatarUri');
     const currentUserId = user?.id;
 
     if (!currentUserId) {
       Alert.alert('User Not Found', 'Unable to identify user for avatar upload.');
       return;
     }
-    avatarMutation.mutate({imageBlob, userId: currentUserId}, {
+    avatarMutation.mutate({ imageBlob, userId: currentUserId }, {
       onSuccess: (uploadedUri) => {
         console.log('Avatar uploaded successfully:', uploadedUri);
         updateField('avatarUri', uploadedUri);
@@ -223,14 +333,87 @@ export const useProfileForm = () => {
     });
 
 
-    
-    
+
+
   };
 
 
 
 
   const updateProfileMutation = useProfileUpdate();
+  const updateProfileFieldMutation = useProfileFieldUpdate();
+
+  const saveFocusedField = useCallback(async (field: EditableProfileField) => {
+    if (!user) {
+      return false;
+    }
+
+    console.log(`Saving focused field "${field}" with value:`, form.getValues(field));
+
+    const nextValue = String(form.getValues(field) ?? '').trim();
+    const currentValue = String(createInitialState(user)[field] ?? '').trim();
+
+    console.log(`Current value for "${field}":`, currentValue);
+    console.log(`Next value for "${field}":`, nextValue);
+
+    form.setValue(field, nextValue as PathValue<ProfileFormState, typeof field>, {
+      shouldDirty: nextValue !== currentValue,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+
+    if (nextValue === currentValue) {
+      form.clearErrors(field);
+      return true;
+    }
+
+    const isFieldValid = await form.trigger(field);
+    if (!isFieldValid) {
+      return false;
+    }
+
+    if (field === 'username') {
+      try {
+        const usernameCheck = await checkUsernameAvailability(nextValue);
+
+        if (!usernameCheck.available) {
+          form.setError('username', {
+            type: 'validate',
+            message: usernameCheck.message ?? 'Username is already taken',
+          });
+          return false;
+        }
+      } catch {
+        form.setError('username', {
+          type: 'validate',
+          message: 'Could not check username right now',
+        });
+        return false;
+      }
+    }
+
+    try {
+      const updatedProfile = await updateProfileFieldMutation.mutateAsync(
+        createFocusedFieldPayload(field, nextValue)
+      );
+      const nextUser = applyFocusedFieldToUser(user, field, nextValue, updatedProfile);
+
+      setUser(nextUser);
+
+      form.clearErrors(field);
+      form.reset({
+        ...form.getValues(),
+        [field]: nextValue,
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Failed to update profile field:', error);
+      Alert.alert('Update Failed', 'Failed to update this field. Please try again.');
+      return false;
+    }
+  }, [form, setUser, updateProfileFieldMutation, user]);
+
   const handleSave = form.handleSubmit(async (values) => {
     if (!user) {
       setIsEditing(false);
@@ -263,7 +446,7 @@ export const useProfileForm = () => {
       occupation: values.occupation as TOccupation,
       avatar: values.avatarUri.trim(),
       bio: values.bio.trim(),
-      address : {
+      address: {
         line1: values.address.trim() || null,
         latitude: locationData?.latitude ?? user?.latitude ?? null,
         longitude: locationData?.longitude ?? user?.longitude ?? null,
@@ -273,7 +456,7 @@ export const useProfileForm = () => {
         country: locationData?.country?.trim() || null,
       },
 
-     
+
       isProfileCompleted: Boolean(
         values.fullName.trim() &&
         values.username.trim() &&
@@ -324,12 +507,12 @@ export const useProfileForm = () => {
     updateField,
     usernameAvailability,
     isSaving,
+    isFocusedFieldSaving: updateProfileFieldMutation.isPending,
     isSaveDisabled,
     handleSave,
+    saveFocusedField,
     isEditing,
     setIsEditing,
-    occupationSheetOpen,
-    setOccupationSheetOpen,
     activeTab,
     setActiveTab,
     onPickAvatar,

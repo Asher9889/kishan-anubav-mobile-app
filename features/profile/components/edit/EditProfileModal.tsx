@@ -1,12 +1,17 @@
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import type { UseProfileFormReturn } from '../../hooks/useProfileForm';
+import type {
+  EditableProfileSelectField,
+  EditableProfileTextField,
+  UseProfileFormReturn,
+} from '../../hooks/useProfileForm';
 import AvatarSection from './AvatarSection';
 import EditProfileHeader from './EditProfileHeader';
-import OccupationSheet from './OccupationSheet';
+import FocusedProfileFieldModal from './FocusedProfileFieldModal';
+import FocusedProfileOptionModal from './FocusedProfileOptionModal';
 import ProfileForm from './ProfileForm';
 
 type AppTheme = typeof Colors.light;
@@ -21,27 +26,35 @@ const EditProfileModal = ({ isOpen, onClose, profileForm }: EditProfileModalProp
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
+  const [focusedField, setFocusedField] = useState<EditableProfileTextField | null>(null);
+  const [focusedSelectField, setFocusedSelectField] =
+    useState<EditableProfileSelectField | null>(null);
 
   const {
     profile,
     form,
-    updateField,
     usernameAvailability,
     isSaving,
+    isFocusedFieldSaving,
     isSaveDisabled,
     handleSave,
-    occupationSheetOpen,
-    setOccupationSheetOpen,
+    saveFocusedField,
     onPickAvatar,
     locationData,
   } = profileForm;
+
+  const handleClose = () => {
+    setFocusedField(null);
+    setFocusedSelectField(null);
+    onClose();
+  };
 
   return (
     <Modal
       animationType="slide"
       presentationStyle="fullScreen"
       visible={isOpen}
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
       <SafeAreaView style={[styles.safeArea]} edges={['top']}>
 
@@ -53,7 +66,7 @@ const EditProfileModal = ({ isOpen, onClose, profileForm }: EditProfileModalProp
           {/* <View style={{marginTop: insets.top}}> */}
 
           <EditProfileHeader
-            onClose={onClose}
+            onClose={handleClose}
             handleSave={handleSave}
             isSaveDisabled={isSaveDisabled}
             isSaving={isSaving}
@@ -72,20 +85,28 @@ const EditProfileModal = ({ isOpen, onClose, profileForm }: EditProfileModalProp
 
             <ProfileForm
               form={form}
-              usernameAvailability={usernameAvailability}
-              onPressOccupation={() => setOccupationSheetOpen(true)}
+              onPressField={setFocusedField}
+              onPressSelectField={setFocusedSelectField}
               locationData={locationData}
             />
           </ScrollView>
 
-          <OccupationSheet
-            open={occupationSheetOpen}
-            onOpenChange={setOccupationSheetOpen}
-            value={profile.occupation}
-            onSelect={(occ) => {
-              updateField('occupation', occ);
-              setOccupationSheetOpen(false);
-            }}
+          <FocusedProfileFieldModal
+            open={Boolean(focusedField)}
+            field={focusedField}
+            form={form}
+            usernameAvailability={usernameAvailability}
+            isSaving={isFocusedFieldSaving}
+            onSave={saveFocusedField}
+            onClose={() => setFocusedField(null)}
+          />
+          <FocusedProfileOptionModal
+            open={Boolean(focusedSelectField)}
+            field={focusedSelectField}
+            form={form}
+            isSaving={isFocusedFieldSaving}
+            onSave={saveFocusedField}
+            onClose={() => setFocusedSelectField(null)}
           />
            {/* </View> */}
         </KeyboardAvoidingView>

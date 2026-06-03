@@ -1,31 +1,81 @@
 import { endPoints } from '@/shared/api';
 import { nodeApi } from '@/shared/api/axios';
 import { ImagePickerAsset } from 'expo-image-picker';
-import { UpdateProfileData } from '../types/profile.types';
+import type { GenderValue, TOccupation, UpdateProfileData } from '../types/profile.types';
 
 type UsernameAvailabilityResponse = {
   available: boolean;
   message?: string;
 };
 
-const readAvailability = (payload: any): UsernameAvailabilityResponse => {
-  const data = payload?.data ?? payload;
+export type ProfileAddressUpdatePayload = Partial<{
+  line1: string | null;
+  line2: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  city: string | null;
+  district: string | null;
+  state: string | null;
+  postalCode: string | null;
+  country: string | null;
+}>;
+
+export type UpdateProfileFieldPayload = Partial<{
+  fullName: string;
+  username: string;
+  bio: string;
+  gender: GenderValue;
+  occupation: TOccupation;
+  avatar: string | null;
+  address: ProfileAddressUpdatePayload;
+}>;
+
+type UnknownRecord = Record<string, unknown>;
+
+const isRecord = (value: unknown): value is UnknownRecord =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const unwrapData = (payload: unknown): unknown => {
+  if (!isRecord(payload)) return payload;
+
+  return payload.data ?? payload;
+};
+
+const readString = (value: unknown): string | undefined =>
+  typeof value === 'string' ? value : undefined;
+
+const readProfile = (payload: unknown): UpdateProfileData => {
+  const data = unwrapData(payload);
+
+  if (isRecord(data) && isRecord(data.user)) {
+    return data.user as unknown as UpdateProfileData;
+  }
+
+  return data as unknown as UpdateProfileData;
+};
+
+const readAvailability = (payload: unknown): UsernameAvailabilityResponse => {
+  const data = unwrapData(payload);
   const available =
-    data?.available ??
-    data?.isAvailable ??
-    data?.usernameAvailable ??
-    data?.exists === false;
+    isRecord(data)
+      ? data.available ??
+        data.isAvailable ??
+        data.usernameAvailable ??
+        (data.exists === false ? true : undefined)
+      : undefined;
 
   if (typeof available !== 'boolean') {
     return {
       available: false,
-      message: data?.message ?? 'Unable to verify username availability',
+      message: isRecord(data)
+        ? readString(data.message) ?? 'Unable to verify username availability'
+        : 'Unable to verify username availability',
     };
   }
 
   return {
     available,
-    message: data?.message,
+    message: isRecord(data) ? readString(data.message) : undefined,
   };
 };
 
@@ -49,7 +99,7 @@ export const uploadAvatar = async (imageBlob: ImagePickerAsset, userId: string):
     uri: imageBlob.uri,
     name: imageBlob.fileName,
     type: imageBlob.mimeType,
-  } as any);
+  } as unknown as Blob);
   formData.append('userId', userId);
 
   const response = await nodeApi.request({
@@ -61,16 +111,29 @@ export const uploadAvatar = async (imageBlob: ImagePickerAsset, userId: string):
     },
   });
 
-  return response.data?.url;
+  const data = unwrapData(response);
+
+  return isRecord(data) && typeof data.url === 'string' ? data.url : '';
 }
 
 export const updateProfile = async (profileData: UpdateProfileData):Promise<UpdateProfileData> => {
   const { url, method } = endPoints.USER.UPDATE_PROFILE;
   const response = await nodeApi.request({
-    url: url.replace(':id', profileData.id),
+    url,
     method,
     data: profileData,
   });
   
-  return response.data as UpdateProfileData;
+  return readProfile(response);
+}
+
+export const updateProfileField = async (payload: UpdateProfileFieldPayload): Promise<UpdateProfileData> => {
+  const { url, method } = endPoints.USER.UPDATE_PROFILE;
+  const response = await nodeApi.request({
+    url,
+    method,
+    data: payload,
+  });
+
+  return readProfile(response);
 }

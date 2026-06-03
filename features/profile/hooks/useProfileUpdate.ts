@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { updateProfile } from "../api/profile.api";
+import { updateProfile, updateProfileField } from "../api/profile.api";
 import { UpdateProfileData } from "../types/profile.types";
 
 
@@ -20,3 +20,17 @@ const useProfileUpdate = () => {
 }
 
 export default useProfileUpdate;
+
+export const useProfileFieldUpdate = () => {
+  const mutation = useMutation({
+    mutationFn: updateProfileField,
+    onSuccess: (data) => {
+      console.log("Profile field updated successfully:", data);
+    },
+    onError: (error) => {
+      console.error("Failed to update profile field:", error);
+    },
+  });
+
+  return mutation;
+}

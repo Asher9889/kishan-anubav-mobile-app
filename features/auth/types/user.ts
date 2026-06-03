@@ -1,3 +1,15 @@
+export type AuthUserAddress = {
+  line1?: string | null;
+  line2?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  city?: string | null;
+  district?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+};
+
 export type AuthUser = {
   id: string;
   phone: string;
@@ -11,7 +23,7 @@ export type AuthUser = {
   avatar?: string | null;
   state?: string | null;
   city?: string | null;
-  address?: any;
+  address?: AuthUserAddress | string | null;
   latitude?: number | null;
   longitude?: number | null;
   village?: string | null;

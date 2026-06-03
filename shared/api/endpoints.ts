@@ -45,7 +45,7 @@ export const endPoints = {
 
   USER: {
     UPDATE_PROFILE: {
-      url: "/users/:id",
+      url: "/users/me",
       method: "PATCH",
     },
     
@@ -68,4 +68,11 @@ export const endPoints = {
       method: "GET",
     },
   },
+
+  NEWS: {
+    KRISHI_NEWS: {
+      url: "/news",
+      method: "GET",
+    },
+  }
 };

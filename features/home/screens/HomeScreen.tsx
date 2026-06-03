@@ -16,21 +16,25 @@ import {
   Wheat,
 } from 'lucide-react-native';
 import type { ReactNode } from 'react';
-import { Image, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
+import { Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Colors } from '@/constants/theme';
 import { useCurrentLocation } from '@/shared/hooks/useCurrentLocation';
 import useCurrentWeather from '@/shared/hooks/useCurrentWeather';
 import HomeHeader from '../components/HomeHeader';
+import ImageCorousal from '../components/ImageCorousal';
+import useNews from '../hooks/useNews';
 
 export default function HomeScreen() {
   const c = Colors.light;
-  
+
   const { isLoading, data: locationData } = useCurrentLocation();
   const { isLoading: isWeatherLoading, data: weatherData } = useCurrentWeather();
   const location = locationData;
   const weather = weatherData;
+
+  const {data, isLoading: isLoadingNews,} = useNews();
 
   return (
     <SafeAreaProvider>
@@ -52,7 +56,7 @@ export default function HomeScreen() {
 
                 <View className="mt-2 flex-row items-center gap-1.5" >
                   <MapPin size={18} color={c.onSurfaceVariant} />
-                  <Text className="text-[14px] font-semibold flex-1" style={{ color: c.onSurfaceVariant , flexWrap: 'wrap'}}>
+                  <Text className="text-[14px] font-semibold flex-1" style={{ color: c.onSurfaceVariant, flexWrap: 'wrap' }}>
                     {isLoading ? "आपका स्थान लोड हो रहा है..." : `${location?.street}, ${location?.city}, ${location?.region}`}
                   </Text>
                 </View>
@@ -79,7 +83,7 @@ export default function HomeScreen() {
                       {isWeatherLoading ? "--°C" : `${weather?.temperature ?? "--"}°C`}
                     </Text>
                     <Text className="mt-1 text-[11px] font-medium" style={{ color: c.secondary }}>
-                    {isWeatherLoading ? "--km/h • --%" : `हवा: ${weather?.windSpeed ?? '--'}km/h • नमी: ${weather?.humidity ?? '--'}%`}
+                      {isWeatherLoading ? "--km/h • --%" : `हवा: ${weather?.windSpeed ?? '--'}km/h • नमी: ${weather?.humidity ?? '--'}%`}
 
                     </Text>
                   </View>
@@ -160,7 +164,7 @@ export default function HomeScreen() {
               </View>
             </View>
 
-            <View
+            {/* <View
               className="mt-4 flex-row items-center gap-4 rounded-[24px] border bg-white p-4"
               style={{
                 borderColor: c.outlineVariant,
@@ -189,7 +193,12 @@ export default function HomeScreen() {
                 }}
                 className="h-[96px] w-[96px] rounded-[18px]"
               />
-            </View>
+            </View> */}
+
+
+
+            {!isLoadingNews &&  <ImageCorousal news={data} />}
+
 
             <SectionHeading
               title="बाजार भाव"

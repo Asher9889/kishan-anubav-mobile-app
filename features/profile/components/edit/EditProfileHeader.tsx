@@ -3,25 +3,20 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ChevronLeft } from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AppTheme = typeof Colors.light;
 
 interface EditProfileHeaderProps {
   onClose: () => void;
-  handleSave: () => void;
-  isSaveDisabled: boolean;
-  isSaving: boolean;
+  handleSave?: () => void;
+  isSaveDisabled?: boolean;
+  isSaving?: boolean;
 }
 
 const EditProfileHeader = ({
   onClose,
-  handleSave,
-  isSaveDisabled,
-  isSaving,
 }: EditProfileHeaderProps) => {
   const colorScheme = useColorScheme();
-  const insets = useSafeAreaInsets();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -31,17 +26,7 @@ const EditProfileHeader = ({
         <ChevronLeft size={24} color={theme.text} strokeWidth={2.2} />
       </Pressable>
       <Text style={styles.title}>Edit profile</Text>
-      <Pressable
-        onPress={handleSave}
-        disabled={isSaveDisabled}
-        accessibilityRole="button"
-      >
-        {isSaving ? (
-          <Text style={[styles.saveText, styles.saveTextDisabled]}>Saving</Text>
-        ) : (
-          <Text style={[styles.saveText, isSaveDisabled && styles.saveTextDisabled]}>Save</Text>
-        )}
-      </Pressable>
+      <View />
     </View>
   );
 };
