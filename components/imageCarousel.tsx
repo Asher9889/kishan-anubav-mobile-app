@@ -20,7 +20,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Carousel from 'react-native-reanimated-carousel';
 
-const CARD_HEIGHT = 260;
+const CARD_HEIGHT = 220;
 const AUTO_PLAY_INTERVAL = 8000; // 8 seconds
 
 
@@ -280,7 +280,7 @@ const PremiumImageCarousel: React.FC<PremiumImageCarouselProps> = ({
           ref={carouselRef}
           loop={loop}
           width={carouselWidth}
-          height={CARD_HEIGHT + 40}
+          height={CARD_HEIGHT}
           data={data}
           renderItem={renderItem}
           autoPlay={autoPlay}

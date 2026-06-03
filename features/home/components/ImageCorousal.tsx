@@ -1,6 +1,7 @@
 // App.tsx or your screen
 import { Images } from '@/assets';
 import PremiumImageCarousel, { CarouselItem } from '@/components/imageCarousel';
+import { router } from 'expo-router';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -45,7 +46,7 @@ export default function ImageCorousal({ news }: { news: CarouselItem[] }) {
                 data={news}
                 onCardPress={(item, index) => {
                     console.log('Pressed:', item.title);
-                    // Navigate to detail screen
+                    router.push(`/news/${item.id}`);
                 }}
                 showPagination={true}
                 showProgressBar={true}

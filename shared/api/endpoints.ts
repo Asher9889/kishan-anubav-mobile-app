@@ -74,5 +74,9 @@ export const endPoints = {
       url: "/news",
       method: "GET",
     },
+    NEWS_DETAIL_BY_ID: {
+      url: "/news/:id",
+      method: "GET",
+    }
   }
 };

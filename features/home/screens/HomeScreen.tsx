@@ -15,11 +15,12 @@ import {
   UsersRound,
   Wheat,
 } from 'lucide-react-native';
-import type { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { Colors } from '@/constants/theme';
+import { useAuthStore } from '@/features/auth/store/auth.store';
 import { useCurrentLocation } from '@/shared/hooks/useCurrentLocation';
 import useCurrentWeather from '@/shared/hooks/useCurrentWeather';
 import HomeHeader from '../components/HomeHeader';
@@ -29,12 +30,14 @@ import useNews from '../hooks/useNews';
 export default function HomeScreen() {
   const c = Colors.light;
 
+  const user = useAuthStore((state) => state.user);
   const { isLoading, data: locationData } = useCurrentLocation();
   const { isLoading: isWeatherLoading, data: weatherData } = useCurrentWeather();
   const location = locationData;
   const weather = weatherData;
 
-  const {data, isLoading: isLoadingNews,} = useNews();
+  const {data:newsData, isLoading: isLoadingNews,} = useNews();
+
 
   return (
     <SafeAreaProvider>
@@ -50,8 +53,8 @@ export default function HomeScreen() {
           <View className="px-5 pt-6">
             <View className="flex-row items-start justify-between gap-4">
               <View className="flex-1">
-                <Text className="text-[30px] pt-2 font-extrabold leading-[36px]" style={{ color: c.onSurface }}>
-                  नमस्ते, राम सिंह
+                <Text className="text-[25px] pt-2 font-extrabold leading-[36px]" style={{ color: c.onSurface }}>
+                  नमस्ते, {user?.fullName || 'किसान मित्र'} !
                 </Text>
 
                 <View className="mt-2 flex-row items-center gap-1.5" >
@@ -197,9 +200,9 @@ export default function HomeScreen() {
 
 
 
-            {!isLoadingNews &&  <ImageCorousal news={data} />}
+            {!isLoadingNews && Array.isArray(newsData) && newsData.length > 0 && <ImageCorousal news={newsData} />}
 
-
+  
             <SectionHeading
               title="बाजार भाव"
               className="mt-8"

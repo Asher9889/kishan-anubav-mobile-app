@@ -1,10 +1,14 @@
+import { Logo } from "@/components";
 import { Colors } from "@/constants/theme";
-import { CircleUserRound, Sprout } from "lucide-react-native";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeHeader() {
   const insets = useSafeAreaInsets();
+
+  // const onProfileClick = () => {
+  //   router.push("/(private)/(tabs)/profile");
+  // }
 
   const colors = Colors.light;
 
@@ -27,15 +31,16 @@ export default function HomeHeader() {
       <View className="flex-row items-center justify-between">
         {/* Left Side */}
         <View className="flex-row items-center gap-3">
-          <View
+          {/* <View
             className="h-10 w-10 items-center justify-center rounded-full border"
             style={{
               backgroundColor: colors.secondaryContainer,
               borderColor: colors.secondary,
             }}
-          >
-            <Sprout color={colors.primary} size={20} />
-          </View>
+          > */}
+            <Logo width={50} height={50} />
+            {/* <Sprout color={colors.primary} size={20} /> */}
+          {/* </View> */}
 
           <Text className="text-[22px] font-extrabold" style={{ color: colors.text }}>
             Krishi Anubhav AI
@@ -43,16 +48,18 @@ export default function HomeHeader() {
         </View>
 
         {/* Language Button */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           className="h-10 w-10 items-center justify-center rounded-full"
           style={{
             backgroundColor: colors.surfaceContainerHigh,
             borderWidth: 1,
             borderColor: colors.outlineVariant,
           }}
+          // onPress={onProfileClick}
         >
-          <CircleUserRound color={colors.primary} size={20} />
-        </TouchableOpacity>
+          {/* <Image style={{height: 40, width: 40, borderRadius: 20, }}  source={avatar} /> */}
+          {/* <CircleUserRound color={colors.primary} size={20} /> */}
+        {/* </TouchableOpacity>  */}
       </View>
     </View>
   );

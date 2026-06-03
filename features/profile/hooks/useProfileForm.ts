@@ -112,7 +112,6 @@ const applyFocusedFieldToUser = (
   updatedProfile?: Partial<AuthUser> | null
 ): AuthUser => {
   const currentAddress = getAddressObject(currentUser);
-  console.log("Updated profile is", updatedProfile);
   const updatedAddress =
     updatedProfile?.address && typeof updatedProfile.address !== 'string'
       ? updatedProfile.address
