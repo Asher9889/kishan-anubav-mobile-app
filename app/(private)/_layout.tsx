@@ -21,6 +21,7 @@ export default function PrivateLayout() {
         const response = await fetchMe();
         const fetchedUser = response?.data.user;
         console.log("Fetched /me profile:", Object.keys(fetchedUser));
+        console.log("Fetched /me profile (full):", fetchedUser.avatar, fetchedUser.fullName);
 
         if (fetchedUser) {
           setUser(fetchedUser);
@@ -42,39 +43,15 @@ export default function PrivateLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        animation: "slide_from_right",
-      }}
-    >
-      <Stack.Screen
-        name="index"
-        options={{
-          headerShown: false,
-        }}
-      />
+    <Stack screenOptions={{headerShown: false, animation: "slide_from_right",}}>
 
-      <Stack.Screen
-        name="ai-chat"
-        options={{
-          headerShown: false,
-        }}
-      />
+      <Stack.Screen name="index" options={{ headerShown: false}}/>
 
-      <Stack.Screen
-        name="(tabs)"
-        options={{
-          headerShown: false,
-        }}
-      />
+      <Stack.Screen name="ai-chat" options={{headerShown: false}}/>
 
-      <Stack.Screen
-        name="(stack)"
-        options={{
-          headerShown: false,
-        }}
-      />
+      <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
+
+      <Stack.Screen name="(stack)" options={{headerShown: false}}/>
     </Stack>
   );
 }

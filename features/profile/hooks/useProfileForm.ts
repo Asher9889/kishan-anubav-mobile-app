@@ -320,13 +320,43 @@ export const useProfileForm = () => {
       return;
     }
     avatarMutation.mutate({ imageBlob, userId: currentUserId }, {
-      onSuccess: (uploadedUri) => {
+      onSuccess: async (uploadedUri) => {
         console.log('Avatar uploaded successfully:', uploadedUri);
+
+        if (!uploadedUri) {
+          Alert.alert('Upload Failed', 'The uploaded image URL was empty. Please try again.');
+          return;
+        }
+
+        const latestUser = useAuthStore.getState().user ?? user;
+        setUser({ ...latestUser, avatar: uploadedUri });
         updateField('avatarUri', uploadedUri);
+
+        try {
+          const updatedProfile = await updateProfileFieldMutation.mutateAsync({
+            avatar: uploadedUri,
+          });
+          const currentStoreUser = useAuthStore.getState().user;
+          setUser({
+            ...(currentStoreUser ?? latestUser),
+            ...updatedProfile,
+            avatar: updatedProfile.avatar ?? uploadedUri,
+          });
+          form.reset({
+            ...form.getValues(),
+            avatarUri: updatedProfile.avatar ?? uploadedUri,
+          });
+        } catch (error) {
+          console.error('Failed to persist avatar on profile:', error);
+          Alert.alert(
+            'Profile Photo Saved Locally',
+            'The photo was uploaded, but we could not save it to your profile. Please try again.'
+          );
+        }
       },
       onError: () => {
         Alert.alert('Upload Failed', 'Failed to upload avatar. Please try again.');
-        updateField('avatarUri', "");
+        // updateField('avatarUri', "");
         return;
       },
     });

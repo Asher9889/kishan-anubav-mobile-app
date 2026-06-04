@@ -1,4 +1,5 @@
 import { Colors, Spacing, Typography } from '@/constants/theme';
+import { useAuthStore } from '@/features/auth/store/auth.store';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Image } from 'expo-image';
 import { Camera, Plus } from 'lucide-react-native';
@@ -8,20 +9,24 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 type AppTheme = typeof Colors.light;
 
 interface ProfileStatsProps {
-  avatarUri: string;
   onPickAvatar: () => void;
 }
 
-const ProfileStats = ({ avatarUri, onPickAvatar, name }: ProfileStatsProps & { name: string }) => {
+const ProfileStats = ({ onPickAvatar }: ProfileStatsProps) => {
   const colorScheme = useColorScheme();
+  const user = useAuthStore((state) => state.user);
+  const avatarUri = user?.avatar?.trim() ?? '';
+  const name = user?.fullName?.trim() || user?.name?.trim() || '';
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
+  console.log('[Profile Screen]Rendering ProfileStats with avatar:', avatarUri, 'and name:', name);
 
   return (
     <View style={styles.profileHeader}>
       <Pressable onPress={onPickAvatar} style={styles.avatarWrapper} accessibilityRole="button">
         {avatarUri ? (
-          <Image source={{ uri: avatarUri }} style={styles.avatarLarge} contentFit="cover" />
+          <Image cachePolicy="none" source={{ uri: avatarUri }} style={styles.avatarLarge} onLoad={() => console.log('IMAGE LOADED')}
+            onError={(e) => console.log('IMAGE ERROR', e)} contentFit="cover" />
         ) : (
           <View style={styles.avatarFallbackLarge}>
             <Camera size={32} color={theme.textMuted} />
@@ -34,9 +39,9 @@ const ProfileStats = ({ avatarUri, onPickAvatar, name }: ProfileStatsProps & { n
         )}
       </Pressable>
 
-      <View style={{display: 'flex', flexDirection: 'column', gap: Spacing.sm}}>
+      <View style={{ display: 'flex', flexDirection: 'column', gap: Spacing.sm }}>
         <Text className='text-red-700 font-bold text-xl'>{name}</Text>
-        <View style={{display: 'flex', flexDirection: 'row', gap: Spacing.lg}}>
+        <View style={{ display: 'flex', flexDirection: 'row', gap: Spacing.lg }}>
 
           <View style={styles.statItem}>
             <Text style={styles.statNumber}>46</Text>

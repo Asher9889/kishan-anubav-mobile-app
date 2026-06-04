@@ -1,9 +1,9 @@
-import React, { useMemo } from 'react';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
-import { ChevronLeft, AtSign, ChevronRight, Plus, Settings } from 'lucide-react-native';
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { router } from 'expo-router';
+import { AtSign, ChevronLeft, ChevronRight, Plus, Settings } from 'lucide-react-native';
+import React, { useMemo } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type AppTheme = typeof Colors.light;
 
@@ -12,7 +12,6 @@ interface ProfileHeaderProps {
 }
 
 const ProfileHeader = ({ username }: ProfileHeaderProps) => {
-  const router = useRouter();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
@@ -21,7 +20,7 @@ const ProfileHeader = ({ username }: ProfileHeaderProps) => {
 
   return (
     <View style={styles.instagramTopBar}>
-      <Pressable onPress={() => router.back()} accessibilityRole="button">
+      <Pressable onPress={() => router.push("/(private)/(stack)/knowledge/create")} accessibilityRole="button">
         <ChevronLeft size={28} color={theme.text} strokeWidth={2.2} />
       </Pressable>
       <View style={styles.usernameHeader}>
@@ -30,7 +29,7 @@ const ProfileHeader = ({ username }: ProfileHeaderProps) => {
         <ChevronRight size={16} color={theme.text} style={{ transform: [{ rotate: '90deg' }] }} />
       </View>
       <View style={styles.topBarRight}>
-        <Pressable style={styles.topBarIcon} accessibilityRole="button">
+        <Pressable onPress={() => router.push("/(private)/(stack)/knowledge/create")} style={styles.topBarIcon} accessibilityRole="button">
           <Plus size={24} color={theme.text} strokeWidth={2} />
         </Pressable>
         <Pressable style={styles.topBarIcon} accessibilityRole="button">

@@ -10,7 +10,6 @@ import ProfileBio from '../components/ProfileBio';
 import ProfileHeader from '../components/ProfileHeader';
 import ProfileStats from '../components/ProfileStats';
 import ProfileTabs from '../components/ProfileTabs';
-import StoryHighlights from '../components/StoryHighlights';
 import EditProfileModal from '../components/edit/EditProfileModal';
 import { useProfileForm } from '../hooks/useProfileForm';
 
@@ -21,7 +20,6 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
-  const fullName = profileForm.profile.fullName;
 
   return (
     <>
@@ -30,16 +28,14 @@ export default function ProfileScreen() {
 
         <ScrollView showsVerticalScrollIndicator={false}>
           <ProfileStats
-            avatarUri={profileForm.profile.avatarUri}
             onPickAvatar={profileForm.onPickAvatar}
-            name={fullName}
           />
 
           <ProfileBio profile={profileForm.profile} />
 
           <ProfileActions onEditPress={() => profileForm.setIsEditing(true)} />
 
-          <StoryHighlights />
+          {/* <StoryHighlights /> */}
 
           <ProfileTabs
             activeTab={profileForm.activeTab}
