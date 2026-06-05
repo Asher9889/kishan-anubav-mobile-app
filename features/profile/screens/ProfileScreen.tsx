@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import PostsGrid from '../components/PostsGrid';
+import PostsFeed from '../components/PostsFeed';
 import ProfileActions from '../components/ProfileActions';
 import ProfileBio from '../components/ProfileBio';
 import ProfileHeader from '../components/ProfileHeader';
@@ -22,12 +22,18 @@ export default function ProfileScreen() {
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const postsData = usePostDataFetcher();
+  const {data: postsData} = usePostDataFetcher();
+
+  console.log('Fetched posts data:', postsData);
+
+  if(postsData && postsData?.data?.posts?.length < 1){
+    Alert.alert("No Posts","You haven't made any posts yet. Start sharing your knowledge and experiences with the community!");
+  }
+
+
 
   
-  if(!postsData.isSuccess){
-    Alert.alert('Error', 'Failed to fetch posts data. Please try again later.');
-  }
+  
   
 
   return (
@@ -51,7 +57,9 @@ export default function ProfileScreen() {
             setActiveTab={profileForm.setActiveTab}
           />
 
-          <PostsGrid activeTab={profileForm.activeTab} />
+          {/* <PostsGrid  activeTab={profileForm.activeTab} /> */}
+
+          <PostsFeed posts={postsData?.data?.posts || []} />
 
         </ScrollView>
         <EditProfileModal

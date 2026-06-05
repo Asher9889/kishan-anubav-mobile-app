@@ -1,11 +1,11 @@
-import { api, endPoints } from "@/shared/api";
+import { endPoints } from "@/shared/api";
+import { nodeApi } from "@/shared/api/axios";
 import { PostKnowledgeApiDTO } from "../types/knowledge.types";
 
-
-//postData: PostKnowledgeApiDTO
-export async function postKnowledge(postData: PostKnowledgeApiDTO){
-    const {url, method} = endPoints.AI.QUICK_UPLOAD;
+export async function postKnowledge(postData: PostKnowledgeApiDTO) {
+    const { url, method } = endPoints.POSTS.POST
     const formData = new FormData();
+    console.log(formData instanceof FormData);
     formData.append('name', postData.userinfo.name);
     formData.append('location', postData.userinfo.location);
     formData.append('district', postData.userinfo.district);
@@ -19,14 +19,21 @@ export async function postKnowledge(postData: PostKnowledgeApiDTO){
         } as any);
     });
 
-    console.log('[API] Posting knowledge with data:', postData);
+    console.log("form data entries:");
+    for (const pair of formData.entries()) {
+        console.log(`${pair[0]}:`, pair[1]);
+    }
 
-
-    const response = await api.request({
+    const response = await nodeApi.request({
         url: url,
         method: method,
-        data: formData
+        data: formData,
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
     });
+
+    console.log('[API] Post knowledge response:', response);
 
     return response.data;
 }

@@ -64,6 +64,10 @@ export const endPoints = {
       url: "/posts",
       method: "GET",
     },
+    POST: {
+      url: "/posts",
+      method: "POST",
+    }
   },
 
   UPLOAD: {

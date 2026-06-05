@@ -140,16 +140,15 @@ export const updateProfileField = async (payload: UpdateProfileFieldPayload): Pr
 
 export const fetchUserPost = async () => {
   const { url, method } = endPoints.POSTS.GET;
-  const data = {
-    "pagination": {
-      "limit": 10,
-      "page": 1
-    }
-  }
+ 
   const response = await nodeApi.request<GetPostsResponse>({
     url: url,
     method: method,
-    data: data
+    params: {
+      limit: 20,
+      page: 1
+    }
   });
+  console.log('[GET_ALL_POSTS] API Response:', response);
   return response as unknown as GetPostsResponse;
 }

@@ -85,7 +85,6 @@ export default function CreateKnowledgeScreen() {
       knowledge: description.trim(),
       images: images
     };
-    console.log("[CreatePost] Submitting knowledge post with data:", data);
     mutateKnowledgePost.mutate(data, {
       onError: (error) => {
         Alert.alert('Error',  error.message ||'Failed to post knowledge. Please try again.');
@@ -93,7 +92,7 @@ export default function CreateKnowledgeScreen() {
       onSuccess: () => {
         Alert.alert('Success', 'Your knowledge has been posted!');
         reset();
-        router.push("/(private)/(stack)/knowledge/create");
+        router.push("/(private)/(stack)/client-profile");
       }
     })
 

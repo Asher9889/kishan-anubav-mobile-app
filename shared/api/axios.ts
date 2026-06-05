@@ -25,7 +25,7 @@ api.interceptors.response.use(
     return response.data;
   },
   function (error) {
-    console.log("API Error:",error.response?.data);
+    console.log("[Axios] API Error:",JSON.stringify(error));
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
     throw error.response?.data.message || error.message || "An unknown error occurred";
@@ -55,6 +55,22 @@ nodeApi.interceptors.response.use(
     console.log("API Error:",error.response?.data);
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
+
+     console.log("AXIOS ERROR");
+
+    console.log("message:", error.message);
+
+    console.log("code:", error.code);
+
+    console.log("response:", error.response);
+
+    console.log("request:", !!error.request);
+
+    console.log(
+      "toJSON:",
+      JSON.stringify(error.toJSON?.(), null, 2)
+    );
+
     let err =  error.response?.data?.message || error.response?.data.message || "An unknown error occurred";
     throw new Error(err);
   }
