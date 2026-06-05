@@ -2,8 +2,8 @@ import { useAuthStore } from "@/features/auth/store/auth.store";
 import axios from "axios";
 
 const API_BASE_URL = "https://krishianubhav.mssplonline.in";
-// const NODE_API_BASE_URL = "http://10.0.2.2:4500/api/v1"; // Change this to your Node.js server URL in development
-const NODE_API_BASE_URL = "http://160.25.62.109:8222/api/v1"; // Change this to your Node.js server URL in development
+const NODE_API_BASE_URL = "http://10.0.2.2:4500/api/v1"; // Change this to your Node.js server URL in development
+// const NODE_API_BASE_URL = "http://160.25.62.109:8222/api/v1"; // Change this to your Node.js server URL in development
 
 
 const nodeApi = axios.create({
@@ -14,7 +14,7 @@ const nodeApi = axios.create({
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30 * 1000,
+  timeout: 60 * 1000,
 });
 
 // Add a response interceptor

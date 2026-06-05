@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import PostsGrid from '../components/PostsGrid';
@@ -11,6 +11,7 @@ import ProfileHeader from '../components/ProfileHeader';
 import ProfileStats from '../components/ProfileStats';
 import ProfileTabs from '../components/ProfileTabs';
 import EditProfileModal from '../components/edit/EditProfileModal';
+import usePostDataFetcher from '../hooks/usePostFetcher';
 import { useProfileForm } from '../hooks/useProfileForm';
 
 type AppTheme = typeof Colors.light;
@@ -20,6 +21,14 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
+
+  const postsData = usePostDataFetcher();
+
+  
+  if(!postsData.isSuccess){
+    Alert.alert('Error', 'Failed to fetch posts data. Please try again later.');
+  }
+  
 
   return (
     <>
@@ -43,6 +52,7 @@ export default function ProfileScreen() {
           />
 
           <PostsGrid activeTab={profileForm.activeTab} />
+
         </ScrollView>
         <EditProfileModal
           isOpen={profileForm.isEditing}

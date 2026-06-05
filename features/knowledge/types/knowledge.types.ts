@@ -14,6 +14,17 @@ export interface PostImage {
   size?: number;
 }
 
+export interface PostKnowledgeApiDTO {
+  userinfo: {
+    name: string
+    location: string
+    district: string
+    state: string
+  },
+  knowledge: string
+  images: PostImage[]
+}
+
 export interface CreatePostScreenProps {
   onSubmit: (data: PostFormData) => Promise<void>;
   onCancel: () => void;

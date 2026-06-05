@@ -1,7 +1,7 @@
 import { endPoints } from '@/shared/api';
 import { nodeApi } from '@/shared/api/axios';
 import { ImagePickerAsset } from 'expo-image-picker';
-import type { GenderValue, TOccupation, UpdateProfileData } from '../types/profile.types';
+import type { GenderValue, GetPostsResponse, TOccupation, UpdateProfileData } from '../types/profile.types';
 
 type UsernameAvailabilityResponse = {
   available: boolean;
@@ -59,9 +59,9 @@ const readAvailability = (payload: unknown): UsernameAvailabilityResponse => {
   const available =
     isRecord(data)
       ? data.available ??
-        data.isAvailable ??
-        data.usernameAvailable ??
-        (data.exists === false ? true : undefined)
+      data.isAvailable ??
+      data.usernameAvailable ??
+      (data.exists === false ? true : undefined)
       : undefined;
 
   if (typeof available !== 'boolean') {
@@ -116,14 +116,14 @@ export const uploadAvatar = async (imageBlob: ImagePickerAsset, userId: string):
   return isRecord(data) && typeof data.url === 'string' ? data.url : '';
 }
 
-export const updateProfile = async (profileData: UpdateProfileData):Promise<UpdateProfileData> => {
+export const updateProfile = async (profileData: UpdateProfileData): Promise<UpdateProfileData> => {
   const { url, method } = endPoints.USER.UPDATE_PROFILE;
   const response = await nodeApi.request({
     url,
     method,
     data: profileData,
   });
-  
+
   return readProfile(response);
 }
 
@@ -136,4 +136,20 @@ export const updateProfileField = async (payload: UpdateProfileFieldPayload): Pr
   });
 
   return readProfile(response);
+}
+
+export const fetchUserPost = async () => {
+  const { url, method } = endPoints.POSTS.GET;
+  const data = {
+    "pagination": {
+      "limit": 10,
+      "page": 1
+    }
+  }
+  const response = await nodeApi.request<GetPostsResponse>({
+    url: url,
+    method: method,
+    data: data
+  });
+  return response as unknown as GetPostsResponse;
 }

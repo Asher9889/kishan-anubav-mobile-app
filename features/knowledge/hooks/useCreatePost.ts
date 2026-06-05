@@ -24,11 +24,11 @@ export const useCreatePost = (
   const validate = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
     
-    if (!title.trim()) {
-      newErrors.title = 'Title is required';
-    } else if (title.length > maxTitleLength) {
-      newErrors.title = `Title must be under ${maxTitleLength} characters`;
-    }
+    // if (!title.trim()) {
+    //   newErrors.title = 'Title is required';
+    // } else if (title.length > maxTitleLength) {
+    //   newErrors.title = `Title must be under ${maxTitleLength} characters`;
+    // }
 
     if (!description.trim()) {
       newErrors.description = 'Description is required';
@@ -40,7 +40,7 @@ export const useCreatePost = (
     return Object.keys(newErrors).length === 0;
   }, [title, description, maxTitleLength, maxDescriptionLength]);
 
-  const isValid = title.trim().length > 0 && description.trim().length > 0 && title.length <= maxTitleLength && description.length <= maxDescriptionLength;
+  const isValid =  description.trim().length > 0  && description.length <= maxDescriptionLength;
 
   // Image handling
   const pickImage = useCallback(async (source: PickerSource) => {

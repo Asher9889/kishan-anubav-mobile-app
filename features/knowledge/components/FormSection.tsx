@@ -2,7 +2,6 @@
 import React, { useRef } from 'react';
 import { TextInput, View } from 'react-native';
 import { DescriptionInput } from './DescriptionInput';
-import { TitleInput } from './TitleInput';
 
 interface FormSectionProps {
   title: string;
@@ -34,7 +33,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
 
   return (
     <View style={{ paddingHorizontal: 20, paddingTop: 16 }}>
-      <TitleInput
+      {/* <TitleInput
         ref={titleRef}
         value={title}
         onChangeText={onTitleChange}
@@ -43,7 +42,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
         colors={colors}
         typography={typography}
         onSubmitEditing={() => descRef.current?.focus()}
-      />
+      /> */}
 
       <DescriptionInput
         ref={descRef}

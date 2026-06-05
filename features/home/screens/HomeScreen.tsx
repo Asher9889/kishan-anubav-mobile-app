@@ -102,12 +102,15 @@ export default function HomeScreen() {
               title="सामुदायिक ज्ञान"
               className="mt-8"
               action={
+                <Pressable onPress={() => router.push("/(private)/(stack)/knowledge/create")}>
+
                 <View className="flex-row items-center rounded-full px-4 py-2" style={{ backgroundColor: c.primary }}>
                   <PencilLine size={18} color={c.onPrimary} />
                   <Text className="ml-2 text-[14px] font-semibold" style={{ color: c.onPrimary }}>
                     ज्ञान साझा करें
                   </Text>
                 </View>
+                </Pressable>
               }
             />
 

@@ -1,4 +1,5 @@
 // app/knowledge/create.tsx
+import { useAuthStore } from '@/features/auth/store/auth.store';
 import useTheme from '@/hooks/useTheme'; // Your hook
 import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
@@ -16,7 +17,8 @@ import { HeaderSection } from '../components/HeaderSection';
 import ImagePickerSheet from '../components/ImagePickerSheet';
 import { ImageSection } from '../components/ImageSection';
 import { useCreatePost } from '../hooks/useCreatePost';
-import { PostFormData } from '../types/knowledge.types';
+import { usePostKnowledge } from '../hooks/usePostKnowledge';
+import { PostKnowledgeApiDTO } from '../types/knowledge.types';
 
 // ─── Constants ─────────────────────────────────────────
 
@@ -24,15 +26,9 @@ const MAX_IMAGES = 5;
 const MAX_TITLE_LENGTH = 100;
 const MAX_DESCRIPTION_LENGTH = 2000;
 
-// ─── Mock API ──────────────────────────────────────────
-
-const submitPost = async (data: PostFormData): Promise<void> => {
-  // Replace with your actual API call
-  console.log('Submitting post:', data);
-  await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network
-};
-
 export default function CreateKnowledgeScreen() {
+  const userInfo = useAuthStore((state) => state.user);
+  const mutateKnowledgePost = usePostKnowledge();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors, typography, isDark } = useTheme();
@@ -53,7 +49,6 @@ export default function CreateKnowledgeScreen() {
     // Actions
     pickImage,
     removeImage,
-    submit,
     reset,
   } = useCreatePost(MAX_IMAGES, MAX_TITLE_LENGTH, MAX_DESCRIPTION_LENGTH);
 
@@ -79,14 +74,30 @@ export default function CreateKnowledgeScreen() {
     }
   }, [title, description, images, reset, router]);
 
-  const handlePost = useCallback(async () => {
-    await submit(async (data) => {
-      await submitPost(data);
-      Alert.alert('Success', 'Your knowledge post has been shared!', [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
-    });
-  }, [submit, router]);
+  const handlePost = () => {
+    const data: PostKnowledgeApiDTO = {
+      userinfo: {
+        name: userInfo?.fullName || 'Unknown User',
+        location: userInfo?.city || 'Unknown Location',
+        district: userInfo?.district || 'Unknown District',
+        state: userInfo?.state || 'Unknown State',
+      },
+      knowledge: description.trim(),
+      images: images
+    };
+    console.log("[CreatePost] Submitting knowledge post with data:", data);
+    mutateKnowledgePost.mutate(data, {
+      onError: (error) => {
+        Alert.alert('Error',  error.message ||'Failed to post knowledge. Please try again.');
+      },
+      onSuccess: () => {
+        Alert.alert('Success', 'Your knowledge has been posted!');
+        reset();
+        router.push("/(private)/(stack)/knowledge/create");
+      }
+    })
+
+  };
 
   return (
     <View style={{ flex: 1 }}>

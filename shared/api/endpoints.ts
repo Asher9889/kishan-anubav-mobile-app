@@ -14,6 +14,10 @@ export const endPoints = {
       url: "/transcribe",
       method: "POST",
     },
+    QUICK_UPLOAD: {
+      url: "/quick-upload",
+      method: "POST",
+    }
   },
 
   AUTH: {
@@ -48,9 +52,16 @@ export const endPoints = {
       url: "/users/me",
       method: "PATCH",
     },
-    
+
     CHECK_USERNAME: {
       url: "/users/check-username",
+      method: "GET",
+    },
+  },
+
+  POSTS: {
+    GET: {
+      url: "/posts",
       method: "GET",
     },
   },

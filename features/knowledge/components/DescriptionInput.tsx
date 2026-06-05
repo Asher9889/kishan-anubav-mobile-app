@@ -25,7 +25,7 @@ export const DescriptionInput = forwardRef<TextInput, DescriptionInputProps>(({
   return (
     <View style={styles.container}>
       <Text style={[styles.label, { color: colors.textMuted, ...typography.caption }]}>
-        Description
+        Share your knowledge with the community.
       </Text>
       <View style={[
         styles.inputWrapper,
@@ -38,7 +38,7 @@ export const DescriptionInput = forwardRef<TextInput, DescriptionInputProps>(({
           ref={ref}
           value={value}
           onChangeText={onChangeText}
-          placeholder="समस्या का समाधान लिखे"
+          placeholder="ज्ञान साझा करें"
           placeholderTextColor={colors.textMuted}
           maxLength={maxLength}
           multiline

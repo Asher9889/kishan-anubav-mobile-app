@@ -49,3 +49,34 @@ export interface UpdateProfileData {
 }
 
 export type TOccupation = typeof OCCUPATIONS[keyof typeof OCCUPATIONS];
+
+
+export interface ApiResponse<T> {
+    success: boolean;
+    statusCode: number;
+    message: string;
+    data: T;
+}
+
+export interface Post {
+    id: string;
+    userId: string;
+    name: string;
+    location: string;
+    state: string;
+    district: string;
+    knowledge: string;
+    images: string[];
+    likesCount: number;
+    commentsCount: number;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface PostsData {
+    posts: Post[];
+    totalPosts: number;
+}
+
+export type GetPostsResponse = ApiResponse<PostsData>;
