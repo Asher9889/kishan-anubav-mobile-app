@@ -4,6 +4,7 @@ import useTheme from '@/hooks/useTheme'; // Your hook
 import { useRouter } from 'expo-router';
 import React, { useCallback } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -75,6 +76,7 @@ export default function CreateKnowledgeScreen() {
   }, [title, description, images, reset, router]);
 
   const handlePost = () => {
+    if (mutateKnowledgePost.isPending) return;
     const data: PostKnowledgeApiDTO = {
       userinfo: {
         name: userInfo?.fullName || 'Unknown User',
@@ -112,8 +114,8 @@ export default function CreateKnowledgeScreen() {
           <HeaderSection
             onBack={handleBack}
             onPost={handlePost}
-            canPost={isValid && !isSubmitting}
-            isSubmitting={isSubmitting}
+            canPost={isValid && !mutateKnowledgePost.isPending}
+            isSubmitting={mutateKnowledgePost.isPending}
             colors={colors}
             isDark={isDark}
           />
@@ -164,6 +166,13 @@ export default function CreateKnowledgeScreen() {
           </View>
         }
       </View>
+
+      {/* LOADING OVERLAY */}
+      {mutateKnowledgePost.isPending && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" />
+        </View>
+      )}
     </View>
   );
 }
@@ -174,5 +183,11 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -1,6 +1,6 @@
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -22,19 +22,26 @@ export default function ProfileScreen() {
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const {data: postsData} = usePostDataFetcher();
+  const { data: postsData } = usePostDataFetcher();
 
   console.log('Fetched posts data:', postsData);
 
-  if(postsData && postsData?.data?.posts?.length < 1){
-    Alert.alert("No Posts","You haven't made any posts yet. Start sharing your knowledge and experiences with the community!");
-  }
+  useEffect(() => {
+    if (
+      postsData &&
+      postsData.data?.posts?.length === 0
+    ) {
+      Alert.alert(
+        'No Posts',
+        "You haven't made any posts yet. Start sharing your knowledge and experiences with the community!"
+      );
+    }
+  }, [postsData]);
 
 
 
-  
-  
-  
+
+
 
   return (
     <>

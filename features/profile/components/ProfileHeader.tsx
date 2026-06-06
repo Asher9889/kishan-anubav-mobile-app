@@ -20,7 +20,7 @@ const ProfileHeader = ({ username }: ProfileHeaderProps) => {
 
   return (
     <View style={styles.instagramTopBar}>
-      <Pressable onPress={() => router.push("/(private)/(stack)/knowledge/create")} accessibilityRole="button">
+      <Pressable onPress={() => router.push("/(private)/(tabs)")} accessibilityRole="button">
         <ChevronLeft size={28} color={theme.text} strokeWidth={2.2} />
       </Pressable>
       <View style={styles.usernameHeader}>
