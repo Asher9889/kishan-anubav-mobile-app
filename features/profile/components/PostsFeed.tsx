@@ -8,7 +8,7 @@ interface Props {
   posts: Post[];
 }
 
-const PostsFeed = ({ posts }: Props) => {
+const PostsFeed = ({  posts }: Props) => {
   return (
     <FlatList
       data={posts}
@@ -16,9 +16,9 @@ const PostsFeed = ({ posts }: Props) => {
       renderItem={({ item }) => (
         <PostCard post={item} />
       )}
-      showsVerticalScrollIndicator={false}
     />
   );
 };
+     
 
 export default PostsFeed;

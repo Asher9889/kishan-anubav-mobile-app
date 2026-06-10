@@ -27,6 +27,8 @@ export const PostButton: React.FC<PostButtonProps> = ({
     transform: [{ scale: withSpring(disabled ? 0.98 : 1, { stiffness: 400 }) }],
   }));
 
+  
+
   return (
     <Pressable onPress={onPress} disabled={disabled || loading}>
       <Animated.View

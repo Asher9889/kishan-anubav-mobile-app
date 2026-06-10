@@ -1,16 +1,16 @@
 import { Image } from 'expo-image';
 import {
-    Heart,
-    MessageCircle,
-    Share2,
+  Heart,
+  MessageCircle,
+  Share2,
 } from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import {
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 
 import { Colors } from '@/constants/theme';
@@ -62,7 +62,7 @@ const PostCard = ({ post }: Props) => {
           </Text>
 
           <Text style={styles.location}>
-            {post.district}, {post.state}
+            {post.location}, {post.state}
           </Text>
         </View>
       </View>

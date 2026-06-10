@@ -32,7 +32,7 @@ const ProfileHeader = ({ username }: ProfileHeaderProps) => {
         <Pressable onPress={() => router.push("/(private)/(stack)/knowledge/create")} style={styles.topBarIcon} accessibilityRole="button">
           <Plus size={24} color={theme.text} strokeWidth={2} />
         </Pressable>
-        <Pressable style={styles.topBarIcon} accessibilityRole="button">
+        <Pressable onPress={() => router.push("/(private)/(stack)/settings")} style={styles.topBarIcon} accessibilityRole="button">
           <Settings size={24} color={theme.text} strokeWidth={2} />
         </Pressable>
       </View>

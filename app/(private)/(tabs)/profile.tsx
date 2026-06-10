@@ -1,1 +1,3 @@
-export { default } from '@/features/profile/screens/ProfileScreen';
+import ProfileScreen from "../(stack)/client-profile";
+
+export default ProfileScreen;

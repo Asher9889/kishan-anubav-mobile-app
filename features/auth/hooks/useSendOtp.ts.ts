@@ -28,6 +28,7 @@ const useSendOtp = () => {
             console.error("Error sending OTP:", error);
         }
     });
+    
 };
 
 export default useSendOtp;

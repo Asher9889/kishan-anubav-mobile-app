@@ -80,7 +80,7 @@ export default function CreateKnowledgeScreen() {
     const data: PostKnowledgeApiDTO = {
       userinfo: {
         name: userInfo?.fullName || 'Unknown User',
-        location: userInfo?.city || 'Unknown Location',
+        location: userInfo?.city ||  'Unknown Location',
         district: userInfo?.district || 'Unknown District',
         state: userInfo?.state || 'Unknown State',
       },

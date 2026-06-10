@@ -52,6 +52,7 @@ interface ThemeColors {
 }
 
 interface AuthPhoneScreenProps {
+  isPending?: boolean;
   onContinue?: (phoneNumber: string) => void;
 }
 
@@ -60,6 +61,7 @@ interface AuthPhoneScreenProps {
 // ============================================================================
 
 interface ContinueButtonProps {
+  isLoading: boolean;
   onPress: () => void;
   disabled?: boolean;
   label?: string;
@@ -67,6 +69,7 @@ interface ContinueButtonProps {
 }
 
 const ContinueButton: React.FC<ContinueButtonProps> = React.memo(({
+  isLoading,
   onPress,
   disabled = false,
   label = 'Continue',
@@ -145,7 +148,7 @@ const ContinueButton: React.FC<ContinueButtonProps> = React.memo(({
             },
           ]}
         >
-          {label}
+          { isLoading ? 'Sending...' : label}
         </Text>
       </TouchableOpacity>
     </Animated.View>
@@ -320,7 +323,7 @@ PhoneInput.displayName = 'PhoneInput';
 // AuthPhoneScreen Component
 // ============================================================================
 
-const AuthPhoneScreen: React.FC<AuthPhoneScreenProps> = ({ onContinue }) => {
+const AuthPhoneScreen: React.FC<AuthPhoneScreenProps> = ({ isPending, onContinue }) => {
   const colorScheme = useColorScheme();
   const insets = useSafeAreaInsets();
   const isDark = colorScheme === 'dark';
@@ -404,6 +407,7 @@ const AuthPhoneScreen: React.FC<AuthPhoneScreenProps> = ({ onContinue }) => {
           {/* Bottom Section */}
           <View style={styles.bottomSection}>
             <ContinueButton
+              isLoading={isPending ?? false}
               onPress={handleContinue}
               disabled={!isValid}
               delay={900}

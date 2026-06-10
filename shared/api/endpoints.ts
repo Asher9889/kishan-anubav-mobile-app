@@ -3,7 +3,7 @@ export const API_BASE_URL = "https://krishianubhav.mssplonline.in";
 export const endPoints = {
   AI: {
     ASK: {
-      url: "/v2/ask",
+      url: "/v3/ask",
       method: "POST",
     },
     VOICE: {
