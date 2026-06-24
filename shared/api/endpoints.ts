@@ -17,6 +17,10 @@ export const endPoints = {
     QUICK_UPLOAD: {
       url: "/quick-upload",
       method: "POST",
+    },
+    IMAGE: {
+      url: "/ask-image",
+      method: "POST",
     }
   },
 

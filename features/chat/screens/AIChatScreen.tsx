@@ -1,14 +1,17 @@
 import { MessageBubble } from '@/components';
 import Logo from '@/components/logo';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
+import { ImagePickerService } from '@/services/camera.service';
 import * as crypto from 'expo-crypto';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Home, Mic, Send } from 'lucide-react-native';
+import { Home, ImagePlus, Mic, Send } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { convertAudioToText } from '../api/ask-audio-stream.api';
+import { analyzeImage } from '../api/ask-image.api';
 import { askQuestionStream } from '../api/ask-text-stream.api';
 import ChatAudioRecorder from '../components/audio-recorder/ChatAudioRecorder';
 import { ChatHistorySheet } from '../components/side-sheet/ChatHistorySheet';
@@ -107,219 +110,6 @@ export default function AIChatScreen() {
     setMessages(formattedMessages);
   };
 
-  // const handleAudioComplete = async (audioUri: string) => {
-  //   if (isGenerating) return;
-
-  //   setComposerMode('text');
-  //   setIsGenerating(true);
-
-
-  //   try {
-  //     const thinkingMessageId = crypto.randomUUID();
-  //     const userUiMessageId = crypto.randomUUID();
-  //     const aiReplyMessageId = crypto.randomUUID();
-  //     let hasCreatedAiReply = false;
-  //     let fullAnswer = '';
-  //     let displayedAnswer = '';
-  //     let isStreamComplete = false;
-  //     let currentChatId = activeChatIdState;
-
-  //     addUiMessage({
-  //       id: thinkingMessageId,
-  //       role: 'ai',
-  //       type: 'uploading',
-  //     });
-
-  //     const completeAudioChatFlow = async () => {
-  //       try {
-  //         await saveAIMessage({
-  //           chatId: currentChatId!,
-  //           query: fullAnswer,
-  //         });
-  //         await loadMessages(currentChatId!);
-  //         removeUiMessage(userUiMessageId);
-  //         removeUiMessage(aiReplyMessageId);
-  //       } catch (error) {
-  //         console.log('Error completing audio chat flow:', error);
-  //       } finally {
-  //         setIsGenerating(false);
-  //       }
-  //     };
-
-  //     const startAudioTyping = () => {
-  //       if (typingTimerRef.current) return;
-
-  //       typingTimerRef.current = setInterval(() => {
-  //         if (displayedAnswer.length < fullAnswer.length) {
-  //           const remaining = fullAnswer.slice(displayedAnswer.length);
-  //           if (!remaining) return;
-
-  //           const match = remaining.match(/^(\s*\S+)/);
-  //           if (match) {
-  //             displayedAnswer += match[1];
-  //           } else {
-  //             displayedAnswer = fullAnswer;
-  //           }
-
-  //           if (!hasCreatedAiReply) {
-  //             hasCreatedAiReply = true;
-  //             removeUiMessage(thinkingMessageId);
-
-  //             addUiMessage({
-  //               id: aiReplyMessageId,
-  //               role: 'ai',
-  //               type: 'reply',
-  //               content: displayedAnswer,
-  //             });
-  //             return;
-  //           }
-
-  //           replaceUiMessage(aiReplyMessageId, {
-  //             content: displayedAnswer,
-  //           });
-  //         } else if (isStreamComplete) {
-  //           if (typingTimerRef.current) {
-  //             clearInterval(typingTimerRef.current);
-  //             typingTimerRef.current = null;
-  //           }
-  //           completeAudioChatFlow();
-  //         }
-  //       }, 30);
-  //     };
-
-  //     if (!currentChatId) {
-  //       currentChatId = await createChat({ title: "Voice is processing...." });
-  //       setActiveChatId(currentChatId);
-  //     }
-
-
-  //     const res = await convertAudioToText(audioUri);
-  //     if(!res.success){ 
-  //       Alert.alert('Audio parsing failed', res.message);
-  //       return;
-  //     }
-  //      const audioText = res.data.transcript
-  //      await askQuestionStream(audioText, currentChatId, {
-  //       // metadata handling
-  //       async onMetadata(data) {
-  //         replaceUiMessage(userUiMessageId, {
-  //           content: data.query,
-  //         });
-
-  //         await updateChatTitle({
-  //           chatId: data.thread_id,
-  //           title: data.query,
-  //         });
-
-  //         await saveUserMessage({ chatId: data.thread_id, query: data.query });
-  //       },
-
-  //       onStart() {
-  //         console.log('streaming started....');
-  //       },
-
-  //       onChunk(chunk) {
-  //         fullAnswer += chunk;
-  //         startTyping();
-  //       },
-
-  //       async onComplete(data) {
-  //         isStreamComplete = true;
-  //         // If the typing timer is not active or we've already finished typing everything
-  //         if (!typingTimerRef.current || displayedAnswer.length >= fullAnswer.length) {
-  //           if (typingTimerRef.current) {
-  //             clearInterval(typingTimerRef.current);
-  //             typingTimerRef.current = null;
-  //           }
-  //           await completeChatFlow();
-  //         }
-  //       },
-
-  //       onError(error) {
-  //         console.log('error', error);
-  //         if (typingTimerRef.current) {
-  //           clearInterval(typingTimerRef.current);
-  //           typingTimerRef.current = null;
-  //         }
-  //         removeUiMessage(thinkingMessageId);
-  //         removeUiMessage(userUiMessageId);
-  //         removeUiMessage(aiReplyMessageId);
-  //         setIsGenerating(false);
-  //       }
-  //     });
-
-
-  //     // await askAudioStream(audioUri, currentChatId, {
-  //     //   async onMetadata(data) {
-  //     //     console.log('Metadata received from audio stream:', data);
-  //     //     const resolvedChatId = currentChatId ?? data.thread_id ?? await createChat({ title: data.query });
-  //     //     currentChatId = resolvedChatId;
-  //     //     setActiveChatId(resolvedChatId);
-
-  //     //     addUiMessage({
-  //     //       id: userUiMessageId,
-  //     //       role: 'user',
-  //     //       type: 'message',
-  //     //       content: data.query,
-  //     //     });
-
-  //     //     await saveUserMessage({
-  //     //       chatId: resolvedChatId,
-  //     //       query: data.query,
-  //     //       audioUri,
-  //     //     });
-
-  //     //     await updateChatTitle({
-  //     //       chatId: resolvedChatId,
-  //     //       title: data.query,
-  //     //     });
-  //     //   },
-
-  //     //   onStart() {
-  //     //     replaceUiMessage(thinkingMessageId, { type: 'thinking' });
-  //     //   },
-
-  //     //   onChunk(chunk) {
-  //     //     fullAnswer += chunk;
-  //     //     startAudioTyping();
-  //     //   },
-
-  //     //   async onComplete() {
-  //     //     isStreamComplete = true;
-  //     //     if (!typingTimerRef.current || displayedAnswer.length >= fullAnswer.length) {
-  //     //       if (typingTimerRef.current) {
-  //     //         clearInterval(typingTimerRef.current);
-  //     //         typingTimerRef.current = null;
-  //     //       }
-  //     //       await completeAudioChatFlow();
-  //     //     }
-  //     //   },
-
-  //     //   onError(error) {
-  //     //     console.log('error inside askAudioStream', error);
-  //     //     if (typingTimerRef.current) {
-  //     //       clearInterval(typingTimerRef.current);
-  //     //       typingTimerRef.current = null;
-  //     //     }
-  //     //     removeUiMessage(thinkingMessageId);
-  //     //     removeUiMessage(userUiMessageId);
-  //     //     removeUiMessage(aiReplyMessageId);
-  //     //     setIsGenerating(false);
-  //     //   },
-  //     // });
-
-  //   } catch (error) {
-  //     console.log('error inside audio upload flow', error);
-  //     if (typingTimerRef.current) {
-  //       clearInterval(typingTimerRef.current);
-  //       typingTimerRef.current = null;
-  //     }
-  //     setIsGenerating(false);
-  //   }
-  // };
-
-
-
   const handleAudioComplete = async (audioUri: string) => {
 
     if (isGenerating) return;
@@ -335,13 +125,6 @@ export default function AIChatScreen() {
     let isStreamComplete = false;
     let currentChatId = activeChatIdState;
 
-    // Immediately display the user's question in the UI
-    // addUiMessage({
-    //   id: userUiMessageId,
-    //   role: 'ai',
-    //   type: 'message',
-    //   content: queryText,
-    // });
     addUiMessage({
       id: thinkingMessageId,
       role: 'ai',
@@ -501,6 +284,202 @@ export default function AIChatScreen() {
   };
 
 
+
+  const handleImageUpload = async () => {
+    if (isGenerating) return;
+
+    const options = ["Camera", "Gallery", "Cancel"];
+    const cancelButtonIndex = 2;
+
+    const chosenOption = await new Promise<string | null>((resolve) => {
+      Alert.alert("Upload Image", "Choose an option", [
+        { text: "Camera", onPress: () => resolve("camera") },
+        { text: "Gallery", onPress: () => resolve("gallery") },
+        { text: "Cancel", onPress: () => resolve(null), style: "cancel" },
+      ]);
+    });
+
+    if (!chosenOption) return;
+
+    let asset;
+    try {
+      asset = chosenOption === "camera"
+        ? await ImagePickerService.pickFromCamera()
+        : await ImagePickerService.pickFromGallery();
+    } catch (err: any) {
+      Alert.alert("Permission Denied", err.message);
+      return;
+    }
+
+    if (!asset) return;
+
+    setIsGenerating(true);
+
+    const imageUri = asset.uri;
+    const userImageMessageId = crypto.randomUUID();
+    const thinkingMessageId = crypto.randomUUID();
+    const aiReplyMessageId = crypto.randomUUID();
+    let hasCreatedAiReply = false;
+    let fullAnswer = '';
+    let displayedAnswer = '';
+    let isStreamComplete = false;
+    let currentChatId = activeChatIdState;
+
+    addUiMessage({
+      id: userImageMessageId,
+      role: 'user',
+      type: 'message',
+      content: imageUri,
+    });
+
+    addUiMessage({
+      id: thinkingMessageId,
+      role: 'ai',
+      type: 'uploading',
+    });
+
+    const res = await analyzeImage(imageUri);
+
+    if (!res.success || !res.question_text) {
+      Alert.alert('Image Analysis Failed', res.message || 'Could not analyze the image.');
+      removeUiMessage(thinkingMessageId);
+      removeUiMessage(userImageMessageId);
+      setIsGenerating(false);
+      return;
+    }
+
+    console.log('Image analysis result:', res.question_text);
+    const questionText = res.question_text;
+
+    replaceUiMessage(thinkingMessageId, {
+      id: thinkingMessageId,
+      role: 'ai',
+      type: 'thinking',
+    });
+
+    const completeChatFlow = async () => {
+      try {
+        await saveAIMessage({
+          chatId: currentChatId!,
+          query: fullAnswer,
+        });
+        await loadMessages(currentChatId!);
+        removeUiMessage(userImageMessageId);
+        removeUiMessage(aiReplyMessageId);
+      } catch (err) {
+        console.log('Error completing chat flow:', err);
+      } finally {
+        setIsGenerating(false);
+      }
+    };
+
+    const startTyping = () => {
+      if (typingTimerRef.current) return;
+
+      typingTimerRef.current = setInterval(() => {
+        if (displayedAnswer.length < fullAnswer.length) {
+          const remaining = fullAnswer.slice(displayedAnswer.length);
+          if (!remaining) return;
+
+          const match = remaining.match(/^(\s*\S+)/);
+          if (match) {
+            const nextWord = match[1];
+            displayedAnswer += nextWord;
+          } else {
+            displayedAnswer = fullAnswer;
+          }
+
+          if (!hasCreatedAiReply) {
+            hasCreatedAiReply = true;
+            removeUiMessage(thinkingMessageId);
+
+            addUiMessage({
+              id: aiReplyMessageId,
+              role: 'ai',
+              type: 'reply',
+              content: displayedAnswer,
+            });
+          } else {
+            replaceUiMessage(aiReplyMessageId, {
+              content: displayedAnswer,
+            });
+          }
+        } else if (isStreamComplete) {
+          if (typingTimerRef.current) {
+            clearInterval(typingTimerRef.current);
+            typingTimerRef.current = null;
+          }
+          completeChatFlow();
+        }
+      }, 30);
+    };
+
+    try {
+      if (!currentChatId) {
+        currentChatId = await createChat({ title: "Image Analysis" });
+        setActiveChatId(currentChatId);
+      }
+
+      await askQuestionStream(questionText, currentChatId, {
+        async onMetadata(data) {
+          replaceUiMessage(userImageMessageId, {
+            content: imageUri,
+          });
+
+          await updateChatTitle({
+            chatId: data.thread_id,
+            title: "Image Analysis",
+          });
+
+          await saveUserMessage({ chatId: data.thread_id, query: questionText });
+        },
+
+        onStart() {
+          console.log('image streaming started....');
+        },
+
+        onChunk(chunk) {
+          fullAnswer += chunk;
+          startTyping();
+        },
+
+        async onComplete(data) {
+          console.log('image streaming complete', data);
+          isStreamComplete = true;
+          if (!typingTimerRef.current || displayedAnswer.length >= fullAnswer.length) {
+            if (typingTimerRef.current) {
+              clearInterval(typingTimerRef.current);
+              typingTimerRef.current = null;
+            }
+            await completeChatFlow();
+          }
+        },
+
+        onError(error) {
+          console.log('error', error);
+          if (typingTimerRef.current) {
+            clearInterval(typingTimerRef.current);
+            typingTimerRef.current = null;
+          }
+          removeUiMessage(thinkingMessageId);
+          removeUiMessage(userImageMessageId);
+          removeUiMessage(aiReplyMessageId);
+          setIsGenerating(false);
+        }
+      });
+
+    } catch (error) {
+      console.log('error inside image send flow', error);
+      if (typingTimerRef.current) {
+        clearInterval(typingTimerRef.current);
+        typingTimerRef.current = null;
+      }
+      removeUiMessage(thinkingMessageId);
+      removeUiMessage(userImageMessageId);
+      removeUiMessage(aiReplyMessageId);
+      setIsGenerating(false);
+    }
+  };
 
   const closeAudioComposer = () => {
     setComposerMode('text');
@@ -778,6 +757,8 @@ export default function AIChatScreen() {
             contentContainerStyle={styles.messagesList}
             ItemSeparatorComponent={() => <View style={styles.messageGap} />}
             renderItem={({ item }) => {
+              const isImageMessage = item.role === 'user' && item.content && (item.content.startsWith('file://') || item.content.startsWith('/'));
+
               switch (item.type) {
                 case "listening":
                   return <ListeningState />;
@@ -791,6 +772,22 @@ export default function AIChatScreen() {
                 // case "error":
                 //   return <AIThinking />;
                 default:
+                  if (isImageMessage) {
+                    return (
+                      <View style={[styles.messageRow, styles.messageRowUser]}>
+                        <View style={[styles.bubbleWrapper, styles.bubbleWrapperUser]}>
+                          <View style={[styles.bubble, styles.bubbleUser, styles.imageBubbleUser]}>
+                            <Image
+                              source={{ uri: item.content }}
+                              style={styles.chatImage}
+                              contentFit="cover"
+                              transition={300}
+                            />
+                          </View>
+                        </View>
+                      </View>
+                    );
+                  }
                   return <MessageBubble item={item} />;
               }
             }}
@@ -828,6 +825,22 @@ export default function AIChatScreen() {
                       style={styles.micGradientVoiceCentric}
                     >
                       <Mic size={22} color="#FFFFFF" fill="rgba(255, 255, 255, 0.25)" />
+                    </LinearGradient>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={handleImageUpload}
+                    style={[styles.imageButton, isGenerating && { opacity: 0.5 }]}
+                    disabled={isGenerating}
+                    activeOpacity={0.8}
+                  >
+                    <LinearGradient
+                      colors={[c.primaryContainer, '#14B8A6']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.imageButtonGradient}
+                    >
+                      <ImagePlus size={22} color="#FFFFFF" />
                     </LinearGradient>
                   </TouchableOpacity>
 
@@ -1184,6 +1197,33 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  imageButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    shadowColor: Colors.light.primaryContainer,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  imageButtonGradient: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imageBubbleUser: {
+    padding: 4,
+    borderBottomRightRadius: Radius.sm,
+    overflow: 'hidden',
+  },
+  chatImage: {
+    width: 200,
+    height: 200,
+    borderRadius: Radius.lg,
   },
 
   // Send Button
