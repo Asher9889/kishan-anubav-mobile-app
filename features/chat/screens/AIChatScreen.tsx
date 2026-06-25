@@ -336,6 +336,7 @@ export default function AIChatScreen() {
       id: thinkingMessageId,
       role: 'ai',
       type: 'uploading',
+      uploadType: 'image',
     });
 
     const res = await analyzeImage(imageUri);
@@ -763,7 +764,7 @@ export default function AIChatScreen() {
                 case "listening":
                   return <ListeningState />;
                 case "uploading":
-                  return <UploadingState />;
+                  return <UploadingState uploadType={item.uploadType} />;
                 case "thinking":
                   return <ThinkingState />;
 

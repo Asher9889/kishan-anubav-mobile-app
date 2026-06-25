@@ -18,7 +18,11 @@ import Animated, {
 
 const c = Colors.light;
 
-export default function UploadingState() {
+interface UploadingStateProps {
+  uploadType?: "voice" | "image";
+}
+
+export default function UploadingState({ uploadType = "voice" }: UploadingStateProps) {
     /**
      * Orb floating energy
      */
@@ -243,7 +247,7 @@ export default function UploadingState() {
                                 color: c.text,
                             }}
                         >
-                            Uploading your voice
+                            {uploadType === 'image' ? 'Uploading your image' : 'Uploading your voice'}
                         </Text>
 
                         {/* Animated Dots */}
@@ -261,7 +265,7 @@ export default function UploadingState() {
                             color: c.textMuted,
                         }}
                     >
-                        aapki awaaz Kisna AI tak bheji ja rahi hai...
+                        {uploadType === 'image' ? 'photo Krishi AI tak bheji ja rahi hai...' : 'aapki awaaz Krishi AI tak bheji ja rahi hai...'}
                     </Text>
                 </View>
             </View>

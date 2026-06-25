@@ -21,7 +21,7 @@ export default function ThinkingState() {
                         color: c.textSecondary,
                     }}
                 >
-                    Kisna AI is thinking...
+                    Krishi AI is thinking...
                 </Text>
 
                 <View className="flex-row items-center">

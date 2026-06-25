@@ -26,7 +26,7 @@ function MessageBubble({item}: {item: ChatMessage}) {
 
       <View style={[styles.bubbleWrapper, isUser && styles.bubbleWrapperUser]}>
         {!isUser && (
-          <Text style={styles.aiNameLabel}>Kisna AI</Text>
+          <Text style={styles.aiNameLabel}>Krishi AI</Text>
         )}
 
         <View

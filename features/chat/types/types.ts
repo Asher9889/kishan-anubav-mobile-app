@@ -7,6 +7,7 @@ export interface ChatMessage {
   type: ChatMessageType;
   content?: string;
   timestamp?: string;
+  uploadType?: "voice" | "image";
 }
 
 export type TSheetHandle = {

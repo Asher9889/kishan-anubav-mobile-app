@@ -67,7 +67,7 @@ export default function ThinkingState() {
                 }}>
                     <View style={{ display: "flex", flexDirection: "row", gap: 4, alignItems: "center" }} >
                         <Text className="text-base font-semibold" style={{ color: c.text }}>
-                            Kisna AI is thinking
+                            Krishi AI is thinking
                         </Text>
 
                         <View className="flex flex-row">
@@ -84,7 +84,7 @@ export default function ThinkingState() {
                             color: c.textMuted,
                         }}
                     >
-                        aapka AI saathi soch raha hai...
+                        aapka Krishi AI saathi soch raha hai...
                     </Text>
                 </View>
             </View>

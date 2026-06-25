@@ -174,7 +174,7 @@ export default function ListeningState() {
                 color: c.text,
               }}
             >
-              Kisna AI is listening
+              Krishi AI is listening
             </Text>
 
             {/* Animated Dots */}

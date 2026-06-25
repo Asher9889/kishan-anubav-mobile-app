@@ -25,9 +25,6 @@ import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { loginSchema } from "../validation/login.schema";
 
-// ============================================================================
-// Types
-// ============================================================================
 
 interface ThemeColors {
   background: string;
@@ -55,10 +52,6 @@ interface AuthPhoneScreenProps {
   isPending?: boolean;
   onContinue?: (phoneNumber: string) => void;
 }
-
-// ============================================================================
-// ContinueButton Component
-// ============================================================================
 
 interface ContinueButtonProps {
   isLoading: boolean;
@@ -157,9 +150,8 @@ const ContinueButton: React.FC<ContinueButtonProps> = React.memo(({
 
 ContinueButton.displayName = 'ContinueButton';
 
-// ============================================================================
+
 // PhoneInput Component
-// ============================================================================
 
 interface PhoneInputProps {
   value: string;
@@ -370,7 +362,7 @@ const AuthPhoneScreen: React.FC<AuthPhoneScreenProps> = ({ isPending, onContinue
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'height' : 'height'}
-      style={[styles.container, { backgroundColor: theme.background, marginTop: insets.top }]}
+      style={[styles.container, { backgroundColor: theme.background, marginTop: insets.top, marginBottom: insets.bottom }]}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
       <ScrollView

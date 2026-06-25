@@ -256,7 +256,7 @@ export default function GeneratingState() {
                                 color: c.text,
                             }}
                         >
-                            Kisna AI is generating response
+                            Krishi AI is generating response
                         </Text>
 
                         {/* Animated Dots */}
