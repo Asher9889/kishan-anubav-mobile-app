@@ -9,7 +9,6 @@ const useVerifyOtp = () => {
   return useMutation({
     mutationFn: verifyOTP,
     onSuccess: async (res, variables) => {
-        console.log("OTP verification successful, API response:", res);
       const data = res.data // Adjust this if your API response structure is different
       const user = data?.user;
       const tokens = data?.tokens;
@@ -18,14 +17,6 @@ const useVerifyOtp = () => {
       const refreshToken = tokens?.refreshToken;
       const userId = user?.id;
       const userPhone = user?.phone;
-
-      console.log("Verify OTP success payload:", data);
-      console.log("Parsed verify OTP values:", {
-        userId,
-        userPhone,
-        accessToken,
-        refreshToken,
-      });
 
       if (accessToken && userId) {
         login({
@@ -44,7 +35,7 @@ const useVerifyOtp = () => {
       }
     },
     onError: (err) => {
-        console.log("error got inside hook", err)
+      console.log("error got inside hook", err)
     }
   });
 };

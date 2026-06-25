@@ -3,25 +3,25 @@ import useVerifyOtp from '@/features/auth/hooks/useVerifyOtp';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    useColorScheme,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  useColorScheme,
+  View,
 } from 'react-native';
 import Animated, {
-    Easing,
-    useAnimatedStyle,
-    useSharedValue,
-    withDelay,
-    withTiming
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming
 } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // ============================================================================
 // Types
@@ -234,10 +234,10 @@ const OtpInput: React.FC<OtpInputProps> = React.memo(({
           const borderColor = isError
             ? theme.error
             : isActive
-            ? theme.primary
-            : isFilled
-            ? theme.primary
-            : theme.border;
+              ? theme.primary
+              : isFilled
+                ? theme.primary
+                : theme.border;
 
           const backgroundColor = isActive
             ? isDark ? theme.surface : theme.card
@@ -373,13 +373,13 @@ const VerifyOtpScreen: React.FC<VerifyOtpScreenProps> = ({
     setError('');
 
     verifyOtp({
-        phone: phoneValue,
-        otp,
-        reqId: reqIdValue,
-      },
+      phone: phoneValue,
+      otp,
+      reqId: reqIdValue,
+    },
       {
         onError: (err) => {
-          const message = err.message ||  'Failed to verify OTP';
+          const message = err.message || 'Failed to verify OTP';
           setError(message);
         },
       }
@@ -401,67 +401,75 @@ const VerifyOtpScreen: React.FC<VerifyOtpScreenProps> = ({
     typeof phone === 'string' && phone.length > 0
       ? phone
       : phoneNumber
-      ? `+91${phoneNumber}`
-      : '';
+        ? `+91${phoneNumber}`
+        : '';
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={[styles.container, { backgroundColor: theme.background, marginTop: insets.top }]}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={[styles.container, { backgroundColor: theme.background }]}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
-        <Animated.View style={[styles.content, screenAnimatedStyle]}>
-          {/* Top Section */}
-          <View style={styles.topSection}>
-            <AnimatedLogo delay={200} />
-            <AnimatedHeading delay={400} />
-            <AnimatedSubtitle delay={550} phoneNumber={displayPhone} />
-          </View>
 
-          {/* Middle Section */}
-          <View style={styles.middleSection}>
-            <OtpInput
-              value={otp}
-              onChangeText={(text) => {
-                setOtp(text);
-                if (error) setError('');
-              }}
-              error={error}
-              delay={700}
-            />
-          </View>
 
-          {/* Bottom Section */}
-          <View style={styles.bottomSection}>
-            <VerifyButton
-              onPress={handleVerify}
-              disabled={!isValid || isVerifying}
-              label={isVerifying ? 'Verifying...' : 'Verify OTP'}
-              delay={900}
-            />
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <Animated.View style={[styles.content, screenAnimatedStyle]}>
+            {/* Top Section */}
+            <View style={styles.topSection}>
+              <AnimatedLogo delay={200} />
+              <AnimatedHeading delay={400} />
+              <AnimatedSubtitle delay={550} phoneNumber={displayPhone} />
+            </View>
 
-            <AnimatedResend
-              delay={1100}
-              canResend={canResend}
-              timer={resendTimer}
-              onResend={handleResend}
-            />
+            {/* Middle Section */}
+            <View style={styles.middleSection}>
+              <OtpInput
+                value={otp}
+                onChangeText={(text) => {
+                  setOtp(text);
+                  if (error) setError('');
+                }}
+                error={error}
+                delay={700}
+              />
 
-            <AnimatedChangeNumber
-              delay={1200}
-              onChangeNumber={onChangeNumber ?? (() => router.back())}
-            />
+              <View style={{ marginVertical: Spacing.lg }} >
+                <VerifyButton
+                  onPress={handleVerify}
+                  disabled={!isValid || isVerifying}
+                  label={isVerifying ? 'Verifying...' : 'Verify OTP'}
+                  delay={900}
+                />
+              </View>
+            </View>
 
-            <AnimatedSupport delay={1300} />
-          </View>
-        </Animated.View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            {/* Bottom Section */}
+            <View style={styles.bottomSection}>
+
+
+              <AnimatedResend
+                delay={1100}
+                canResend={canResend}
+                timer={resendTimer}
+                onResend={handleResend}
+              />
+
+              <AnimatedChangeNumber
+                delay={1200}
+                onChangeNumber={onChangeNumber ?? (() => router.back())}
+              />
+
+              <AnimatedSupport delay={1300} />
+            </View>
+          </Animated.View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 

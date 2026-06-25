@@ -15,9 +15,9 @@ const LoginScreen = () => {
     }
 
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
-            <AuthPhoneScreen isPending={mutation.isPending} onContinue={handleContinue} />
-        </SafeAreaView>
+            <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+                <AuthPhoneScreen isPending={mutation.isPending} onContinue={handleContinue} />
+            </SafeAreaView>
 
     )
 

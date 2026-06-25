@@ -107,6 +107,7 @@ const ContinueButton: React.FC<ContinueButtonProps> = React.memo(({
   return (
     <Animated.View style={[animatedStyle, scaleStyle]}>
       <TouchableOpacity
+
         onPress={onPress}
         disabled={disabled}
         onPressIn={handlePressIn}
@@ -362,7 +363,7 @@ const AuthPhoneScreen: React.FC<AuthPhoneScreenProps> = ({ isPending, onContinue
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'height' : 'height'}
-      style={[styles.container, { backgroundColor: theme.background, marginTop: insets.top, marginBottom: insets.bottom }]}
+      style={[styles.container, { backgroundColor: theme.background }]}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
       <ScrollView
@@ -394,17 +395,19 @@ const AuthPhoneScreen: React.FC<AuthPhoneScreenProps> = ({ isPending, onContinue
               error={error}
               delay={700}
             />
+
+            <View style={{ marginTop: Spacing.xl }}>
+              <ContinueButton
+                isLoading={isPending ?? false}
+                onPress={handleContinue}
+                disabled={isPending}
+                delay={900}
+              />
+            </View>
           </View>
 
           {/* Bottom Section */}
           <View style={styles.bottomSection}>
-            <ContinueButton
-              isLoading={isPending ?? false}
-              onPress={handleContinue}
-              disabled={!isValid}
-              delay={900}
-            />
-
             <AnimatedTerms delay={1100} />
 
             <AnimatedSupport delay={1200} />
