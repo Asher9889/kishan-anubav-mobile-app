@@ -19,14 +19,12 @@ const ProfileStats = ({ onPickAvatar }: ProfileStatsProps) => {
   const name = user?.fullName?.trim() || user?.name?.trim() || '';
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
-  console.log('[Profile Screen]Rendering ProfileStats with avatar:', avatarUri, 'and name:', name);
 
   return (
     <View style={styles.profileHeader}>
       <Pressable onPress={onPickAvatar} style={styles.avatarWrapper} accessibilityRole="button">
         {avatarUri ? (
-          <Image cachePolicy="none" source={{ uri: avatarUri }} style={styles.avatarLarge} onLoad={() => console.log('IMAGE LOADED')}
-            onError={(e) => console.log('IMAGE ERROR', e)} contentFit="cover" />
+          <Image cachePolicy="none" source={{ uri: avatarUri }} style={styles.avatarLarge} contentFit="cover" />
         ) : (
           <View style={styles.avatarFallbackLarge}>
             <Camera size={32} color={theme.textMuted} />
@@ -34,14 +32,14 @@ const ProfileStats = ({ onPickAvatar }: ProfileStatsProps) => {
         )}
         {avatarUri && (
           <View style={styles.addStoryBadge}>
-            <Plus size={14} color="#fff" strokeWidth={3} />
+            <Plus size={14} color={theme.onPrimary} strokeWidth={3} />
           </View>
         )}
       </Pressable>
 
-      <View style={{ display: 'flex', flexDirection: 'column', gap: Spacing.sm }}>
-        <Text className='text-red-700 font-bold text-xl'>{name}</Text>
-        <View style={{ display: 'flex', flexDirection: 'row', gap: Spacing.lg }}>
+      <View style={styles.nameColumn}>
+        <Text style={styles.userNameText}>{name}</Text>
+        <View style={styles.statsRow}>
 
           <View style={styles.statItem}>
             <Text style={styles.statNumber}>46</Text>
@@ -102,6 +100,19 @@ const createStyles = (theme: AppTheme) =>
       borderWidth: 2,
       borderColor: theme.background,
     },
+    nameColumn: {
+      flexDirection: 'column',
+      gap: Spacing.sm,
+    },
+    userNameText: {
+      color: theme.text,
+      fontSize: Typography.h3.fontSize,
+      fontWeight: '700',
+    },
+    statsRow: {
+      flexDirection: 'row',
+      gap: Spacing.lg,
+    },
     statsContainer: {
       flex: 1,
       flexDirection: 'row',
@@ -118,6 +129,7 @@ const createStyles = (theme: AppTheme) =>
     statLabel: {
       color: theme.textSecondary,
       fontSize: Typography.small.fontSize,
+      fontWeight: '500',
       marginTop: 2,
     },
   });

@@ -1,9 +1,10 @@
-import { Colors } from '@/constants/theme';
+import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import React, { useEffect, useMemo, useRef } from 'react';
-import { Alert, FlatList, StyleSheet } from 'react-native';
+import React, { useMemo } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { Inbox } from 'lucide-react-native';
 
 import PostCard from '../components/PostCard';
 import ProfileActions from '../components/ProfileActions';
@@ -26,21 +27,8 @@ export default function ProfileScreen() {
 
   const { data: postsData } = usePostDataFetcher();
 
-  const hasShownEmptyAlert = useRef(false);
-
-  useEffect(() => {
-    if (
-      !hasShownEmptyAlert.current &&
-      postsData &&
-      postsData.data?.posts?.length === 0
-    ) {
-      hasShownEmptyAlert.current = true;
-
-      Alert.alert(t('noPosts'), t('noPostsMessage'));
-    }
-  }, [postsData]);
-
   const posts = postsData?.data?.posts ?? [];
+  const isLoading = !postsData;
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -75,6 +63,15 @@ export default function ProfileScreen() {
             />
           </>
         }
+        ListEmptyComponent={
+          isLoading ? null : (
+            <View style={styles.emptyState}>
+              <Inbox size={48} color={theme.textSecondary} strokeWidth={1.5} />
+              <Text style={styles.emptyTitle}>{t('noPosts')}</Text>
+              <Text style={styles.emptyMessage}>{t('noPostsMessage')}</Text>
+            </View>
+          )
+        }
       />
 
       <EditProfileModal
@@ -91,5 +88,24 @@ const createStyles = (theme: AppTheme) =>
     safeArea: {
       flex: 1,
       backgroundColor: theme.background,
+    },
+    emptyState: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: Spacing.xxl * 2,
+      paddingHorizontal: Spacing.xl,
+      gap: Spacing.sm,
+    },
+    emptyTitle: {
+      color: theme.text,
+      fontSize: Typography.h3.fontSize,
+      fontWeight: '700',
+      textAlign: 'center',
+    },
+    emptyMessage: {
+      color: theme.textSecondary,
+      fontSize: Typography.body.fontSize,
+      lineHeight: Typography.body.lineHeight,
+      textAlign: 'center',
     },
   });

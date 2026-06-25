@@ -43,7 +43,7 @@ const FormField = ({
           onChangeText={onChangeText}
           onPressIn={onPress}
           placeholder={placeholder}
-          placeholderTextColor={theme.textMuted}
+          placeholderTextColor={theme.textSecondary}
           style={[styles.fieldInput, multiline && styles.fieldInputMultiline]}
           multiline={multiline}
           numberOfLines={numberOfLines}
@@ -123,7 +123,7 @@ const createStyles = (theme: AppTheme) =>
       paddingVertical: Platform.OS === 'ios' ? 8 : 4,
     },
     helperText: {
-      color: theme.textMuted,
+      color: theme.textSecondary,
       fontSize: 12,
       lineHeight: 16,
       marginTop: 2,

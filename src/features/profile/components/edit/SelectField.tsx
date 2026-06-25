@@ -63,7 +63,7 @@ const createStyles = (theme: AppTheme) =>
       paddingVertical: Platform.OS === 'ios' ? 8 : 4,
     },
     selectPlaceholder: {
-      color: theme.textMuted,
+      color: theme.textSecondary,
     },
     chevronIcon: {
       marginLeft: Spacing.xs,

@@ -8,9 +8,6 @@ type AppTheme = typeof Colors.light;
 
 interface EditProfileHeaderProps {
   onClose: () => void;
-  handleSave?: () => void;
-  isSaveDisabled?: boolean;
-  isSaving?: boolean;
 }
 
 const EditProfileHeader = ({

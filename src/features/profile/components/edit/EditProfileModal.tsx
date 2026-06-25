@@ -34,10 +34,7 @@ const EditProfileModal = ({ isOpen, onClose, profileForm }: EditProfileModalProp
     profile,
     form,
     usernameAvailability,
-    isSaving,
     isFocusedFieldSaving,
-    isSaveDisabled,
-    handleSave,
     saveFocusedField,
     onPickAvatar,
     locationData,
@@ -52,7 +49,7 @@ const EditProfileModal = ({ isOpen, onClose, profileForm }: EditProfileModalProp
   return (
     <Modal
       animationType="slide"
-      presentationStyle="fullScreen"
+      presentationStyle="formSheet"
       visible={isOpen}
       onRequestClose={handleClose}
     >
@@ -67,9 +64,6 @@ const EditProfileModal = ({ isOpen, onClose, profileForm }: EditProfileModalProp
 
           <EditProfileHeader
             onClose={handleClose}
-            handleSave={handleSave}
-            isSaveDisabled={isSaveDisabled}
-            isSaving={isSaving}
           />
 
 

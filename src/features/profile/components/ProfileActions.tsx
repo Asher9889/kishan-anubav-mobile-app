@@ -3,7 +3,6 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { User } from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AppTheme = typeof Colors.light;
 
@@ -13,7 +12,6 @@ interface ProfileActionsProps {
 
 const ProfileActions = ({ onEditPress }: ProfileActionsProps) => {
   const colorScheme = useColorScheme();
-  const insets = useSafeAreaInsets();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 

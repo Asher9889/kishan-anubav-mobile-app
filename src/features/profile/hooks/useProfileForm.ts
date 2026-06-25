@@ -312,7 +312,6 @@ export const useProfileForm = () => {
       Alert.alert('No Image Selected', 'Please select an image to use as your avatar.');
       return;
     }
-    console.log('Picked avatar URI:', imageBlob.uri);
     const currentUserId = user?.id;
 
     if (!currentUserId) {
@@ -321,8 +320,6 @@ export const useProfileForm = () => {
     }
     avatarMutation.mutate({ imageBlob, userId: currentUserId }, {
       onSuccess: async (uploadedUri) => {
-        console.log('Avatar uploaded successfully:', uploadedUri);
-
         if (!uploadedUri) {
           Alert.alert('Upload Failed', 'The uploaded image URL was empty. Please try again.');
           return;
@@ -346,8 +343,7 @@ export const useProfileForm = () => {
             ...form.getValues(),
             avatarUri: updatedProfile.avatar ?? uploadedUri,
           });
-        } catch (error) {
-          console.error('Failed to persist avatar on profile:', error);
+        } catch {
           Alert.alert(
             'Profile Photo Saved Locally',
             'The photo was uploaded, but we could not save it to your profile. Please try again.'
@@ -377,13 +373,8 @@ export const useProfileForm = () => {
       return false;
     }
 
-    console.log(`Saving focused field "${field}" with value:`, form.getValues(field));
-
     const nextValue = String(form.getValues(field) ?? '').trim();
     const currentValue = String(createInitialState(user)[field] ?? '').trim();
-
-    console.log(`Current value for "${field}":`, currentValue);
-    console.log(`Next value for "${field}":`, nextValue);
 
     form.setValue(field, nextValue as PathValue<ProfileFormState, typeof field>, {
       shouldDirty: nextValue !== currentValue,
@@ -498,16 +489,12 @@ export const useProfileForm = () => {
       ),
     };
 
-    console.log('Saving user profile with data:', nextUser);
-
     updateProfileMutation.mutate(nextUser, {
       onSuccess: (updatedProfile) => {
-        console.log('Profile updated successfully:', updatedProfile);
         setUser(updatedProfile);
         Alert.alert('Success', 'Your profile has been updated successfully.');
       },
-      onError: (error) => {
-        console.error('Failed to update profile:', error);
+      onError: () => {
         Alert.alert('Update Failed', 'Failed to update profile. Please try again.');
       },
     });
