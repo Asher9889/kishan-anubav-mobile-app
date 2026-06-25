@@ -3,6 +3,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Alert, FlatList, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 import PostCard from '../components/PostCard';
 import ProfileActions from '../components/ProfileActions';
@@ -17,6 +18,7 @@ import { useProfileForm } from '../hooks/useProfileForm';
 type AppTheme = typeof Colors.light;
 
 export default function ProfileScreen() {
+  const { t } = useTranslation('profile');
   const profileForm = useProfileForm();
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
@@ -34,10 +36,7 @@ export default function ProfileScreen() {
     ) {
       hasShownEmptyAlert.current = true;
 
-      Alert.alert(
-        'No Posts',
-        "You haven't made any posts yet. Start sharing your knowledge and experiences with the community!"
-      );
+      Alert.alert(t('noPosts'), t('noPostsMessage'));
     }
   }, [postsData]);
 

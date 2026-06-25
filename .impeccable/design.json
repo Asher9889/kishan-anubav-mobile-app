@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-25T00:00:00.000Z",
+  "title": "Design System: Krishi Anubhav AI",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Harvest Amber",
+        "canonical": "oklch(43.6% 0.085 55.9)",
+        "tonalRamp": [
+          "oklch(15% 0.04 55.9)",
+          "oklch(25% 0.06 55.9)",
+          "oklch(35% 0.075 55.9)",
+          "oklch(43.6% 0.085 55.9)",
+          "oklch(55% 0.095 55.9)",
+          "oklch(68% 0.10 55.9)",
+          "oklch(82% 0.08 55.9)",
+          "oklch(95% 0.03 55.9)"
+        ]
+      },
+      "primary-container": {
+        "role": "primary",
+        "displayName": "Amber Glow",
+        "canonical": "oklch(72.5% 0.132 62.8)",
+        "tonalRamp": [
+          "oklch(25% 0.06 62.8)",
+          "oklch(35% 0.08 62.8)",
+          "oklch(48% 0.10 62.8)",
+          "oklch(60% 0.12 62.8)",
+          "oklch(72.5% 0.132 62.8)",
+          "oklch(82% 0.10 62.8)",
+          "oklch(90% 0.06 62.8)",
+          "oklch(97% 0.02 62.8)"
+        ]
+      },
+      "secondary": {
+        "role": "secondary",
+        "displayName": "Field Green",
+        "canonical": "oklch(42.7% 0.148 136.2)",
+        "tonalRamp": [
+          "oklch(15% 0.06 136.2)",
+          "oklch(25% 0.09 136.2)",
+          "oklch(35% 0.12 136.2)",
+          "oklch(42.7% 0.148 136.2)",
+          "oklch(55% 0.13 136.2)",
+          "oklch(68% 0.10 136.2)",
+          "oklch(82% 0.06 136.2)",
+          "oklch(95% 0.02 136.2)"
+        ]
+      },
+      "tertiary": {
+        "role": "tertiary",
+        "displayName": "Earthen Brown",
+        "canonical": "oklch(43.5% 0.045 62.5)",
+        "tonalRamp": [
+          "oklch(18% 0.025 62.5)",
+          "oklch(28% 0.035 62.5)",
+          "oklch(36% 0.04 62.5)",
+          "oklch(43.5% 0.045 62.5)",
+          "oklch(55% 0.035 62.5)",
+          "oklch(68% 0.03 62.5)",
+          "oklch(82% 0.02 62.5)",
+          "oklch(95% 0.01 62.5)"
+        ]
+      },
+      "neutral-bg": {
+        "role": "neutral",
+        "displayName": "Warm Cream",
+        "canonical": "oklch(96.5% 0.01 70)",
+        "tonalRamp": [
+          "oklch(15% 0.005 70)",
+          "oklch(30% 0.005 70)",
+          "oklch(50% 0.005 70)",
+          "oklch(65% 0.005 70)",
+          "oklch(78% 0.005 70)",
+          "oklch(88% 0.008 70)",
+          "oklch(93% 0.01 70)",
+          "oklch(96.5% 0.01 70)"
+        ]
+      },
+      "neutral-text": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(12% 0.005 70)",
+        "tonalRamp": []
+      },
+      "error": {
+        "role": "error",
+        "displayName": "Alert Red",
+        "canonical": "oklch(42% 0.15 27)",
+        "tonalRamp": []
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero headings on feature screens. One per screen maximum."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section titles and screen-level headings. The most common heading level."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card titles, list item headings, modal headers."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text, chat messages, descriptions. Max 65-75 characters per line."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Button labels, tab labels, captions, metadata."
+      }
+    },
+    "shadows": [
+      { "name": "ambient-low", "value": "0 2px 8px rgba(0,0,0,0.06)", "purpose": "Default card elevation on feed items and knowledge post cards." },
+      { "name": "ambient-mid", "value": "0 4px 16px rgba(0,0,0,0.08)", "purpose": "Raised controls, bottom sheets, action sheets." },
+      { "name": "ambient-high", "value": "0 8px 24px rgba(0,0,0,0.10)", "purpose": "Modals, dialogs, floating action buttons." }
+    ],
+    "motion": [
+      { "name": "ease-spring-bounce", "value": "spring(damping: 15, stiffness: 400, mass: 0.5)", "purpose": "Button press scale animation (1 -> 1.05)." },
+      { "name": "ease-spring-return", "value": "spring(damping: 20, stiffness: 400, mass: 0.8)", "purpose": "Button release scale animation (1.05 -> 1)." },
+      { "name": "ease-spring-brightness", "value": "spring(damping: 20, stiffness: 300)", "purpose": "Brightness animation on button press." },
+      { "name": "reduced-motion-fallback", "value": "instant crossfade", "purpose": "Fallback for prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary CTA button. Harvest Amber background, white text, pill-shaped. Used for the main action on any screen (e.g. 'Send', 'Ask Krishi', 'Continue').",
+      "html": "<button class=\"ds-btn-primary\">Ask Krishi</button>",
+      "css": ".ds-btn-primary { background: #8F4E00; color: #FFFFFF; font-family: Inter, system-ui, -apple-system, sans-serif; font-size: 17px; font-weight: 500; padding: 0 32px; height: 48px; border: none; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease; } .ds-btn-primary:hover { background: #FF9933; transform: scale(1.05); } .ds-btn-primary:active { transform: scale(1); } .ds-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary/success button. Field Green background, white text, pill-shaped. Used for confirm, complete, or affirmative actions.",
+      "html": "<button class=\"ds-btn-secondary\">Complete</button>",
+      "css": ".ds-btn-secondary { background: #056E00; color: #FFFFFF; font-family: Inter, system-ui, -apple-system, sans-serif; font-size: 17px; font-weight: 500; padding: 0 32px; height: 48px; border: none; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease; } .ds-btn-secondary:hover { background: #8DFC75; color: #056E00; transform: scale(1.05); } .ds-btn-secondary:active { transform: scale(1); }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Outline button. Transparent background with Harvest Amber border and text. Used for secondary or alternative actions.",
+      "html": "<button class=\"ds-btn-outline\">Cancel</button>",
+      "css": ".ds-btn-outline { background: transparent; color: #8F4E00; font-family: Inter, system-ui, -apple-system, sans-serif; font-size: 17px; font-weight: 500; padding: 0 32px; height: 48px; border: 1px solid #DBC2B0; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: background 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-outline:hover { background: rgba(143, 78, 0, 0.06); transform: scale(1.05); } .ds-btn-outline:active { transform: scale(1); }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Ghost button. No visible boundary until pressed. Harvest Amber text.",
+      "html": "<button class=\"ds-btn-ghost\">Skip</button>",
+      "css": ".ds-btn-ghost { background: transparent; color: #8F4E00; font-family: Inter, system-ui, -apple-system, sans-serif; font-size: 17px; font-weight: 500; padding: 0 16px; height: 48px; border: none; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: background 0.2s ease; } .ds-btn-ghost:hover { background: rgba(143, 78, 0, 0.08); }"
+    },
+    {
+      "name": "Destructive Button",
+      "kind": "button",
+      "refersTo": "button-destructive",
+      "description": "Destructive action button. Alert Red background, white text. Used for delete, remove, or irreversible actions.",
+      "html": "<button class=\"ds-btn-destructive\">Delete</button>",
+      "css": ".ds-btn-destructive { background: #BA1A1A; color: #FFFFFF; font-family: Inter, system-ui, -apple-system, sans-serif; font-size: 17px; font-weight: 500; padding: 0 32px; height: 48px; border: none; border-radius: 9999px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease; } .ds-btn-destructive:hover { transform: scale(1.05); } .ds-btn-destructive:active { transform: scale(1); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Standard text input. Warm Surface background (#F5F3EE), 12px radius, Harvest Amber focus glow. Used for form fields and chat input.",
+      "html": "<input class=\"ds-input\" placeholder=\"Ask me anything about farming...\" />",
+      "css": ".ds-input { background: #F5F3EE; color: #1B1C19; font-family: Inter, system-ui, -apple-system, sans-serif; font-size: 16px; font-weight: 400; padding: 0 16px; height: 48px; border: 1px solid transparent; border-radius: 12px; outline: none; width: 100%; box-sizing: border-box; transition: border-color 0.2s ease, box-shadow 0.2s ease; } .ds-input::placeholder { color: #554336; } .ds-input:focus { border-color: #8F4E00; box-shadow: 0 0 0 3px rgba(143, 78, 0, 0.12); } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Card Container",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Default card container. White background, 12px radius, ambient-low shadow. Used for knowledge posts, feed items, and content cards.",
+      "html": "<div class=\"ds-card\"><div style=\"padding: 16px;\"><h3 style=\"font-family: Inter, sans-serif; font-size: 18px; font-weight: 700; color: #1B1C19; margin: 0 0 8px 0;\">Card Title</h3><p style=\"font-family: Inter, sans-serif; font-size: 16px; font-weight: 400; color: #554336; line-height: 1.625; margin: 0;\">Card description or content goes here.</p></div></div>",
+      "css": ".ds-card { background: #FFFFFF; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; }"
+    },
+    {
+      "name": "Pill Chip",
+      "kind": "chip",
+      "refersTo": "chip-selected",
+      "description": "Pill chip for filter/tag selection. Full rounded, Harvest Amber tint when selected, Warm Surface when unselected.",
+      "html": "<span class=\"ds-chip ds-chip-selected\">Rice</span><span class=\"ds-chip\">Wheat</span>",
+      "css": ".ds-chip { background: #F5F3EE; color: #554336; font-family: Inter, system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 9999px; display: inline-flex; align-items: center; cursor: pointer; transition: background 0.2s ease; } .ds-chip-selected { background: rgba(143, 78, 0, 0.12); color: #8F4E00; }"
+    },
+    {
+      "name": "Voice Button",
+      "kind": "custom",
+      "refersTo": "voice-button",
+      "description": "Signature voice input button. Large pill, Harvest Amber at idle, Amber Glow when recording with pulsing concentric rings. The primary input affordance.",
+      "html": "<button class=\"ds-voice-btn\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z\"/><path d=\"M19 10v2a7 7 0 0 1-14 0v-2\"/><line x1=\"12\" y1=\"19\" x2=\"12\" y2=\"22\"/></svg></button>",
+      "css": ".ds-voice-btn { position: relative; background: #8F4E00; color: #FFFFFF; width: 64px; height: 64px; border: none; border-radius: 9999px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.3s ease, transform 0.2s ease; } .ds-voice-btn::before { content: ''; position: absolute; inset: -8px; border-radius: 9999px; background: rgba(255, 153, 51, 0.16); z-index: -1; animation: pulse-ring 2s ease-in-out infinite; } .ds-voice-btn::after { content: ''; position: absolute; inset: -16px; border-radius: 9999px; background: rgba(255, 153, 51, 0.08); z-index: -2; animation: pulse-ring 2s ease-in-out 0.5s infinite; } @keyframes pulse-ring { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.15); opacity: 0.2; } } .ds-voice-btn:active { background: #FF9933; transform: scale(1.05); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Sunlit Field",
+    "overview": "A design system rooted in the warmth of Indian soil and the clarity of morning light over a ready harvest. Amber, green, and warm neutrals create an interface that feels like trusted advice from someone who knows the land — authoritative without being cold, modern without being sterile.\n\nThe system is tactile and warm: generously rounded controls (24px+ on buttons), gentle spring animations on interaction, matte-like surfaces rendered in a warm off-white (#FBF9F4) that avoids the clinical feel of pure white. Depth comes through tonal layering with subtle shadows reserved for interactive states. An earthy-yet-modern agricultural tool — not a corporate dashboard, not a playful game, not a cold fintech product.",
+    "keyCharacteristics": [
+      "Voice-first interaction design with large, high-contrast touch targets (48pt minimum)",
+      "Warm amber/orange primary anchored by a confident green secondary",
+      "Generous rounded corners throughout — pill-shaped buttons, softly curved containers",
+      "Single-family typography (Inter) at high weights for legibility in bright outdoor light",
+      "Offline-resilient patterns with clear connectivity states and skeleton loading",
+      "Reduced motion respected — all animations degrade to crossfade or instant transitions"
+    ],
+    "rules": [
+      { "name": "The One Hue Rule", "body": "Never use a color from outside this palette unless it's data visualization. All accent colors pull toward amber or green; stray blues, purples, or pinks break the warm-coherent field.", "section": "colors" },
+      { "name": "The Contrast Rule", "body": "Body text (#1B1C19) on body background (#FBF9F4) achieves ~12:1 contrast. Never drop below 4.5:1 for body text.", "section": "colors" },
+      { "name": "The Minimum 16 Rule", "body": "No body text below 16px. Captions and labels may use 13px only at high weight (500). 12px is reserved for purely decorative metadata.", "section": "typography" },
+      { "name": "The Large Touch Rule", "body": "All interactive text is backed by a touch target of at least 48pt.", "section": "typography" },
+      { "name": "The Surface-Over-Shadow Rule", "body": "Prefer tonal separation over box-shadow. Shadows are for motion state, not static hierarchy.", "section": "elevation" }
+    ],
+    "dos": [
+      "Use Harvest Amber (#8F4E00) as the single primary accent on CTA buttons, active tabs, and selected states.",
+      "Pair primary actions with Field Green (#056E00) for success/completion signals.",
+      "Use the tonal surface scale for structural depth. Two surfaces at different lightness need no shadow.",
+      "Use Inter at high weights (700-800) for headings. Legibility in outdoor light requires weight, not size.",
+      "Keep body text at #1B1C19 (Ink) on #FBF9F4 (Warm Cream). This is ~12:1 contrast.",
+      "Provide icon + label on every tab and primary action.",
+      "Respect reduced motion: collapse all animations to instant crossfade.",
+      "Ensure the voice button is visually prominent — it's the primary input affordance."
+    ],
+    "donts": [
+      "Use light gray text on tinted backgrounds. Text must meet 4.5:1 minimum.",
+      "Use blue-heavy palettes or corporate navy tones.",
+      "Use side-stripe borders (border-left >1px colored accent).",
+      "Use gradient text (background-clip: text with gradient).",
+      "Use glassmorphism as default decoration.",
+      "Use the hero-metric template (big number, small label, supporting stats).",
+      "Use identically sized cards in a uniform grid with icon + heading + text.",
+      "Use numbered section markers (01 / 02 / 03) as decorative scaffolding.",
+      "Use uppercase tracked eyebrows above every section.",
+      "Let text overflow its container."
+    ]
+  }
+}

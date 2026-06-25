@@ -1,7 +1,8 @@
-// components/settings/SettingItem.tsx
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -20,9 +21,13 @@ export default function SettingItem({
   showChevron = true,
   destructive = false,
 }: SettingItemProps) {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const theme = isDark ? Colors.dark : Colors.light;
+
   return (
     <TouchableOpacity
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.card, borderBottomColor: theme.borderLight }]}
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -30,15 +35,15 @@ export default function SettingItem({
         <Ionicons
           name={icon}
           size={22}
-          color={destructive ? '#FF3B30' : '#007AFF'}
+          color={destructive ? theme.error : theme.primary}
           style={styles.icon}
         />
-        <Text style={[styles.label, destructive && styles.destructiveText]}>
+        <Text style={[styles.label, { color: theme.text }, destructive && { color: theme.error }]}>
           {label}
         </Text>
       </View>
       {showChevron && (
-        <Ionicons name="chevron-forward" size={18} color="#C7C7CC" />
+        <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
       )}
     </TouchableOpacity>
   );
@@ -51,7 +56,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 14,
     paddingHorizontal: 16,
-    backgroundColor: '#fff',
+    borderBottomWidth: 1,
   },
   left: {
     flexDirection: 'row',
@@ -64,9 +69,5 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#000',
-  },
-  destructiveText: {
-    color: '#FF3B30',
   },
 });

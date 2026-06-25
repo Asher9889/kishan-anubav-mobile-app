@@ -22,6 +22,7 @@ import Animated, {
   withTiming
 } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 // ============================================================================
 // Types
@@ -55,9 +56,10 @@ interface VerifyButtonProps {
 const VerifyButton: React.FC<VerifyButtonProps> = React.memo(({
   onPress,
   disabled = false,
-  label = 'Verify OTP',
+  label,
   delay = 0,
 }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
@@ -128,7 +130,7 @@ const VerifyButton: React.FC<VerifyButtonProps> = React.memo(({
             lineHeight: Typography.bodyMedium.lineHeight,
           }}
         >
-          {label}
+          {label || t('verifyOtp')}
         </Text>
       </TouchableOpacity>
     </Animated.View>
@@ -147,6 +149,7 @@ const OtpInput: React.FC<OtpInputProps> = React.memo(({
   error,
   delay = 0,
 }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
@@ -207,7 +210,7 @@ const OtpInput: React.FC<OtpInputProps> = React.memo(({
             marginBottom: Spacing.md,
           }}
         >
-          Enter 4-digit OTP
+          {t('enterOtp')}
         </Text>
       </View>
 
@@ -309,6 +312,7 @@ const VerifyOtpScreen: React.FC<VerifyOtpScreenProps> = ({
   onResend,
   onChangeNumber,
 }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -358,7 +362,7 @@ const VerifyOtpScreen: React.FC<VerifyOtpScreenProps> = ({
 
   const handleVerify = useCallback(() => {
     if (otp.length !== otpLength) {
-      setError('Please enter the complete 4-digit OTP');
+      setError(t('enterCompleteOtp'));
       return;
     }
 
@@ -366,7 +370,7 @@ const VerifyOtpScreen: React.FC<VerifyOtpScreenProps> = ({
     const reqIdValue = typeof reqId === 'string' ? reqId : '';
 
     if (!phoneValue || !reqIdValue) {
-      setError('Missing verification session. Please request OTP again.');
+      setError(t('missingSession'));
       return;
     }
 
@@ -379,7 +383,7 @@ const VerifyOtpScreen: React.FC<VerifyOtpScreenProps> = ({
     },
       {
         onError: (err) => {
-          const message = err.message || 'Failed to verify OTP';
+          const message = err.message || t('failedToVerify');
           setError(message);
         },
       }
@@ -442,7 +446,7 @@ const VerifyOtpScreen: React.FC<VerifyOtpScreenProps> = ({
                 <VerifyButton
                   onPress={handleVerify}
                   disabled={!isValid || isVerifying}
-                  label={isVerifying ? 'Verifying...' : 'Verify OTP'}
+                  label={isVerifying ? t('verifying') : t('verifyOtp')}
                   delay={900}
                 />
               </View>
@@ -530,6 +534,7 @@ const AnimatedLogo: React.FC<{ delay: number }> = React.memo(({ delay }) => {
 AnimatedLogo.displayName = 'AnimatedLogo';
 
 const AnimatedHeading: React.FC<{ delay: number }> = React.memo(({ delay }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
@@ -565,7 +570,7 @@ const AnimatedHeading: React.FC<{ delay: number }> = React.memo(({ delay }) => {
           marginBottom: Spacing.sm,
         }}
       >
-        Verify OTP
+        {t('verifyOtp')}
       </Text>
     </Animated.View>
   );
@@ -575,6 +580,7 @@ AnimatedHeading.displayName = 'AnimatedHeading';
 
 const AnimatedSubtitle: React.FC<{ delay: number; phoneNumber: string }> = React.memo(
   ({ delay, phoneNumber }) => {
+    const { t } = useTranslation('auth');
     const colorScheme = useColorScheme();
     const isDark = colorScheme === 'dark';
     const theme = isDark ? Colors.dark : Colors.light;
@@ -610,7 +616,7 @@ const AnimatedSubtitle: React.FC<{ delay: number; phoneNumber: string }> = React
             paddingHorizontal: Spacing.md,
           }}
         >
-          Enter the 4-digit code sent to{''}
+          {t('otpSent')}
           <Text style={{ color: theme.text, fontWeight: '700' }}>
             {phoneNumber}
           </Text>
@@ -628,6 +634,7 @@ const AnimatedResend: React.FC<{
   timer: number;
   onResend: () => void;
 }> = React.memo(({ delay, canResend, timer, onResend }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
@@ -656,17 +663,17 @@ const AnimatedResend: React.FC<{
           textAlign: 'center',
         }}
       >
-        Didn't receive the code?{' '}
+        {t('didNotReceiveCode')}
         {canResend ? (
           <Text
             onPress={onResend}
             style={{ color: theme.primary, fontWeight: '600' }}
           >
-            Resend OTP
+            {t('resendOtp')}
           </Text>
         ) : (
           <Text style={{ color: theme.textMuted }}>
-            Resend in {timer}s
+            {t('resendIn', { timer })}
           </Text>
         )}
       </Text>
@@ -680,6 +687,7 @@ const AnimatedChangeNumber: React.FC<{
   delay: number;
   onChangeNumber?: () => void;
 }> = React.memo(({ delay, onChangeNumber }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
@@ -702,7 +710,7 @@ const AnimatedChangeNumber: React.FC<{
       <TouchableOpacity
         onPress={onChangeNumber}
         accessibilityRole="button"
-        accessibilityLabel="Change mobile number"
+        accessibilityLabel={t('changeNumber')}
       >
         <Text
           style={{
@@ -713,7 +721,7 @@ const AnimatedChangeNumber: React.FC<{
             textAlign: 'center',
           }}
         >
-          Change mobile number
+          {t('changeNumber')}
         </Text>
       </TouchableOpacity>
     </Animated.View>
@@ -723,6 +731,7 @@ const AnimatedChangeNumber: React.FC<{
 AnimatedChangeNumber.displayName = 'AnimatedChangeNumber';
 
 const AnimatedSupport: React.FC<{ delay: number }> = React.memo(({ delay }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
@@ -744,7 +753,7 @@ const AnimatedSupport: React.FC<{ delay: number }> = React.memo(({ delay }) => {
     <Animated.View style={[styles.supportContainer, animatedStyle]}>
       <TouchableOpacity
         accessibilityRole="button"
-        accessibilityLabel="Get help and support"
+        accessibilityLabel={t('needHelp')}
       >
         <Text
           style={{
@@ -754,9 +763,9 @@ const AnimatedSupport: React.FC<{ delay: number }> = React.memo(({ delay }) => {
             lineHeight: Typography.small.lineHeight,
           }}
         >
-          Need help?{' '}
+          {t('needHelp')}
           <Text style={{ color: theme.primary, fontWeight: '600' }}>
-            Contact Support
+            {t('contactSupport')}
           </Text>
         </Text>
       </TouchableOpacity>

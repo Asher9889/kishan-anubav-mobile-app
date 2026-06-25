@@ -23,6 +23,7 @@ import { Images } from '@/assets';
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { loginSchema } from "../validation/login.schema";
 
 
@@ -65,9 +66,10 @@ const ContinueButton: React.FC<ContinueButtonProps> = React.memo(({
   isLoading,
   onPress,
   disabled = false,
-  label = 'Continue',
+  label,
   delay = 0,
 }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme: ThemeColors = isDark ? Colors.dark : Colors.light;
@@ -142,7 +144,7 @@ const ContinueButton: React.FC<ContinueButtonProps> = React.memo(({
             },
           ]}
         >
-          { isLoading ? 'Sending...' : label}
+          { isLoading ? t('sending') : (label || t('continue'))}
         </Text>
       </TouchableOpacity>
     </Animated.View>
@@ -167,6 +169,7 @@ const PhoneInput: React.FC<PhoneInputProps> = React.memo(({
   error,
   delay = 0,
 }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
@@ -218,7 +221,7 @@ const PhoneInput: React.FC<PhoneInputProps> = React.memo(({
             marginBottom: Spacing.xs,
           }}
         >
-          Mobile Number
+          {t('mobileNumber')}
         </Text>
       </View>
 
@@ -275,7 +278,7 @@ const PhoneInput: React.FC<PhoneInputProps> = React.memo(({
           onBlur={() => setIsFocused(false)}
           keyboardType="phone-pad"
           maxLength={10}
-          placeholder="Enter mobile number"
+          placeholder={t('enterMobileNumber')}
           placeholderTextColor={theme.textMuted}
           accessibilityLabel="Mobile number input"
           accessibilityHint="Enter your 10 digit mobile number"
@@ -480,6 +483,7 @@ const AnimatedLogo: React.FC<{ delay: number }> = React.memo(({ delay }) => {
 AnimatedLogo.displayName = 'AnimatedLogo';
 
 const AnimatedHeading: React.FC<{ delay: number }> = React.memo(({ delay }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
@@ -516,7 +520,7 @@ const AnimatedHeading: React.FC<{ delay: number }> = React.memo(({ delay }) => {
           },
         ]}
       >
-        Smart Farming Assistance
+        {t('smartFarming')}
       </Text>
     </Animated.View>
   );
@@ -525,6 +529,7 @@ const AnimatedHeading: React.FC<{ delay: number }> = React.memo(({ delay }) => {
 AnimatedHeading.displayName = 'AnimatedHeading';
 
 const AnimatedSubtitle: React.FC<{ delay: number }> = React.memo(({ delay }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
@@ -561,7 +566,7 @@ const AnimatedSubtitle: React.FC<{ delay: number }> = React.memo(({ delay }) => 
           },
         ]}
       >
-        Get crop guidance, agricultural insights,{''}and AI support for your farm.
+        {t('subtitle')}
       </Text>
     </Animated.View>
   );
@@ -570,6 +575,7 @@ const AnimatedSubtitle: React.FC<{ delay: number }> = React.memo(({ delay }) => 
 AnimatedSubtitle.displayName = 'AnimatedSubtitle';
 
 const AnimatedTerms: React.FC<{ delay: number }> = React.memo(({ delay }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
@@ -600,13 +606,13 @@ const AnimatedTerms: React.FC<{ delay: number }> = React.memo(({ delay }) => {
           },
         ]}
       >
-        By continuing, you agree to our{' '}
+        {t('termsPrefix')}
         <Text style={{ color: theme.primary, fontWeight: '600' }}>
-          Terms of Service
-        </Text>{' '}
-        and{' '}
+          {t('termsOfService')}
+        </Text>
+        {t('and')}
         <Text style={{ color: theme.primary, fontWeight: '600' }}>
-          Privacy Policy
+          {t('privacyPolicy')}
         </Text>
       </Text>
     </Animated.View>
@@ -616,6 +622,7 @@ const AnimatedTerms: React.FC<{ delay: number }> = React.memo(({ delay }) => {
 AnimatedTerms.displayName = 'AnimatedTerms';
 
 const AnimatedSupport: React.FC<{ delay: number }> = React.memo(({ delay }) => {
+  const { t } = useTranslation('auth');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const theme = isDark ? Colors.dark : Colors.light;
@@ -637,7 +644,7 @@ const AnimatedSupport: React.FC<{ delay: number }> = React.memo(({ delay }) => {
     <Animated.View style={[styles.supportContainer, animatedStyle]}>
       <TouchableOpacity
         accessibilityRole="button"
-        accessibilityLabel="Get help and support"
+        accessibilityLabel={t('needHelp')}
       >
         <Text
           style={{
@@ -647,9 +654,9 @@ const AnimatedSupport: React.FC<{ delay: number }> = React.memo(({ delay }) => {
             lineHeight: Typography.small.lineHeight,
           }}
         >
-          Need help?{' '}
+          {t('needHelp')}
           <Text style={{ color: theme.primary, fontWeight: '600' }}>
-            Contact Support
+            {t('contactSupport')}
           </Text>
         </Text>
       </TouchableOpacity>

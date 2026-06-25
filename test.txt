@@ -1,4 +1,0 @@
-G  RootLayout rendered. isAuthenticated: false isBootstrapping: false
- LOG  Sending OTP to: +919889840089
- LOG  OTP API response: {"data": {"requestId": "3665436c4833343930363434", "type": "success"}, "message": "OTP sent successfully", "statusCode": 200, "success": true}
- LOG  OTP sent successfully: {"requestId": "3665436c4833343930363434", "type": "success"}

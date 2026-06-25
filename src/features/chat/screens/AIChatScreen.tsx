@@ -10,6 +10,7 @@ import { Home, ImagePlus, Mic, Send } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { convertAudioToText } from '../api/ask-audio-stream.api';
 import { analyzeImage } from '../api/ask-image.api';
 import { askQuestionStream } from '../api/ask-text-stream.api';
@@ -25,14 +26,15 @@ import { ChatMessage, TSheetHandle } from '../types/types';
 
 type TAIState = "idle" | "listening" | "uploading" | "thinking" | "generating";
 
-let WELCOME_MESSAGE = {
+const getWelcomeMessage = (t: (key: string) => string) => ({
   id: 'welcome',
-  role: 'ai',
-  type: 'reply',
-  content: 'Hello 👋 How can I help you today?',
-}
+  role: 'ai' as const,
+  type: 'reply' as const,
+  content: t('chat.welcomeMessage'),
+})
 
 export default function AIChatScreen() {
+  const { t } = useTranslation('common');
 
   const [inputText, setInputText] = useState('');
   const [inputFocused, setInputFocused] = useState(false);
@@ -134,7 +136,7 @@ export default function AIChatScreen() {
     const res = await convertAudioToText(audioUri);
 
     if (!res.success) {
-      Alert.alert('Audio parsing failed', res.message);
+      Alert.alert(t('chat.audioParsingFailed'), res.message);
       return;
     }
     const audioText = res.data.transcript;
@@ -288,14 +290,11 @@ export default function AIChatScreen() {
   const handleImageUpload = async () => {
     if (isGenerating) return;
 
-    const options = ["Camera", "Gallery", "Cancel"];
-    const cancelButtonIndex = 2;
-
     const chosenOption = await new Promise<string | null>((resolve) => {
-      Alert.alert("Upload Image", "Choose an option", [
-        { text: "Camera", onPress: () => resolve("camera") },
-        { text: "Gallery", onPress: () => resolve("gallery") },
-        { text: "Cancel", onPress: () => resolve(null), style: "cancel" },
+      Alert.alert(t('chat.imageAnalysis'), t('chat.chooseOption'), [
+        { text: t('camera'), onPress: () => resolve("camera") },
+        { text: t('gallery'), onPress: () => resolve("gallery") },
+        { text: t('cancel'), onPress: () => resolve(null), style: "cancel" },
       ]);
     });
 
@@ -307,7 +306,7 @@ export default function AIChatScreen() {
         ? await ImagePickerService.pickFromCamera()
         : await ImagePickerService.pickFromGallery();
     } catch (err: any) {
-      Alert.alert("Permission Denied", err.message);
+      Alert.alert(t('permissionDenied'), err.message);
       return;
     }
 
@@ -342,7 +341,7 @@ export default function AIChatScreen() {
     const res = await analyzeImage(imageUri);
 
     if (!res.success || !res.question_text) {
-      Alert.alert('Image Analysis Failed', res.message || 'Could not analyze the image.');
+      Alert.alert(t('chat.imageAnalysisFailed'), res.message || t('chat.couldNotAnalyze'));
       removeUiMessage(thinkingMessageId);
       removeUiMessage(userImageMessageId);
       setIsGenerating(false);
@@ -669,7 +668,7 @@ export default function AIChatScreen() {
 
     return messages.length === 0
       ? [
-        WELCOME_MESSAGE,
+        getWelcomeMessage(t),
         ...uiMessages,
       ]
       : [
@@ -725,10 +724,10 @@ export default function AIChatScreen() {
                 {/* <Sparkles size={16} color="#FFFFFF" /> */}
               </LinearGradient>
               <View style={styles.headerText}>
-                <Text style={styles.headerTitle}>Krishi Anubhav AI</Text>
+                <Text style={styles.headerTitle}>{t('appName')}</Text>
                 <View style={styles.onlineRow}>
                   <View style={styles.onlineDot} />
-                  <Text style={styles.onlineLabel}>Online</Text>
+                  <Text style={styles.onlineLabel}>{t('online')}</Text>
                 </View>
               </View>
             </View>
@@ -857,7 +856,7 @@ export default function AIChatScreen() {
                       collapsable={false}
                     >
                       <TextInput
-                        placeholder={isGenerating ? "AI is typing..." : "Ask a question..."}
+                        placeholder={isGenerating ? t('chat.aiIsTyping') : t('chat.askQuestion')}
                         placeholderTextColor={c.textMuted}
                         value={inputText}
                         onChangeText={setInputText}

@@ -1,0 +1,66 @@
+{
+  "appName": "कृषि अनुभव AI",
+  "online": "ऑनलाइन",
+  "camera": "कैमरा",
+  "gallery": "गैलरी",
+  "cancel": "रद्द करें",
+  "uploadImage": "इमेज अपलोड करें",
+  "permissionDenied": "अनुमति अस्वीकृत",
+  "ok": "ठीक है",
+  "loading": "लोड हो रहा है...",
+  "tabs": {
+    "home": "होम",
+    "explore": "एक्सप्लोर",
+    "aiChat": "AI चैट",
+    "profile": "प्रोफ़ाइल"
+  },
+  "home": {
+    "greeting": "नमस्ते",
+    "farmer": "किसान मित्र",
+    "loadingLocation": "आपका स्थान लोड हो रहा है...",
+    "todayWeather": "आज का मौसम",
+    "wind": "हवा",
+    "humidity": "नमी",
+    "communityKnowledge": "सामुदायिक ज्ञान",
+    "shareKnowledge": "ज्ञान साझा करें",
+    "voiceAssistant": "वॉयस असिस्टेंट से पूछें",
+    "voiceAssistantHint": "हिंदी, हरियाणवी या अंग्रेजी",
+    "cropHealth": "फसल का स्वास्थ्य",
+    "healthy": "स्वस्थ",
+    "harvestDays": "{{days}} दिनों में कटाई। मिट्टी की नमी अनुकूल है।",
+    "marketPrice": "बाजार भाव",
+    "seedPrice": "बीज की कीमत",
+    "yesterdayPrice": "कल का भाव: {{price}}",
+    "subsidyAvailable": "50% सब्सिडी उपलब्ध",
+    "stockLimited": "स्टॉक सीमित"
+  },
+  "chat": {
+    "welcomeMessage": "नमस्ते 👋 आज मैं आपकी कैसे मदद कर सकता हूँ?",
+    "askQuestion": "कोई सवाल पूछें...",
+    "aiIsTyping": "AI टाइप कर रहा है...",
+    "listening": "सुन रहा है...",
+    "audioParsingFailed": "ऑडियो पार्स करने में विफल",
+    "imageAnalysisFailed": "इमेज विश्लेषण विफल",
+    "couldNotAnalyze": "इमेज का विश्लेषण नहीं कर सका।",
+    "chooseOption": "एक विकल्प चुनें",
+    "imageAnalysis": "इमेज विश्लेषण"
+  },
+  "settings": {
+    "title": "सेटिंग्स",
+    "notifications": "सूचनाएं",
+    "language": "भाषा",
+    "privacyPolicy": "गोपनीयता नीति",
+    "termsConditions": "नियम और शर्तें",
+    "loggedOut": "लॉग आउट",
+    "loggedOutMessage": "आप सफलतापूर्वक लॉग आउट हो गए हैं।",
+    "logout": "लॉग आउट"
+  },
+  "profile": {
+    "noPosts": "कोई पोस्ट नहीं",
+    "noPostsMessage": "आपने अभी तक कोई पोस्ट नहीं बनाई है। अपने ज्ञान और अनुभव समुदाय के साथ साझा करना शुरू करें!",
+    "editProfile": "प्रोफ़ाइल संपादित करें",
+    "posts": "पोस्ट",
+    "followers": "फ़ॉलोअर्स",
+    "following": "फ़ॉलोइंग"
+  }
+}

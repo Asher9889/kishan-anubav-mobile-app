@@ -1,14 +1,20 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 interface SectionHeaderProps {
   title: string;
 }
 
 export default function SectionHeader({ title }: SectionHeaderProps) {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const theme = isDark ? Colors.dark : Colors.light;
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <Text style={[styles.title, { color: theme.textMuted }]}>{title}</Text>
     </View>
   );
 }
@@ -18,12 +24,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 24,
     paddingBottom: 8,
-    backgroundColor: '#F2F2F7',
   },
   title: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#6D6D72',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },

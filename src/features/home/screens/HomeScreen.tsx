@@ -18,6 +18,7 @@ import {
 import { type ReactNode } from 'react';
 import { Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/features/auth/store/auth.store';
@@ -28,6 +29,7 @@ import ImageCorousal from '../components/ImageCorousal';
 import useNews from '../hooks/useNews';
 
 export default function HomeScreen() {
+  const { t } = useTranslation('common');
   const c = Colors.light;
 
   const user = useAuthStore((state) => state.user);
@@ -54,13 +56,13 @@ export default function HomeScreen() {
             <View className="flex-row items-start justify-between gap-4">
               <View className="flex-1">
                 <Text className="text-[25px] pt-2 font-extrabold leading-[36px]" style={{ color: c.onSurface }}>
-                  नमस्ते, {user?.fullName || 'किसान मित्र'} !
+                  {t('home.greeting')}, {user?.fullName || t('home.farmer')} !
                 </Text>
 
                 <View className="mt-2 flex-row items-center gap-1.5" >
                   <MapPin size={18} color={c.onSurfaceVariant} />
                   <Text className="text-[14px] font-semibold flex-1" style={{ color: c.onSurfaceVariant, flexWrap: 'wrap' }}>
-                    {isLoading ? "आपका स्थान लोड हो रहा है..." : `${location?.street}, ${location?.city}, ${location?.region}`}
+                    {isLoading ? t('home.loadingLocation') : `${location?.street}, ${location?.city}, ${location?.region}`}
                   </Text>
                 </View>
               </View>
@@ -78,7 +80,7 @@ export default function HomeScreen() {
                 }}
               >
                 <Text className="text-[12px] font-medium" style={{ color: c.onSurfaceVariant }}>
-                  आज का मौसम
+                  {t('home.todayWeather')}
                 </Text>
                 <View className="mt-1 flex-row items-center justify-between">
                   <View>
@@ -86,7 +88,7 @@ export default function HomeScreen() {
                       {isWeatherLoading ? "--°C" : `${weather?.temperature ?? "--"}°C`}
                     </Text>
                     <Text className="mt-1 text-[11px] font-medium" style={{ color: c.secondary }}>
-                      {isWeatherLoading ? "--km/h • --%" : `हवा: ${weather?.windSpeed ?? '--'}km/h • नमी: ${weather?.humidity ?? '--'}%`}
+                      {isWeatherLoading ? "--km/h • --%" : `${t('home.wind')}: ${weather?.windSpeed ?? '--'}km/h • ${t('home.humidity')}: ${weather?.humidity ?? '--'}%`}
 
                     </Text>
                   </View>
@@ -99,7 +101,7 @@ export default function HomeScreen() {
             </View>
 
             <SectionHeading
-              title="सामुदायिक ज्ञान"
+              title={t('home.communityKnowledge')}
               className="mt-8"
               action={
                 <Pressable onPress={() => router.push("/(private)/(stack)/knowledge/create")}>
@@ -107,7 +109,7 @@ export default function HomeScreen() {
                 <View className="flex-row items-center rounded-full px-4 py-2" style={{ backgroundColor: c.primary }}>
                   <PencilLine size={18} color={c.onPrimary} />
                   <Text className="ml-2 text-[14px] font-semibold" style={{ color: c.onPrimary }}>
-                    ज्ञान साझा करें
+                    {t('home.shareKnowledge')}
                   </Text>
                 </View>
                 </Pressable>
@@ -207,13 +209,13 @@ export default function HomeScreen() {
 
   
             <SectionHeading
-              title="बाजार भाव"
+              title={t('home.marketPrice')}
               className="mt-8"
               action={
                 <View className="flex-row items-center rounded-full px-3 py-1.5" style={{ backgroundColor: c.surfaceContainerLow }}>
                   <MapPin size={14} color={c.onSurfaceVariant} />
                   <Text className="ml-1.5 text-[12px] font-medium" style={{ color: c.onSurfaceVariant }}>
-                    सोनीपत मंडी
+                    सोनीपत {t('home.marketPrice')}
                   </Text>
                 </View>
               }
@@ -226,7 +228,7 @@ export default function HomeScreen() {
                 delta="+₹15 (क्विंटल)"
                 deltaColor={c.secondary}
                 icon={<TrendingUp size={18} color={c.secondary} />}
-                note="कल का भाव: ₹2,260"
+                note={t('home.yesterdayPrice', { price: '₹2,260' })}
               />
               <MarketCard
                 title="सरसों (Mustard)"
@@ -234,16 +236,16 @@ export default function HomeScreen() {
                 delta="-₹40 (क्विंटल)"
                 deltaColor={c.error}
                 icon={<TrendingDown size={18} color={c.error} />}
-                note="कल का भाव: ₹5,440"
+                note={t('home.yesterdayPrice', { price: '₹5,440' })}
               />
             </View>
 
             <SectionHeading
-              title="बीज की कीमत"
+              title={t('home.seedPrice')}
               className="mt-8"
               action={
                 <Text className="text-[12px] font-medium" style={{ color: c.onSurfaceVariant }}>
-                  सरकारी केंद्र • सोनीपत
+                  {t('home.seedPrice')} • सोनीपत
                 </Text>
               }
             />
@@ -260,9 +262,9 @@ export default function HomeScreen() {
                 elevation: 2,
               }}
             >
-              <SeedRow title="गेहूं (HD-3086)" price="₹3,400" subPrice="/40kg" note="50% सब्सिडी उपलब्ध" />
+              <SeedRow title="गेहूं (HD-3086)" price="₹3,400" subPrice="/40kg" note={t('home.subsidyAvailable')} />
               <View className="my-3 h-px" style={{ backgroundColor: 'rgba(143, 78, 0, 0.08)' }} />
-              <SeedRow title="बाजरा (हाइब्रिड)" price="₹450" subPrice="/1.5kg" note="स्टॉक सीमित" />
+              <SeedRow title="बाजरा (हाइब्रिड)" price="₹450" subPrice="/1.5kg" note={t('home.stockLimited')} />
             </View>
 
             <Pressable
@@ -283,10 +285,10 @@ export default function HomeScreen() {
                 </View>
                 <View>
                   <Text className="text-[18px] font-bold" style={{ color: c.onSurface }}>
-                    वॉयस असिस्टेंट से पूछें
+                    {t('home.voiceAssistant')}
                   </Text>
                   <Text className="mt-0.5 text-[12px]" style={{ color: c.onSurfaceVariant }}>
-                    हिंदी, हरियाणवी या अंग्रेजी
+                    {t('home.voiceAssistantHint')}
                   </Text>
                 </View>
               </View>
@@ -307,7 +309,7 @@ export default function HomeScreen() {
               <View className="flex-row items-center gap-2">
                 <Leaf size={16} color={c.secondary} />
                 <Text className="text-[12px] font-semibold uppercase tracking-[0.14em]" style={{ color: c.secondary }}>
-                  फसल का स्वास्थ्य
+                  {t('home.cropHealth')}
                 </Text>
               </View>
               <Text className="mt-2 text-[22px] font-extrabold" style={{ color: c.onSurface }}>

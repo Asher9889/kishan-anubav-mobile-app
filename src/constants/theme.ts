@@ -4,6 +4,7 @@
  */
 
 import { Platform } from 'react-native';
+import { FontFamily } from '@/theme/fonts';
 
 // export const Colors = {
 //   light: {
@@ -251,13 +252,13 @@ export const Colors = {
 };
 
 export const Typography = {
-  h1: { fontSize: 28, fontWeight: '800' as const, lineHeight: 34 },
-  h2: { fontSize: 22, fontWeight: '700' as const, lineHeight: 28 },
-  h3: { fontSize: 18, fontWeight: '700' as const, lineHeight: 24 },
-  body: { fontSize: 16, fontWeight: '400' as const, lineHeight: 26 },
-  bodyMedium: { fontSize: 16, fontWeight: '500' as const, lineHeight: 26 },
-  caption: { fontSize: 13, fontWeight: '500' as const, lineHeight: 18 },
-  small: { fontSize: 12, fontWeight: '400' as const, lineHeight: 16 },
+  h1: { fontSize: 28, fontWeight: '800' as const, lineHeight: 34, fontFamily: FontFamily.extraBold },
+  h2: { fontSize: 22, fontWeight: '700' as const, lineHeight: 28, fontFamily: FontFamily.bold },
+  h3: { fontSize: 18, fontWeight: '700' as const, lineHeight: 24, fontFamily: FontFamily.bold },
+  body: { fontSize: 16, fontWeight: '400' as const, lineHeight: 26, fontFamily: FontFamily.regular },
+  bodyMedium: { fontSize: 16, fontWeight: '500' as const, lineHeight: 26, fontFamily: FontFamily.medium },
+  caption: { fontSize: 13, fontWeight: '500' as const, lineHeight: 18, fontFamily: FontFamily.medium },
+  small: { fontSize: 12, fontWeight: '400' as const, lineHeight: 16, fontFamily: FontFamily.regular },
 };
 
 export const Spacing = {
@@ -280,23 +281,19 @@ export const Radius = {
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
+    sans: FontFamily.regular,
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
   },
   default: {
-    sans: 'normal',
+    sans: FontFamily.regular,
     serif: 'serif',
     rounded: 'normal',
     mono: 'monospace',
   },
   web: {
-    sans: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    sans: `${FontFamily.regular}, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`,
     serif: "Georgia, 'Times New Roman', serif",
     rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",

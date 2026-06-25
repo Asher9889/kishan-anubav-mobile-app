@@ -1,0 +1,66 @@
+{
+  "appName": "Krishi Anubhav AI",
+  "online": "Online",
+  "camera": "Camera",
+  "gallery": "Gallery",
+  "cancel": "Cancel",
+  "uploadImage": "Upload Image",
+  "permissionDenied": "Permission Denied",
+  "ok": "OK",
+  "loading": "Loading...",
+  "tabs": {
+    "home": "Home",
+    "explore": "Explore",
+    "aiChat": "AI Chat",
+    "profile": "Profile"
+  },
+  "home": {
+    "greeting": "Namaste",
+    "farmer": "Farmer Friend",
+    "loadingLocation": "Loading your location...",
+    "todayWeather": "Today's Weather",
+    "wind": "Wind",
+    "humidity": "Humidity",
+    "communityKnowledge": "Knowledge",
+    "shareKnowledge": "Share Knowledge",
+    "voiceAssistant": "Ask Voice Assistant",
+    "voiceAssistantHint": "Hindi, Haryanvi or English",
+    "cropHealth": "Crop Health",
+    "healthy": "Healthy",
+    "harvestDays": "{{days}} days to harvest. Soil moisture is favorable.",
+    "marketPrice": "Market Price",
+    "seedPrice": "Seed Price",
+    "yesterdayPrice": "Yesterday: {{price}}",
+    "subsidyAvailable": "50% subsidy available",
+    "stockLimited": "Stock limited"
+  },
+  "chat": {
+    "welcomeMessage": "Hello 👋 How can I help you today?",
+    "askQuestion": "Ask a question...",
+    "aiIsTyping": "AI is typing...",
+    "listening": "Listening...",
+    "audioParsingFailed": "Audio parsing failed",
+    "imageAnalysisFailed": "Image Analysis Failed",
+    "couldNotAnalyze": "Could not analyze the image.",
+    "chooseOption": "Choose an option",
+    "imageAnalysis": "Image Analysis"
+  },
+  "settings": {
+    "title": "Settings",
+    "notifications": "Notifications",
+    "language": "Language",
+    "privacyPolicy": "Privacy Policy",
+    "termsConditions": "Terms & Conditions",
+    "loggedOut": "Logged Out",
+    "loggedOutMessage": "You have been successfully logged out.",
+    "logout": "Logout"
+  },
+  "profile": {
+    "noPosts": "No Posts",
+    "noPostsMessage": "You haven't made any posts yet. Start sharing your knowledge and experiences with the community!",
+    "editProfile": "Edit Profile",
+    "posts": "Posts",
+    "followers": "Followers",
+    "following": "Following"
+  }
+}

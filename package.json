@@ -12,6 +12,7 @@
     "prebuild": "npx expo prebuild --clean"
   },
   "dependencies": {
+    "@expo-google-fonts/inter": "^0.4.2",
     "@expo/vector-icons": "^15.0.3",
     "@hookform/resolvers": "^5.4.0",
     "@react-navigation/bottom-tabs": "^7.4.0",
