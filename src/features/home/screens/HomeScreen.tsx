@@ -2,30 +2,31 @@ import { router } from 'expo-router';
 import {
   ChevronRight,
   Clock3,
-  Leaf,
   MapPin,
   MessageSquareText,
   Mic,
   PencilLine,
-  Sprout,
-  SunMedium,
   ThumbsUp,
   TrendingDown,
   TrendingUp,
   UsersRound,
-  Wheat,
+  Wheat
 } from 'lucide-react-native';
 import { type ReactNode } from 'react';
-import { Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import GreetingSkeleton from '@/components/skeleton/GreetingSkeleton';
+import WeatherSkeleton from '@/components/skeleton/WeatherSkeleton';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { useCurrentLocation } from '@/shared/hooks/useCurrentLocation';
 import useCurrentWeather from '@/shared/hooks/useCurrentWeather';
+import GreetingCard from '../components/GreetingCard';
 import HomeHeader from '../components/HomeHeader';
 import ImageCorousal from '../components/ImageCorousal';
+import WeatherCard from '../components/WeatherCard';
 import useNews from '../hooks/useNews';
 
 export default function HomeScreen() {
@@ -38,66 +39,38 @@ export default function HomeScreen() {
   const location = locationData;
   const weather = weatherData;
 
-  const {data:newsData, isLoading: isLoadingNews,} = useNews();
-
+  const { data: newsData, isLoading: isLoadingNews, } = useNews();
 
   return (
-    <SafeAreaProvider>
-      <View className="flex-1" style={{ backgroundColor: c.background }}>
-        <StatusBar barStyle="dark-content" backgroundColor={c.background} />
+
+    <SafeAreaView className="flex-1" style={{ backgroundColor: c.primaryContainer }}>
+      <StatusBar backgroundColor={c.primaryContainer} />
+      <View  style={{ backgroundColor: c.background }}>
 
         <HomeHeader />
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 280 }}
+          contentContainerStyle={{ paddingBottom: 32 }}
         >
-          <View className="px-5 pt-6">
-            <View className="flex-row items-start justify-between gap-4">
-              <View className="flex-1">
-                <Text className="text-[25px] pt-2 font-extrabold leading-[36px]" style={{ color: c.onSurface }}>
-                  {t('home.greeting')}, {user?.fullName || t('home.farmer')} !
-                </Text>
-
-                <View className="mt-2 flex-row items-center gap-1.5" >
-                  <MapPin size={18} color={c.onSurfaceVariant} />
-                  <Text className="text-[14px] font-semibold flex-1" style={{ color: c.onSurfaceVariant, flexWrap: 'wrap' }}>
-                    {isLoading ? t('home.loadingLocation') : `${location?.street}, ${location?.city}, ${location?.region}`}
-                  </Text>
-                </View>
+          <View className="px-5 pt-2">
+            <View className="gap-6">
+              <View>
+                {isLoading ? (
+                  <GreetingSkeleton />
+                ) : (
+                  <GreetingCard
+                    userName={user?.fullName}
+                    location={location ? `${location.street}, ${location.city}, ${location.region}` : null}
+                  />
+                )}
               </View>
 
-              <View
-                className="w-[165px] relative rounded-[20px] border px-4 py-3"
-                style={{
-                  backgroundColor: c.surfaceContainerLow,
-                  borderColor: c.outlineVariant,
-                  shadowColor: '#79573F',
-                  shadowOpacity: 0.08,
-                  shadowRadius: 12,
-                  shadowOffset: { width: 0, height: 4 },
-                  elevation: 2,
-                }}
-              >
-                <Text className="text-[12px] font-medium" style={{ color: c.onSurfaceVariant }}>
-                  {t('home.todayWeather')}
-                </Text>
-                <View className="mt-1 flex-row items-center justify-between">
-                  <View>
-                    <Text className="text-[28px] font-bold leading-none" style={{ color: c.primary }}>
-                      {isWeatherLoading ? "--°C" : `${weather?.temperature ?? "--"}°C`}
-                    </Text>
-                    <Text className="mt-1 text-[11px] font-medium" style={{ color: c.secondary }}>
-                      {isWeatherLoading ? "--km/h • --%" : `${t('home.wind')}: ${weather?.windSpeed ?? '--'}km/h • ${t('home.humidity')}: ${weather?.humidity ?? '--'}%`}
-
-                    </Text>
-                  </View>
-
-                  <View className="absolute -top-8 -right-2 h-11 w-11 items-center justify-center rounded-full" style={{ backgroundColor: 'rgba(143, 78, 0, 0.08)' }}>
-                    <SunMedium size={24} color={c.primary} />
-                  </View>
-                </View>
-              </View>
+              {isWeatherLoading ? (
+                <WeatherSkeleton />
+              ) : weather ? (
+                <WeatherCard weather={weather} />
+              ) : null}
             </View>
 
             <SectionHeading
@@ -106,12 +79,12 @@ export default function HomeScreen() {
               action={
                 <Pressable onPress={() => router.push("/(private)/(stack)/knowledge/create")}>
 
-                <View className="flex-row items-center rounded-full px-4 py-2" style={{ backgroundColor: c.primary }}>
-                  <PencilLine size={18} color={c.onPrimary} />
-                  <Text className="ml-2 text-[14px] font-semibold" style={{ color: c.onPrimary }}>
-                    {t('home.shareKnowledge')}
-                  </Text>
-                </View>
+                  <View className="flex-row items-center rounded-full px-4 py-2" style={{ backgroundColor: c.primary }}>
+                    <PencilLine size={18} color={c.onPrimary} />
+                    <Text className="ml-2 text-[14px] font-semibold" style={{ color: c.onPrimary }}>
+                      {t('home.shareKnowledge')}
+                    </Text>
+                  </View>
                 </Pressable>
               }
             />
@@ -207,7 +180,7 @@ export default function HomeScreen() {
 
             {!isLoadingNews && Array.isArray(newsData) && newsData.length > 0 && <ImageCorousal news={newsData} />}
 
-  
+
             <SectionHeading
               title={t('home.marketPrice')}
               className="mt-8"
@@ -295,7 +268,7 @@ export default function HomeScreen() {
               <ChevronRight size={22} color={c.onSurfaceVariant} />
             </Pressable>
 
-            <Pressable
+            {/* <Pressable
               className="relative mt-8 overflow-hidden rounded-[24px] p-5"
               style={{
                 backgroundColor: c.secondaryContainer,
@@ -326,12 +299,12 @@ export default function HomeScreen() {
               <View className="absolute -right-1 -bottom-4 opacity-10 rotate-12">
                 <Sprout size={110} color={c.onSurface} />
               </View>
-            </Pressable>
+            </Pressable> */}
           </View>
         </ScrollView>
 
       </View>
-    </SafeAreaProvider>
+    </SafeAreaView>
   );
 }
 

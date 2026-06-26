@@ -14,5 +14,7 @@ export async function getCurrentWeather(lat: number, long: number): Promise<IWea
         windSpeed: response.data.current.windspeed_10m ?? 23
     }
 
+    console.log("Weather Data:", weatherData);
+
     return weatherData;
 }
