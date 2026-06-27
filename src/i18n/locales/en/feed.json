@@ -1,0 +1,20 @@
+{
+  "title": "Community",
+  "search": "Search",
+  "seeMore": "See more",
+  "seeLess": "See less",
+  "like": "Like",
+  "comment": "Comment",
+  "share": "Share",
+  "likes": "likes",
+  "comments": "comments",
+  "justNow": "Just now",
+  "minutesAgo": "{{count}}m ago",
+  "hoursAgo": "{{count}}h ago",
+  "daysAgo": "{{count}}d ago",
+  "emptyTitle": "No community posts yet",
+  "emptyMessage": "Be the first farmer to share your knowledge with everyone.",
+  "createFirstPost": "Create First Post",
+  "errorTitle": "Unable to load community posts",
+  "retry": "Retry"
+}

@@ -10,6 +10,7 @@
   "loading": "Loading...",
   "tabs": {
     "home": "Home",
+    "feed": "Feed",
     "explore": "Explore",
     "aiChat": "AI Chat",
     "profile": "Profile"

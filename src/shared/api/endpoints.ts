@@ -74,6 +74,13 @@ export const endPoints = {
     }
   },
 
+  FEED: {
+    GET: {
+      url: "/feed",
+      method: "GET",
+    },
+  },
+
   UPLOAD: {
     AVATAR: {
       url: "/uploads/avatar",
