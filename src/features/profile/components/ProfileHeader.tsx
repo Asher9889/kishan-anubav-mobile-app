@@ -16,18 +16,20 @@ const ProfileHeader = ({ username }: ProfileHeaderProps) => {
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const displayUsername = username.trim() || 'username';
+  const hasUsername = username.trim().length > 0;
 
   return (
     <View style={styles.instagramTopBar}>
       <Pressable onPress={() => router.push("/(private)/(tabs)")} accessibilityRole="button">
         <ChevronLeft size={28} color={theme.text} strokeWidth={2.2} />
       </Pressable>
-      <View style={styles.usernameHeader}>
-        <AtSign size={16} color={theme.text} />
-        <Text style={styles.usernameHeaderText}>{displayUsername}</Text>
-        <ChevronRight size={16} color={theme.text} style={{ transform: [{ rotate: '90deg' }] }} />
-      </View>
+      {hasUsername ? (
+        <View style={styles.usernameHeader}>
+          <AtSign size={16} color={theme.text} />
+          <Text style={styles.usernameHeaderText}>{username.trim()}</Text>
+          <ChevronRight size={16} color={theme.text} style={{ transform: [{ rotate: '90deg' }] }} />
+        </View>
+      ) : <View />}
       <View style={styles.topBarRight}>
         <Pressable onPress={() => router.push("/(private)/(stack)/knowledge/create")} style={styles.topBarIcon} accessibilityRole="button">
           <Plus size={24} color={theme.text} strokeWidth={2} />

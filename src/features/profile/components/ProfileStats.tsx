@@ -5,6 +5,7 @@ import { Image } from 'expo-image';
 import { Camera, Plus } from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 type AppTheme = typeof Colors.light;
 
@@ -13,10 +14,11 @@ interface ProfileStatsProps {
 }
 
 const ProfileStats = ({ onPickAvatar }: ProfileStatsProps) => {
+  const { t } = useTranslation('common');
   const colorScheme = useColorScheme();
   const user = useAuthStore((state) => state.user);
   const avatarUri = user?.avatar?.trim() ?? '';
-  const name = user?.fullName?.trim() || user?.name?.trim() || '';
+  const name = user?.fullName?.trim() || user?.name?.trim() || t('home.farmer');
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -42,16 +44,16 @@ const ProfileStats = ({ onPickAvatar }: ProfileStatsProps) => {
         <View style={styles.statsRow}>
 
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>46</Text>
-            <Text style={styles.statLabel}>posts</Text>
+            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statLabel}>{t('profile:posts')}</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>1,525</Text>
-            <Text style={styles.statLabel}>followers</Text>
+            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statLabel}>{t('profile:followers')}</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statNumber}>2,142</Text>
-            <Text style={styles.statLabel}>following</Text>
+            <Text style={styles.statNumber}>0</Text>
+            <Text style={styles.statLabel}>{t('profile:following')}</Text>
           </View>
         </View>
       </View>

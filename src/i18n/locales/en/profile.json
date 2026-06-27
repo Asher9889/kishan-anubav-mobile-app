@@ -6,5 +6,6 @@
   "following": "Following",
   "noPosts": "No Posts",
   "noPostsMessage": "You haven't made any posts yet. Start sharing your knowledge and experiences with the community!",
-  "settings": "Settings"
+  "settings": "Settings",
+  "bioEmpty": "Share a little about yourself"
 }

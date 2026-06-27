@@ -34,7 +34,7 @@ export default function HomeScreen() {
   const c = Colors.light;
 
   const user = useAuthStore((state) => state.user);
-  const { isLoading, data: locationData } = useCurrentLocation();
+  const { isLoading: isLoadingLocation, data: locationData } = useCurrentLocation();
   const { isLoading: isWeatherLoading, data: weatherData } = useCurrentWeather();
   const location = locationData;
   const weather = weatherData;
@@ -56,7 +56,7 @@ export default function HomeScreen() {
           <View className="px-5 pt-2">
             <View className="gap-6">
               <View>
-                {isLoading ? (
+                {isLoadingLocation ? (
                   <GreetingSkeleton />
                 ) : (
                   <GreetingCard
@@ -66,7 +66,7 @@ export default function HomeScreen() {
                 )}
               </View>
 
-              {isWeatherLoading ? (
+              {!isLoadingLocation && isWeatherLoading ? (
                 <WeatherSkeleton />
               ) : weather ? (
                 <WeatherCard weather={weather} />

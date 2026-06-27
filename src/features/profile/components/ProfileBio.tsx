@@ -1,6 +1,7 @@
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import type { ProfileFormState } from '../hooks/useProfileForm';
 
@@ -11,16 +12,21 @@ interface ProfileBioProps {
 }
 
 const ProfileBio = ({ profile }: ProfileBioProps) => {
+  console.log('ProfileBio profile:', profile); // Debugging line
+  const { t } = useTranslation('profile');
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const displayBio = profile.bio.trim();
+  const displayBio = profile.bio.trim() !== "" ? profile.bio : null;
   return (
     <View style={styles.bioSection}>
-      {/* <Text style={styles.bioName}>{displayName}</Text> */}
-      <Text style={styles.bioText}>{displayBio}</Text>
-      {profile.occupation ? (
+      {displayBio ? (
+        <Text style={styles.bioText}>{displayBio}</Text>
+      ) : (
+        <Text style={styles.bioEmpty}>{t('bioEmpty')}</Text>
+      )}
+      {profile.occupation ? ( 
         <Text style={styles.bioOccupation}>{profile.occupation}</Text>
       ) : null}
     </View>
@@ -43,6 +49,12 @@ const createStyles = (theme: AppTheme) =>
       color: theme.text,
       fontSize: Typography.body.fontSize,
       lineHeight: 20,
+    },
+    bioEmpty: {
+      color: theme.textMuted,
+      fontSize: Typography.body.fontSize,
+      lineHeight: 20,
+      fontStyle: 'italic',
     },
     bioOccupation: {
       color: theme.textSecondary,

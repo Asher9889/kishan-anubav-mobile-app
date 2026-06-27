@@ -1,19 +1,20 @@
+import { envConfig } from "@/config";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import axios from "axios";
 
-const API_BASE_URL = "http://kishananubhav.mssplonline.in";
+// const API_BASE_URL = "http://kishananubhav.mssplonline.in";
 // const NODE_API_BASE_URL = "http://10.0.2.2:4500/api/v1"; 
-const NODE_API_BASE_URL = "http://160.25.62.109:8222/api/v1"; 
+// const NODE_API_BASE_URL = "http://160.25.62.109:8222/api/v1"; 
 
 
 const nodeApi = axios.create({
-  baseURL: NODE_API_BASE_URL,
+  baseURL: envConfig.nodeApiBaseUrl,
   timeout: 30 * 1000,
 })
 
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: envConfig.aiApiBaseUrl,
   timeout: 60 * 1000,
 });
 
