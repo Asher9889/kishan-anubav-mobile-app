@@ -17,25 +17,16 @@ export default function EngagementSummary({ likesCount, commentsCount }: Engagem
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const showLikes = likesCount > 0;
-  const showComments = commentsCount > 0;
-
-  if (!showLikes && !showComments) return null;
-
   return (
     <View style={styles.row}>
-      {showLikes && (
-        <View style={styles.stat}>
-          <Heart size={14} color={theme.textMuted} fill={theme.textMuted} />
-          <Text style={styles.text}>{likesCount}</Text>
-        </View>
-      )}
-      {showComments && (
-        <View style={styles.stat}>
-          <MessageCircle size={14} color={theme.textMuted} />
-          <Text style={styles.text}>{commentsCount}</Text>
-        </View>
-      )}
+      <View style={styles.stat}>
+        <Heart size={14} color={theme.textMuted} fill={theme.textMuted} />
+        <Text style={styles.text}>{likesCount}</Text>
+      </View>
+      <View style={styles.stat}>
+        <MessageCircle size={14} color={theme.textMuted} />
+        <Text style={styles.text}>{commentsCount}</Text>
+      </View>
     </View>
   );
 }

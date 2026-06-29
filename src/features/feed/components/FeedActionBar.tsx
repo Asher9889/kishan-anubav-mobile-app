@@ -9,32 +9,60 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 type AppTheme = typeof Colors.light;
 
 interface FeedActionBarProps {
+  isLiked: boolean;
+  isLiking: boolean;
+  likesCount: number;
+  commentsCount: number;
   onLike?: () => void;
   onComment?: () => void;
   onShare?: () => void;
 }
 
-export default function FeedActionBar({ onLike, onComment, onShare }: FeedActionBarProps) {
+export default function FeedActionBar({ isLiked, isLiking, likesCount, commentsCount, onLike, onComment, onShare }: FeedActionBarProps) {
   const { t } = useTranslation('feed');
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
-  const action = (Icon: typeof Heart, label: string, onPress?: () => void) => (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.action, pressed && styles.pressed]}
-    >
-      <Icon size={20} color={theme.textSecondary} />
-      <Text style={styles.label}>{label}</Text>
-    </Pressable>
-  );
-
   return (
     <View style={styles.bar}>
-      {action(Heart, t('like'), onLike)}
-      {action(MessageCircle, t('comment'), onComment)}
-      {action(Send, t('share'), onShare)}
+      <Pressable
+        onPress={onLike}
+        disabled={isLiking}
+        style={({ pressed }) => [styles.action, pressed && styles.pressed]}
+      >
+        <View style={[styles.iconTextContainer]}>
+
+          <Heart
+            size={24}
+            width={24}
+            height={24}
+            color={isLiked ? theme.red : theme.textSecondary}
+            fill={isLiked ? theme.red : 'transparent'}
+          />
+          <Text style={[styles.label, isLiked && styles.labelLiked]}>{likesCount}</Text>
+        </View>
+      </Pressable>
+
+      <Pressable
+        onPress={onComment}
+        style={({ pressed }) => [styles.action, pressed && styles.pressed]}
+      >
+        <View style={[styles.iconTextContainer]}>
+          <MessageCircle size={24} color={theme.textSecondary} />
+          <Text style={styles.label}>{commentsCount}</Text>
+        </View>
+      </Pressable>
+
+      <Pressable
+        onPress={onShare}
+        style={({ pressed }) => [styles.action, pressed && styles.pressed]}
+      >
+        <View style={[styles.iconTextContainer]}>
+          <Send size={24} color={theme.textSecondary} />
+          <Text style={styles.label}>{t('share')}</Text>
+        </View>
+      </Pressable>
     </View>
   );
 }
@@ -42,16 +70,18 @@ export default function FeedActionBar({ onLike, onComment, onShare }: FeedAction
 const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
     bar: {
+      // backgroundColor: "red",
       flexDirection: 'row',
       alignItems: 'center',
       gap: Spacing.xxl,
       paddingTop: Spacing.md,
     },
     action: {
+      flexDirection: 'row',
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 4,
+      gap: Spacing.xs,
       paddingVertical: 8,
       paddingHorizontal: Spacing.xs,
       borderRadius: Radius.md,
@@ -60,9 +90,18 @@ const createStyles = (theme: AppTheme) =>
     pressed: {
       opacity: 0.6,
     },
+    iconTextContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: Spacing.xs,
+    },
     label: {
       color: theme.textSecondary,
-      fontSize: 12,
+      fontSize: 16,
       fontWeight: '500',
+    },
+    labelLiked: {
+      color: theme.red,
     },
   });

@@ -6,5 +6,10 @@ const Images = {
     yojna4: require('./yojna/yojna4.avif'),
 };
 
+const Icons = {
+    onLike: require('./post/Heart-fav.webm'),
+}
 
-export { Images };
+
+export { Icons, Images };
+

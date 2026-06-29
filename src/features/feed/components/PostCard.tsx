@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { Modal, StyleSheet, View } from 'react-native';
+import { Heart } from 'lucide-react-native';
 
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useLike } from '../hooks/useLike';
 import type { FeedPost } from '../types/feed.types';
 import AuthorSection from './AuthorSection';
-import EngagementSummary from './EngagementSummary';
 import FeedActionBar from './FeedActionBar';
 import ImageGrid from './ImageGrid';
 import ImageViewer from './ImageViewer';
@@ -15,17 +16,28 @@ type AppTheme = typeof Colors.light;
 
 interface PostCardProps {
   post: FeedPost;
-  onLike?: () => void;
   onComment?: () => void;
   onShare?: () => void;
-  onAuthorPress?: () => void;
 }
 
-export default function PostCard({ post, onLike, onComment, onShare }: PostCardProps) {
+export default function PostCard({ post, onComment, onShare }: PostCardProps) {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
+  const [showHeart, setShowHeart] = useState(false);
+  const likeMutation = useLike();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleLike = () => {
+    const wasLiked = post.isLiked;
+    likeMutation.mutate({ postId: post.id, currentlyLiked: wasLiked });
+    if (!wasLiked) {
+      setShowHeart(true);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setShowHeart(false), 600);
+    }
+  };
 
   return (
     <>
@@ -48,9 +60,22 @@ export default function PostCard({ post, onLike, onComment, onShare }: PostCardP
         )}
 
         <View style={styles.paddedSection}>
-          <EngagementSummary likesCount={post.likesCount || 0} commentsCount={post.commentsCount || 0} />
-          <FeedActionBar onLike={onLike} onComment={onComment} onShare={onShare} />
+          <FeedActionBar
+            isLiked={post.isLiked}
+            isLiking={likeMutation.isPending}
+            likesCount={post.likesCount}
+            commentsCount={post.commentsCount}
+            onLike={handleLike}
+            onComment={onComment}
+            onShare={onShare}
+          />
         </View>
+
+        {showHeart && (
+          <View style={styles.heartOverlay} pointerEvents="none">
+            <Heart size={64} color={theme.red} fill={theme.red} />
+          </View>
+        )}
       </View>
 
       {viewerIndex != null && (
@@ -70,5 +95,10 @@ const createStyles = (theme: AppTheme) =>
     },
     paddedSection: {
       paddingHorizontal: Spacing.md,
+    },
+    heartOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
   });

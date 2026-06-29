@@ -9,6 +9,7 @@ export const feedPostSchema = z.object({
   district: z.string(),
   knowledge: z.string(),
   images: z.array(z.string()),
+  isLiked: z.boolean(),
   likesCount: z.number(),
   commentsCount: z.number(),
   isActive: z.boolean(),

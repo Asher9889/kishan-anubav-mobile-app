@@ -20,7 +20,7 @@ export default function FeedScreen() {
   const styles = createStyles(theme);
   const { posts, isLoading, isRefreshing, isLoadingMore, error, refresh, loadMore } = useFeed();
 
-  const renderPost = useCallback(({ item }: { item: FeedPost }) => <PostCard post={item} />, []);
+  const renderPost = useCallback(({ item }: { item: FeedPost }) => <PostCard post={item} key={item.id} />, []);
 
   const keyExtractor = useCallback((item: FeedPost) => item.id, []);
 

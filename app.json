@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./src/assets/images/logo.png",
     "scheme": "kisnamobileapp",
-    "userInterfaceStyle": "automatic", // "light" | "dark" | "automatic" for theme support
+    "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
@@ -69,7 +69,7 @@
           "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
         }
       ],
-       [
+      [
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends.",

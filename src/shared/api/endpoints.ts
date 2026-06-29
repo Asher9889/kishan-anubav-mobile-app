@@ -71,7 +71,15 @@ export const endPoints = {
     POST: {
       url: "/posts",
       method: "POST",
-    }
+    },
+    LIKE: {
+      url: "/posts",
+      method: "POST",
+    },
+    UNLIKE: {
+      url: "/posts",
+      method: "DELETE",
+    },
   },
 
   FEED: {
