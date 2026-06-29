@@ -13,6 +13,7 @@ export function useCurrentLocation(options: UseCurrentLocationOptions = {}) {
         queryKey: ["location"],
         queryFn: getCurrentLocation,
         enabled,
+        staleTime: 1000 * 60 * 10, // 10 minutes
     });
     return response;
 }

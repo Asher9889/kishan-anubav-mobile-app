@@ -373,6 +373,8 @@ export const useProfileForm = () => {
       return false;
     }
 
+    console.log("All fields are=====", field)
+
     const nextValue = String(form.getValues(field) ?? '').trim();
     const currentValue = String(createInitialState(user)[field] ?? '').trim();
 
@@ -418,7 +420,8 @@ export const useProfileForm = () => {
       );
       const nextUser = applyFocusedFieldToUser(user, field, nextValue, updatedProfile);
 
-      setUser(nextUser);
+      console.log('Updated profile field:', field, 'New value:', nextValue, 'Updated profile:', updatedProfile);
+      setUser({ ...nextUser, isProfileCompleted: updatedProfile.isProfileCompleted ?? false });
 
       form.clearErrors(field);
       form.reset({
@@ -491,7 +494,7 @@ export const useProfileForm = () => {
 
     updateProfileMutation.mutate(nextUser, {
       onSuccess: (updatedProfile) => {
-        setUser(updatedProfile);
+        setUser({ ...nextUser, ...updatedProfile });
         Alert.alert('Success', 'Your profile has been updated successfully.');
       },
       onError: () => {

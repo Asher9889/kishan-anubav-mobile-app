@@ -1,8 +1,10 @@
 // app/knowledge/create.tsx
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import useTheme from '@/hooks/useTheme'; // Your hook
+import { useCurrentLocation } from '@/shared/hooks/useCurrentLocation';
 import { useRouter } from 'expo-router';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -29,12 +31,26 @@ const MAX_TITLE_LENGTH = 100;
 const MAX_DESCRIPTION_LENGTH = 2000;
 
 export default function CreateKnowledgeScreen() {
+  const isProfileCompleted = useAuthStore((state) => state.user?.isProfileCompleted);
   const userInfo = useAuthStore((state) => state.user);
+
+  const { isLoading: isLoadingLocation, data: locationData } = useCurrentLocation(); 
+    
+  const { t } = useTranslation('common');
   const mutateKnowledgePost = usePostKnowledge();
-  const requireProfileCompletion = useProfileCompletionGuard();
+  const guard = useProfileCompletionGuard(isProfileCompleted ?? false);
+
+  useEffect(() => {
+    if (!isProfileCompleted) {
+      guard();
+      console.log("Calling guard...");
+    }
+  }, [isProfileCompleted]); 
+
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors, typography, isDark } = useTheme();
+
 
   const {
     // State
@@ -80,22 +96,21 @@ export default function CreateKnowledgeScreen() {
   const handlePost = () => {
     if (mutateKnowledgePost.isPending) return;
 
-    const { canPost } = requireProfileCompletion();
-    if (!canPost) return;
+    if (!guard()) return;
 
     const data: PostKnowledgeApiDTO = {
       userinfo: {
-        name: userInfo?.fullName || 'Unknown User',
-        location: userInfo?.city ||  'Unknown Location',
-        district: userInfo?.district || 'Unknown District',
-        state: userInfo?.state || 'Unknown State',
+        name: userInfo?.fullName || "",
+        district: userInfo?.district || userInfo?.district || '',
+        location: userInfo?.city || locationData?.street || ''  ,
+        state: userInfo?.state || locationData?.region || '',
       },
       knowledge: description.trim(),
       images: images
     };
     mutateKnowledgePost.mutate(data, {
       onError: (error) => {
-        Alert.alert('Error',  error.message ||'Failed to post knowledge. Please try again.');
+        Alert.alert('Error', error.message || 'Failed to post knowledge. Please try again.');
       },
       onSuccess: () => {
         Alert.alert('Success', 'Your knowledge has been posted!');
@@ -105,6 +120,8 @@ export default function CreateKnowledgeScreen() {
     })
 
   };
+
+
 
   return (
     <View style={{ flex: 1 }}>

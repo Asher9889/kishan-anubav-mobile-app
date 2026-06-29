@@ -45,7 +45,8 @@ export interface UpdateProfileData {
     country: string | null;
     latitude: number | null;
     longitude: number | null;
-  }
+  };
+  isProfileCompleted?: boolean;
 }
 
 export type TOccupation = typeof OCCUPATIONS[keyof typeof OCCUPATIONS];
