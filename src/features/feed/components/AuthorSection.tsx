@@ -40,12 +40,12 @@ export default function AuthorSection({ userId, name, location, district, state,
 
   return (
     <View style={styles.row}>
-      <Pressable onPress={() => router.push(`/(private)/(stack)/client-profile?id=${userId}`)} style={styles.avatar}>
+      <Pressable onPress={() => router.push(`/(private)/(stack)/user-profile?id=${userId}`)} style={styles.avatar}>
         <Text style={styles.avatarText}>{initial}</Text>
       </Pressable>
 
       <Pressable
-        onPress={() => router.push(`/(private)/(stack)/client-profile?id=${userId}`)}
+        onPress={() => router.push(`/(private)/(stack)/user-profile?id=${userId}`)}
         style={styles.info}
       >
         <Text style={styles.name} numberOfLines={1}>{name}</Text>

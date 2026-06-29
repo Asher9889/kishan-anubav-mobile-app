@@ -19,6 +19,7 @@ import ImagePickerSheet from '../components/ImagePickerSheet';
 import { ImageSection } from '../components/ImageSection';
 import { useCreatePost } from '../hooks/useCreatePost';
 import { usePostKnowledge } from '../hooks/usePostKnowledge';
+import { useProfileCompletionGuard } from '../hooks/useProfileCompletionGuard';
 import { PostKnowledgeApiDTO } from '../types/knowledge.types';
 
 // ─── Constants ─────────────────────────────────────────
@@ -30,6 +31,7 @@ const MAX_DESCRIPTION_LENGTH = 2000;
 export default function CreateKnowledgeScreen() {
   const userInfo = useAuthStore((state) => state.user);
   const mutateKnowledgePost = usePostKnowledge();
+  const requireProfileCompletion = useProfileCompletionGuard();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors, typography, isDark } = useTheme();
@@ -77,6 +79,10 @@ export default function CreateKnowledgeScreen() {
 
   const handlePost = () => {
     if (mutateKnowledgePost.isPending) return;
+
+    const { canPost } = requireProfileCompletion();
+    if (!canPost) return;
+
     const data: PostKnowledgeApiDTO = {
       userinfo: {
         name: userInfo?.fullName || 'Unknown User',

@@ -64,7 +64,12 @@
     "editProfile": "Edit Profile",
     "posts": "Posts",
     "followers": "Followers",
-    "following": "Following",
-
+    "following": "Following"
+  },
+  "profileCompletion": {
+    "title": "Complete Your Profile First",
+    "message": "Namaste 🙏 Before sharing your knowledge, please tell us about yourself. Add your name, village, and a photo so the community knows who is behind this wisdom!",
+    "goToProfile": "Complete Profile",
+    "later": "Later"
   }
 }

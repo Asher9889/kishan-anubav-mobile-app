@@ -61,6 +61,11 @@ export const endPoints = {
       url: "/users/check-username",
       method: "GET",
     },
+
+    GET_PROFILE: {
+      url: "/users/:id",
+      method: "GET",
+    },
   },
 
   POSTS: {

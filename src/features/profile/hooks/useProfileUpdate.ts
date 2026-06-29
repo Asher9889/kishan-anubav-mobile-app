@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { updateProfile, updateProfileField } from "../api/profile.api";
+import { useAuthStore } from "@/features/auth/store/auth.store";
 import { UpdateProfileData } from "../types/profile.types";
 
 
@@ -23,7 +24,10 @@ export default useProfileUpdate;
 
 export const useProfileFieldUpdate = () => {
   const mutation = useMutation({
-    mutationFn: updateProfileField,
+    mutationFn: (payload: Parameters<typeof updateProfileField>[0]) => {
+      const userId = useAuthStore.getState().user?.id ?? '';
+      return updateProfileField(payload, userId);
+    },
     onSuccess: (data) => {
       console.log("Profile field updated successfully:", data);
     },

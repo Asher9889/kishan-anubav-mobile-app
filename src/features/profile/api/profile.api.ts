@@ -119,7 +119,7 @@ export const uploadAvatar = async (imageBlob: ImagePickerAsset, userId: string):
 export const updateProfile = async (profileData: UpdateProfileData): Promise<UpdateProfileData> => {
   const { url, method } = endPoints.USER.UPDATE_PROFILE;
   const response = await nodeApi.request({
-    url,
+    url: url,
     method,
     data: profileData,
   });
@@ -127,10 +127,11 @@ export const updateProfile = async (profileData: UpdateProfileData): Promise<Upd
   return readProfile(response);
 }
 
-export const updateProfileField = async (payload: UpdateProfileFieldPayload): Promise<UpdateProfileData> => {
+export const updateProfileField = async (payload: UpdateProfileFieldPayload, userId: string): Promise<UpdateProfileData> => {
   const { url, method } = endPoints.USER.UPDATE_PROFILE;
+  const apiUrl = url.replace(':id', userId);
   const response = await nodeApi.request({
-    url,
+    url: apiUrl,
     method,
     data: payload,
   });
