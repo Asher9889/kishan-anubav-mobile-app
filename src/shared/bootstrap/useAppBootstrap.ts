@@ -39,6 +39,11 @@ const useAppBootstrap = () => {
                 const newRefreshToken = token?.refreshToken;
                 console.log("[BOOTSTRAP]Token refresh response:", Object.keys(data));
                 //5. setting user and accesToken to Zustand
+
+
+                console.log("[BOOTSTRAP]User data:", user);
+                console.log("[BOOTSTRAP]New Access Token:", newAccessToken);
+                console.log("[BOOTSTRAP]New Refresh Token:", newRefreshToken);
                 login({user, accessToken: newAccessToken,});
                 // 6. setting new refresh token to secure store
                 await SecureStore.setItemAsync("refreshToken", newRefreshToken);

@@ -20,9 +20,8 @@ export default function PrivateLayout() {
       try {
         const response = await fetchMe();
         const fetchedUser = response?.data.user;
-        console.log("Fetched /me profile:", Object.keys(fetchedUser));
-        console.log("Fetched /me profile (full):", fetchedUser.avatar, fetchedUser.fullName);
 
+        console.log("Fetched /me profile (data):", fetchedUser);
         if (fetchedUser) {
           setUser(fetchedUser);
         }

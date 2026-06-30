@@ -14,8 +14,6 @@ export default function TabLayout() {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
 
-  console.log('TabsLayout mounted');
-
   return (
     <Tabs
       screenOptions={{

@@ -36,7 +36,7 @@ const ProfileForm = ({
   const selectedGender = useWatch({ control, name: 'gender' });
   const selectedGenderLabel =
     GENDER_OPTIONS.find((option) => option.value === selectedGender)?.label ?? '';
-
+    
   return (
     <View style={styles.formContainer}>
       <Controller

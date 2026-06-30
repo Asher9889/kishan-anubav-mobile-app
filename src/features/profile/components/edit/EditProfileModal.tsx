@@ -66,7 +66,6 @@ const EditProfileModal = ({ isOpen, onClose, profileForm }: EditProfileModalProp
             onClose={handleClose}
           />
 
-
           <ScrollView
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
