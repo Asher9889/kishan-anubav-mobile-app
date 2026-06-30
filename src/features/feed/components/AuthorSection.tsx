@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
+import { useAuthStore } from '@/features/auth/store/auth.store';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 type AppTheme = typeof Colors.light;
@@ -31,6 +32,7 @@ function timeAgo(dateString: string): string {
 
 export default function AuthorSection({ userId, name, location, district, state, createdAt }: AuthorSectionProps) {
   const colorScheme = useColorScheme();
+  const ownUserId = useAuthStore((state) => state.user?.id);
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -38,14 +40,25 @@ export default function AuthorSection({ userId, name, location, district, state,
   const locationParts = [district, state].filter(Boolean);
   const locationText = locationParts.length > 0 ? locationParts.join(', ') : null;
 
+  const navigateToProfile = () => {
+    if(userId === ownUserId) {
+      // Show own profile
+      console.log('Navigating to own profile');
+      router.push(`/(private)/(stack)/client-profile`)
+    }else {
+      console.log('Navigating to user profile:', userId);
+      router.push(`/(private)/(stack)/user-profile?id=${userId}`)
+    }
+  };
+
   return (
     <View style={styles.row}>
-      <Pressable onPress={() => router.push(`/(private)/(stack)/user-profile?id=${userId}`)} style={styles.avatar}>
+      <Pressable onPress={navigateToProfile} style={styles.avatar}>
         <Text style={styles.avatarText}>{initial}</Text>
       </Pressable>
 
       <Pressable
-        onPress={() => router.push(`/(private)/(stack)/user-profile?id=${userId}`)}
+        onPress={navigateToProfile}
         style={styles.info}
       >
         <Text style={styles.name} numberOfLines={1}>{name}</Text>
