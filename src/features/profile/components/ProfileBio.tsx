@@ -12,7 +12,6 @@ interface ProfileBioProps {
 }
 
 const ProfileBio = ({ profile }: ProfileBioProps) => {
-  console.log('ProfileBio profile:', profile); // Debugging line
   const { t } = useTranslation('profile');
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;

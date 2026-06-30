@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
-import { CircleUserRound } from 'lucide-react-native';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 import { Logo } from '@/components';
+import TabAvatar from '@/components/TabAvatar';
 import { Colors, Typography } from '@/constants/theme';
 
 export default function HomeHeader() {
@@ -28,7 +28,7 @@ export default function HomeHeader() {
           accessibilityLabel="Profile"
           accessibilityRole="button"
         >
-          <CircleUserRound color={colors.onPrimary} size={20} />
+          <TabAvatar />
         </TouchableOpacity>
       </View>
     </View>

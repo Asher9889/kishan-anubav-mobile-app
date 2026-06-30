@@ -1,11 +1,11 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
-
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import TabAvatar from '@/components/TabAvatar';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Tabs } from 'expo-router';
+import { House, Newspaper } from 'lucide-react-native';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 type AppTheme = typeof Colors.light;
 
@@ -25,28 +25,28 @@ export default function TabLayout() {
         name="index"
         options={{
           title: t('tabs.home'),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          tabBarIcon: ({ color }) => <House size={28}  color={color} />,
         }}
       />
       <Tabs.Screen
         name="feed"
         options={{
           title: t('tabs.feed'),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="list.bullet.rectangle" color={color} />,
+          tabBarIcon: ({ color }) => <Newspaper size={28}  color={color} />,
         }}
       />
       <Tabs.Screen
-        name="ai"
+        name="ai-chat"
         options={{
           title: t('tabs.aiChat'),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="message.fill" color={color} />,
+          tabBarIcon: ({ color }) => <Newspaper size={28} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: t('tabs.profile'),
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.circle" color={color} />,
+          tabBarIcon: ({ focused }) =>  <TabAvatar focused={focused} />,
         }}
       />
     </Tabs>
