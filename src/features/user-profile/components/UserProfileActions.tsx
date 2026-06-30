@@ -1,41 +1,59 @@
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { MessageCircle, Share2, UserCheck, UserPlus } from 'lucide-react-native';
-import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 type AppTheme = typeof Colors.light;
 
 interface UserProfileActionsProps {
-  isFollowing?: boolean;
+  isFollowing: boolean;
+  username?: string;
   onFollow?: () => void;
   onMessage?: () => void;
   onShare?: () => void;
 }
 
-const UserProfileActions = ({ isFollowing = false, onFollow, onMessage, onShare }: UserProfileActionsProps) => {
+const UserProfileActions = ({ isFollowing, username, onFollow, onMessage, onShare }: UserProfileActionsProps) => {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
 
+  console.log('UserProfileActions props:', { isFollowing, username });
+
+  const handleFollowPress = useCallback(() => {
+    if (isFollowing) {
+      Alert.alert(
+        'Unfollow',
+        username ? `Unfollow @${username}?` : 'Unfollow this user?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Unfollow', style: 'destructive', onPress: onFollow },
+        ],
+      );
+    } else {
+      onFollow?.();
+    }
+  }, [isFollowing, username, onFollow]);
+
   return (
     <View style={styles.actionButtonsRow}>
       <Pressable
-        style={[styles.primaryButton, isFollowing && styles.followingButton]}
-        onPress={onFollow}
+        style={[styles.followButton, isFollowing && styles.followingButton]}
+        onPress={handleFollowPress}
         accessibilityRole="button"
       >
         {isFollowing ? (
-          <UserCheck size={18} color={theme.primary} />
+          <UserCheck size={18} color={theme.text} />
         ) : (
           <UserPlus size={18} color={theme.onPrimary} />
         )}
-        <Text style={[styles.primaryButtonText, isFollowing && styles.followingButtonText]}>
+        <Text style={[styles.followButtonText, isFollowing && styles.followingButtonText]}>
           {isFollowing ? 'Following' : 'Follow'}
         </Text>
       </Pressable>
       <Pressable
-        style={styles.primaryButton}
+        style={styles.secondaryButton}
         onPress={onMessage}
         accessibilityRole="button"
       >
@@ -61,11 +79,9 @@ const createStyles = (theme: AppTheme) =>
       gap: Spacing.sm,
       marginBottom: Spacing.md,
     },
-    primaryButton: {
+    followButton: {
       flex: 1,
-      backgroundColor: theme.surfaceContainerLow,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: theme.borderLight,
+      backgroundColor: theme.primary,
       paddingVertical: 8,
       borderRadius: Radius.md,
       alignItems: 'center',
@@ -73,7 +89,7 @@ const createStyles = (theme: AppTheme) =>
       flexDirection: 'row',
       gap: 6,
     },
-    primaryButtonText: {
+    followButtonText: {
       color: theme.onPrimary,
       fontSize: Typography.bodyMedium.fontSize,
       fontWeight: '600',
@@ -85,6 +101,18 @@ const createStyles = (theme: AppTheme) =>
     },
     followingButtonText: {
       color: theme.text,
+    },
+    secondaryButton: {
+      flex: 1,
+      backgroundColor: theme.surfaceContainerLow,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.borderLight,
+      paddingVertical: 8,
+      borderRadius: Radius.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexDirection: 'row',
+      gap: 6,
     },
     secondaryButtonText: {
       color: theme.text,

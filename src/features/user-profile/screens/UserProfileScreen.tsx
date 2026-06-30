@@ -29,6 +29,8 @@ export default function UserProfileScreen() {
   const followMutation = useFollowToggle(userId);
   const [activeTab, setActiveTab] = useState<'grid' | 'reels' | 'tags'>('grid');
 
+  console.log("Another User Profile Data is: ", user);
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -84,6 +86,7 @@ export default function UserProfileScreen() {
 
             <UserProfileActions
               isFollowing={user.isFollowing}
+              username={user.username}
               onFollow={() => followMutation.mutate(user.isFollowing)}
             />
 
