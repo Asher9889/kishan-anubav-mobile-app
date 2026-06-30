@@ -1,19 +1,20 @@
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AlertTriangle, Inbox } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
-import { AlertTriangle, Inbox } from 'lucide-react-native';
 
 import PostCard from '@/features/profile/components/PostCard';
 import ProfileTabs from '@/features/profile/components/ProfileTabs';
 import type { Post } from '@/features/profile/types/profile.types';
 
+import UserProfileActions from '../components/UserProfileActions';
+import UserProfileBio from '../components/UserProfileBio';
 import UserProfileHeader from '../components/UserProfileHeader';
 import UserProfileStats from '../components/UserProfileStats';
-import UserProfileBio from '../components/UserProfileBio';
-import UserProfileActions from '../components/UserProfileActions';
+import { useFollowToggle } from '../hooks/useFollowToggle';
 import { useUserProfile } from '../hooks/useUserProfile';
 
 type AppTheme = typeof Colors.light;
@@ -25,6 +26,7 @@ export default function UserProfileScreen() {
   const styles = useMemo(() => createStyles(theme), [theme]);
 
   const { user, isLoading, error, posts, isLoadingPosts, userId } = useUserProfile();
+  const followMutation = useFollowToggle(userId);
   const [activeTab, setActiveTab] = useState<'grid' | 'reels' | 'tags'>('grid');
 
   if (isLoading) {
@@ -80,7 +82,10 @@ export default function UserProfileScreen() {
               occupation={user.occupation}
             />
 
-            <UserProfileActions />
+            <UserProfileActions
+              isFollowing={user.isFollowing}
+              onFollow={() => followMutation.mutate(user.isFollowing)}
+            />
 
             <ProfileTabs
               activeTab={activeTab}

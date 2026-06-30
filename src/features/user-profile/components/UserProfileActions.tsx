@@ -1,18 +1,19 @@
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { MessageCircle, Share2, UserPlus } from 'lucide-react-native';
+import { MessageCircle, Share2, UserCheck, UserPlus } from 'lucide-react-native';
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type AppTheme = typeof Colors.light;
 
 interface UserProfileActionsProps {
+  isFollowing?: boolean;
   onFollow?: () => void;
   onMessage?: () => void;
   onShare?: () => void;
 }
 
-const UserProfileActions = ({ onFollow, onMessage, onShare }: UserProfileActionsProps) => {
+const UserProfileActions = ({ isFollowing = false, onFollow, onMessage, onShare }: UserProfileActionsProps) => {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? 'light'] as AppTheme;
   const styles = useMemo(() => createStyles(theme), [theme]);
@@ -20,12 +21,18 @@ const UserProfileActions = ({ onFollow, onMessage, onShare }: UserProfileActions
   return (
     <View style={styles.actionButtonsRow}>
       <Pressable
-        style={styles.primaryButton}
+        style={[styles.primaryButton, isFollowing && styles.followingButton]}
         onPress={onFollow}
         accessibilityRole="button"
       >
-        <UserPlus size={18} color={theme.onPrimary} />
-        <Text style={styles.primaryButtonText}>Follow</Text>
+        {isFollowing ? (
+          <UserCheck size={18} color={theme.primary} />
+        ) : (
+          <UserPlus size={18} color={theme.onPrimary} />
+        )}
+        <Text style={[styles.primaryButtonText, isFollowing && styles.followingButtonText]}>
+          {isFollowing ? 'Following' : 'Follow'}
+        </Text>
       </Pressable>
       <Pressable
         style={styles.primaryButton}
@@ -56,7 +63,9 @@ const createStyles = (theme: AppTheme) =>
     },
     primaryButton: {
       flex: 1,
-      backgroundColor: theme.primary,
+      backgroundColor: theme.surfaceContainerLow,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.borderLight,
       paddingVertical: 8,
       borderRadius: Radius.md,
       alignItems: 'center',
@@ -68,6 +77,14 @@ const createStyles = (theme: AppTheme) =>
       color: theme.onPrimary,
       fontSize: Typography.bodyMedium.fontSize,
       fontWeight: '600',
+    },
+    followingButton: {
+      backgroundColor: theme.surfaceContainerLow,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: theme.borderLight,
+    },
+    followingButtonText: {
+      color: theme.text,
     },
     secondaryButtonText: {
       color: theme.text,

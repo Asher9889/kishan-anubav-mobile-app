@@ -13,6 +13,7 @@ export interface UserProfileData {
   postsCount: number;
   followersCount: number;
   followingCount: number;
+  isFollowing: boolean;
 }
 
 export interface UserProfileApiResponse {

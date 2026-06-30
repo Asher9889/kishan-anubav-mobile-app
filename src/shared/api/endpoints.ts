@@ -66,6 +66,16 @@ export const endPoints = {
       url: "/users/:id",
       method: "GET",
     },
+
+    FOLLOW: {
+      url: "/users/:id/follow",
+      method: "POST",
+    },
+
+    UNFOLLOW: {
+      url: "/users/:id/follow",
+      method: "DELETE",
+    },
   },
 
   POSTS: {
