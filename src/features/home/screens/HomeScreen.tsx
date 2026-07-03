@@ -13,7 +13,7 @@ import GreetingSkeleton from '@/components/skeleton/GreetingSkeleton';
 import WeatherSkeleton from '@/components/skeleton/WeatherSkeleton';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/features/auth/store/auth.store';
-import HomePageMarketPriceSection from '@/features/market/screen/HomePageMarketPriceSection';
+import BazaarBhavSection from '@/features/bazaar-bhav/components/BazaarBhavSection';
 import { useCurrentLocation } from '@/shared/hooks/useCurrentLocation';
 import useCurrentWeather from '@/shared/hooks/useCurrentWeather';
 import FeaturedKnowledgeCard from '../components/FeaturedKnowledgeCard';
@@ -94,10 +94,10 @@ export default function HomeScreen() {
               <ImageCorousal news={newsData} />
             }
 
-            <HomePageMarketPriceSection />
+            <BazaarBhavSection />
           
 
-            <SectionHeading
+            {/* <SectionHeading
               title={t('home.seedPrice')}
               className="mt-8"
               action={
@@ -122,7 +122,7 @@ export default function HomeScreen() {
               <SeedRow title="गेहूं (HD-3086)" price="₹3,400" subPrice="/40kg" note={t('home.subsidyAvailable')} />
               <View className="my-3 h-px" style={{ backgroundColor: 'rgba(143, 78, 0, 0.08)' }} />
               <SeedRow title="बाजरा (हाइब्रिड)" price="₹450" subPrice="/1.5kg" note={t('home.stockLimited')} />
-            </View>
+            </View> */}
 
             <Pressable
               onPress={() => router.push("/(private)/ai-chat")}

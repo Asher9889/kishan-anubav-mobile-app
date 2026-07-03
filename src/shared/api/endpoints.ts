@@ -140,4 +140,11 @@ export const endPoints = {
       method: "POST",
     },
   },
+
+  MARKET: {
+    FEATURED: {
+      url: "/market/feature",
+      method: "GET",
+    },
+  },
 };

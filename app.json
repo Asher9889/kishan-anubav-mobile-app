@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.asher9889.kisnamobileapp"
+      "bundleIdentifier": "com.saurabhkushwaha.krishianubhavai"
     },
     "android": {
       "adaptiveIcon": {
@@ -27,7 +27,7 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],
-      "package": "com.asher9889.kisnamobileapp"
+      "package": "com.saurabhkushwaha.krishianubhavai"
     },
     "web": {
       "output": "static",
