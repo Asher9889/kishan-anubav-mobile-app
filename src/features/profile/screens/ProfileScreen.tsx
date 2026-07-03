@@ -1,10 +1,10 @@
 import { Colors, Spacing, Typography } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Inbox } from 'lucide-react-native';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
-import { Inbox } from 'lucide-react-native';
 
 import PostCard from '../components/PostCard';
 import ProfileActions from '../components/ProfileActions';
@@ -108,4 +108,4 @@ const createStyles = (theme: AppTheme) =>
       lineHeight: Typography.body.lineHeight,
       textAlign: 'center',
     },
-  });
+});

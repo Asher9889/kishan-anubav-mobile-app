@@ -95,6 +95,11 @@ export const endPoints = {
       url: "/posts",
       method: "DELETE",
     },
+
+    FEATURED: {
+      url: "/posts/feature",
+      method: "GET",
+    },
   },
 
   FEED: {
@@ -127,5 +132,12 @@ export const endPoints = {
       url: "/news/:id",
       method: "GET",
     }
-  }
+  },
+
+  TRANSLATION: {
+    TRANSLATE: {
+      url: "/translations",
+      method: "POST",
+    },
+  },
 };

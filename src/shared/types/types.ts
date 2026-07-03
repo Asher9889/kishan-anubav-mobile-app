@@ -9,7 +9,7 @@ interface ILocationData {
     street: string;
 }
 
-export interface IWeatherData {
+interface IWeatherData {
     temperature: number;
     humidity: number;
     rain: number;
@@ -17,4 +17,4 @@ export interface IWeatherData {
 }
 
 
-export { ILocationData };
+export { ILocationData, IWeatherData };

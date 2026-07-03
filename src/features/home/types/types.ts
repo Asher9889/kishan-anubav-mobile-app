@@ -22,4 +22,28 @@ interface ITestimonialCard {
     crop: string
 }
 
+export interface FeaturedPost {
+  knowledge: string;
+  images: string[];
+  totalLikes: number;
+  totalComments: number;
+  postedAt: string;
+}
+
+export interface FeaturedPostBy {
+  id: string;
+  name: string;
+  avatar: string;
+}
+
+export interface FeaturedPostResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: {
+    post: FeaturedPost;
+    postedBy: FeaturedPostBy;
+  };
+}
+
 export { IFeatureCard, IQuickAction, ITestimonialCard };

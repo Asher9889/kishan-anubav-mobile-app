@@ -1,33 +1,30 @@
 import { router } from 'expo-router';
 import {
   ChevronRight,
-  Clock3,
-  MapPin,
-  MessageSquareText,
   Mic,
   PencilLine,
-  ThumbsUp,
-  TrendingDown,
-  TrendingUp,
-  UsersRound,
   Wheat
 } from 'lucide-react-native';
-import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import GreetingSkeleton from '@/components/skeleton/GreetingSkeleton';
 import WeatherSkeleton from '@/components/skeleton/WeatherSkeleton';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/features/auth/store/auth.store';
+import HomePageMarketPriceSection from '@/features/market/screen/HomePageMarketPriceSection';
 import { useCurrentLocation } from '@/shared/hooks/useCurrentLocation';
 import useCurrentWeather from '@/shared/hooks/useCurrentWeather';
+import FeaturedKnowledgeCard from '../components/FeaturedKnowledgeCard';
 import GreetingCard from '../components/GreetingCard';
 import HomeHeader from '../components/HomeHeader';
 import ImageCorousal from '../components/ImageCorousal';
+import SectionHeading from '../components/SectionHeading';
 import WeatherCard from '../components/WeatherCard';
+import useFeaturedKnowledge from '../hooks/useFeaturedKnowledge';
 import useNews from '../hooks/useNews';
+import type { FeaturedPostResponse } from '../types/types';
 
 export default function HomeScreen() {
   const { t } = useTranslation('common');
@@ -40,12 +37,13 @@ export default function HomeScreen() {
   const weather = weatherData;
 
   const { data: newsData, isLoading: isLoadingNews, } = useNews();
+  const { data: featuredKnowledge, isLoading: isLoadingFeaturedKnowledge } = useFeaturedKnowledge();
 
   return (
 
     <SafeAreaView className="flex-1" style={{ backgroundColor: c.primaryContainer }}>
       <StatusBar backgroundColor={c.primaryContainer} />
-      <View  style={{ backgroundColor: c.background }}>
+      <View style={{ backgroundColor: c.background }}>
 
         <HomeHeader />
 
@@ -61,7 +59,7 @@ export default function HomeScreen() {
                 ) : (
                   <GreetingCard
                     userName={user?.fullName}
-                    location={location ? `${location.street}, ${location.city}, ${location.region}` : null}
+                    location={location ? `${location.street}, ${location.city}, ${location.region}` : ""}
                   />
                 )}
               </View>
@@ -78,7 +76,6 @@ export default function HomeScreen() {
               className="mt-8"
               action={
                 <Pressable onPress={() => router.push("/(private)/(stack)/knowledge/create")}>
-
                   <View className="flex-row items-center rounded-full px-4 py-2" style={{ backgroundColor: c.primary }}>
                     <PencilLine size={18} color={c.onPrimary} />
                     <Text className="ml-2 text-[14px] font-semibold" style={{ color: c.onPrimary }}>
@@ -89,129 +86,16 @@ export default function HomeScreen() {
               }
             />
 
-            <View
-              className="mt-4 overflow-hidden rounded-[24px] border p-5"
-              style={{
-                backgroundColor: '#F8D7BF',
-                borderColor: 'rgba(143, 78, 0, 0.08)',
-                shadowColor: '#79573F',
-                shadowOpacity: 0.08,
-                shadowRadius: 18,
-                shadowOffset: { width: 0, height: 8 },
-                elevation: 3,
-              }}
-            >
-              <View className="flex-row items-start gap-3">
-                <View className="h-11 w-11 items-center justify-center rounded-full bg-white">
-                  <Text className="text-[12px] font-bold" style={{ color: c.primary }}>
-                    RS
-                  </Text>
-                </View>
-
-                <View className="flex-1">
-                  <Text className="text-[16px] font-bold" style={{ color: c.onSurface }}>
-                    रमेश शर्मा
-                  </Text>
-                  <View className="mt-0.5 flex-row items-center gap-1.5">
-                    <Clock3 size={12} color={c.onSurfaceVariant} />
-                    <Text className="text-[11px] font-medium" style={{ color: c.onSurfaceVariant }}>
-                      सोनीपत • 2 घंटे पहले
-                    </Text>
-                  </View>
-                </View>
-
-                <View className="h-12 w-12 items-center justify-center rounded-full bg-white/40">
-                  <UsersRound size={20} color={c.primary} />
-                </View>
-              </View>
-
-              <Text className="mt-4 text-[18px] leading-8" style={{ color: c.onSurface }}>
-                “एफिड्स के लिए जैविक नीम स्प्रे का इस्तेमाल किया, बिना रसायनों के मेरी सरसों की फसल पर चमत्कार हुआ!”
-              </Text>
-
-              <View className="mt-5 flex-row items-center gap-5">
-                <View className="flex-row items-center gap-1.5">
-                  <ThumbsUp size={18} color={c.onSurface} />
-                  <Text className="text-[13px] font-semibold" style={{ color: c.onSurface }}>
-                    124
-                  </Text>
-                </View>
-                <View className="flex-row items-center gap-1.5">
-                  <MessageSquareText size={18} color={c.onSurface} />
-                  <Text className="text-[13px] font-semibold" style={{ color: c.onSurface }}>
-                    18
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            {/* <View
-              className="mt-4 flex-row items-center gap-4 rounded-[24px] border bg-white p-4"
-              style={{
-                borderColor: c.outlineVariant,
-                shadowColor: '#79573F',
-                shadowOpacity: 0.06,
-                shadowRadius: 12,
-                shadowOffset: { width: 0, height: 4 },
-                elevation: 2,
-              }}
-            >
-              <View className="flex-1">
-                <Text className="text-[12px] font-semibold uppercase tracking-[0.14em]" style={{ color: c.primary }}>
-                  नई योजना सूचना
-                </Text>
-                <Text className="mt-1 pt-2 text-[22px] font-extrabold leading-7" style={{ color: c.onSurface }}>
-                  पीएम-किसान 15वीं किस्त जारी
-                </Text>
-                <Text className="mt-2 text-[14px] leading-6" style={{ color: c.onSurfaceVariant }}>
-                  सोनीपत के 15,000+ किसानों के खातों में पैसे पहुंचे।
-                </Text>
-              </View>
-
-              <Image
-                source={{
-                  uri: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=800&auto=format&fit=crop',
-                }}
-                className="h-[96px] w-[96px] rounded-[18px]"
-              />
-            </View> */}
+            <FeaturedKnowledge knowledge={featuredKnowledge?.data} isLoading={isLoadingFeaturedKnowledge} />
 
 
+            {
+              !isLoadingNews && Array.isArray(newsData) && newsData.length > 0 &&
+              <ImageCorousal news={newsData} />
+            }
 
-            {!isLoadingNews && Array.isArray(newsData) && newsData.length > 0 && <ImageCorousal news={newsData} />}
-
-
-            <SectionHeading
-              title={t('home.marketPrice')}
-              className="mt-8"
-              action={
-                <View className="flex-row items-center rounded-full px-3 py-1.5" style={{ backgroundColor: c.surfaceContainerLow }}>
-                  <MapPin size={14} color={c.onSurfaceVariant} />
-                  <Text className="ml-1.5 text-[12px] font-medium" style={{ color: c.onSurfaceVariant }}>
-                    सोनीपत {t('home.marketPrice')}
-                  </Text>
-                </View>
-              }
-            />
-
-            <View className="mt-4 flex-row gap-3">
-              <MarketCard
-                title="गेहूं (Wheat)"
-                price="₹2,275"
-                delta="+₹15 (क्विंटल)"
-                deltaColor={c.secondary}
-                icon={<TrendingUp size={18} color={c.secondary} />}
-                note={t('home.yesterdayPrice', { price: '₹2,260' })}
-              />
-              <MarketCard
-                title="सरसों (Mustard)"
-                price="₹5,400"
-                delta="-₹40 (क्विंटल)"
-                deltaColor={c.error}
-                icon={<TrendingDown size={18} color={c.error} />}
-                note={t('home.yesterdayPrice', { price: '₹5,440' })}
-              />
-            </View>
+            <HomePageMarketPriceSection />
+          
 
             <SectionHeading
               title={t('home.seedPrice')}
@@ -268,38 +152,6 @@ export default function HomeScreen() {
               <ChevronRight size={22} color={c.onSurfaceVariant} />
             </Pressable>
 
-            {/* <Pressable
-              className="relative mt-8 overflow-hidden rounded-[24px] p-5"
-              style={{
-                backgroundColor: c.secondaryContainer,
-                shadowColor: '#056E00',
-                shadowOpacity: 0.12,
-                shadowRadius: 16,
-                shadowOffset: { width: 0, height: 6 },
-                elevation: 2,
-              }}
-            >
-              <View className="flex-row items-center gap-2">
-                <Leaf size={16} color={c.secondary} />
-                <Text className="text-[12px] font-semibold uppercase tracking-[0.14em]" style={{ color: c.secondary }}>
-                  {t('home.cropHealth')}
-                </Text>
-              </View>
-              <Text className="mt-2 text-[22px] font-extrabold" style={{ color: c.onSurface }}>
-                गेहूं: स्वस्थ
-              </Text>
-              <Text className="mt-1 text-[16px] leading-6" style={{ color: c.onSurfaceVariant }}>
-                20 दिनों में कटाई। मिट्टी की नमी अनुकूल है।
-              </Text>
-
-              <View className="mt-5 h-2 overflow-hidden rounded-full bg-black/10">
-                <View className="h-full w-[84%] rounded-full bg-[#0F5E0A]" />
-              </View>
-
-              <View className="absolute -right-1 -bottom-4 opacity-10 rotate-12">
-                <Sprout size={110} color={c.onSurface} />
-              </View>
-            </Pressable> */}
           </View>
         </ScrollView>
 
@@ -308,76 +160,28 @@ export default function HomeScreen() {
   );
 }
 
-function SectionHeading({
-  title,
-  action,
-  className,
+function FeaturedKnowledge({
+  knowledge,
+  isLoading,
 }: {
-  title: string;
-  action?: ReactNode;
-  className?: string;
+  knowledge: FeaturedPostResponse['data'] | undefined;
+  isLoading: boolean;
 }) {
   const c = Colors.light;
 
-  return (
-    <View className={`flex-row items-center justify-between ${className ?? ''}`}>
-      <Text className="text-[24px] font-extrabold" style={{ color: c.onSurface }}>
-        {title}
-      </Text>
-      {action}
-    </View>
-  );
-}
-
-function MarketCard({
-  title,
-  price,
-  delta,
-  deltaColor,
-  icon,
-  note,
-}: {
-  title: string;
-  price: string;
-  delta: string;
-  deltaColor: string;
-  icon: ReactNode;
-  note: string;
-}) {
-  const c = Colors.light;
-
-  return (
-    <View
-      className="flex-1 rounded-[20px] border bg-white p-4"
-      style={{
-        borderColor: c.borderLight,
-        shadowColor: '#79573F',
-        shadowOpacity: 0.06,
-        shadowRadius: 12,
-        shadowOffset: { width: 0, height: 4 },
-        elevation: 2,
-      }}
-    >
-      <View className="flex-row items-start justify-between">
-        <Text className="text-[13px] font-semibold" style={{ color: c.onSurfaceVariant }}>
-          {title}
-        </Text>
-        {icon}
+  if (isLoading) {
+    return (
+      <View className="mt-4 h-[200px] items-center justify-center rounded-[24px]"
+        style={{ backgroundColor: '#F8D7BF' }}
+      >
+        <ActivityIndicator size="small" color={c.primary} />
       </View>
+    );
+  }
 
-      <Text className="mt-2 text-[24px] font-extrabold" style={{ color: c.onSurface }}>
-        {price}
-      </Text>
+  if (!knowledge) return null;
 
-      <Text className="mt-1 text-[12px] font-medium" style={{ color: deltaColor }}>
-        {delta}
-      </Text>
-
-      <Text className="mt-3 text-center text-[10px] italic" style={{ color: c.onSurfaceVariant }}>
-        {note}
-      </Text>
-    </View>
-  );
+  return <FeaturedKnowledgeCard data={knowledge} />;
 }
 
 function SeedRow({
