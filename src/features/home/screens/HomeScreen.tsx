@@ -13,7 +13,7 @@ import GreetingSkeleton from '@/components/skeleton/GreetingSkeleton';
 import WeatherSkeleton from '@/components/skeleton/WeatherSkeleton';
 import { Colors } from '@/constants/theme';
 import { useAuthStore } from '@/features/auth/store/auth.store';
-import BazaarBhavSection from '@/features/bazaar-bhav/components/BazaarBhavSection';
+import HomePageMarketPriceSection from '@/features/market-price/screen/HomePageMarketPriceSection';
 import { useCurrentLocation } from '@/shared/hooks/useCurrentLocation';
 import useCurrentWeather from '@/shared/hooks/useCurrentWeather';
 import FeaturedKnowledgeCard from '../components/FeaturedKnowledgeCard';
@@ -94,7 +94,9 @@ export default function HomeScreen() {
               <ImageCorousal news={newsData} />
             }
 
-            <BazaarBhavSection />
+            {/* <BazaarBhavSection /> */}
+
+            <HomePageMarketPriceSection location={location} />
           
 
             {/* <SectionHeading

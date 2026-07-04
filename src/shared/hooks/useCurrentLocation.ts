@@ -28,15 +28,15 @@ export function useCurrentLocation(options: UseCurrentLocationOptions = {}) {
 
     const mergedData = data
         ? {
-              ...data,
-              ...(language !== "en"
-                  ? {
-                        city: cityTrans.data ?? data.city,
-                        region: regionTrans.data ?? data.region,
-                        country: countryTrans.data ?? data.country,
-                    }
-                  : {}),
-          }
+            ...data,
+            ...(language !== "en"
+                ? {
+                    city: cityTrans.data ?? data.city,
+                    region: regionTrans.data ?? data.region,
+                    country: countryTrans.data ?? data.country,
+                }
+                : {}),
+        }
         : undefined;
 
     return {
