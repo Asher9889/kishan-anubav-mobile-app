@@ -23,26 +23,6 @@ const ChatInputMoreItems = ({
 
     if (!open) return null;
 
-    // useEffect(() => {
-    //     const show = Keyboard.addListener(
-    //         Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
-    //         e => {
-    //             console.log("Keyboard opened", e.endCoordinates.height)
-    //             setKeyboardHeight(e.endCoordinates.height)
-    //         }
-    //     );
-
-    //     const hide = Keyboard.addListener(
-    //         Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
-    //         () => setKeyboardHeight(0)
-    //     );
-
-    //     return () => {
-    //         show.remove();
-    //         hide.remove();
-    //     };
-    // }, []);
-
     return (
         <View
             style={{
