@@ -1,20 +1,21 @@
 import { MessageBubble } from '@/components';
 import Logo from '@/components/logo';
 import { Colors } from '@/constants/theme';
+import ChatBottomBar from '@/features/voice/components/bottom-bar/ChatBottomBar';
 import { ImagePickerService } from '@/services/camera.service';
 import * as crypto from 'expo-crypto';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Home, ImagePlus, Mic, Send } from 'lucide-react-native';
+import { Home } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, FlatList, KeyboardAvoidingView, Platform, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { convertAudioToText } from '../api/ask-audio-stream.api';
 import { analyzeImage } from '../api/ask-image.api';
 import { askQuestionStream } from '../api/ask-text-stream.api';
-import ChatAudioRecorder from '../components/audio-recorder/ChatAudioRecorder';
+import InputMoreItems from '../components/ChatMoreIcons';
 import { ChatHistorySheet } from '../components/side-sheet/ChatHistorySheet';
 import GeneratingState from '../components/states/GeneratingState';
 import ListeningState from '../components/states/ListeningState';
@@ -38,12 +39,12 @@ export default function AIChatScreen() {
   const { t } = useTranslation('common');
 
   const [inputText, setInputText] = useState('');
-  const [inputFocused, setInputFocused] = useState(false);
   const [composerMode, setComposerMode] = useState<'text' | 'audio'>('text');
   // const [aiState, setAiState] = useState<TAIState>("idle");
   const [messages, setMessages] = useState<ChatMessage[]>([]); // db orienetd messages
   const [uiMessages, setUiMessages] = useState<ChatMessage[]>([]); // messages formatted for UI (with states like 'thinking', 'listening' etc)
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showMoreInputBox, setShowMoreInputBox] = useState<boolean>(false);
   const typingTimerRef = useRef<any>(null);
   const router = useRouter();
 
@@ -73,10 +74,6 @@ export default function AIChatScreen() {
   const addUiMessage = (message: ChatMessage) => {
     setUiMessages((prev) => [...prev, message]);
   };
-
-  // const replaceUiMessage = (id: string, message: Partial<ChatMessage>) => {
-  //   setUiMessages((prev) => prev.map((msg) => msg.id === id ? { ...msg, ...message } : msg));
-  // };
 
   const replaceUiMessage = (id: string, updater: Partial<ChatMessage> | ((prev: ChatMessage) => Partial<ChatMessage>)) => {
     setUiMessages((prev) => prev.map((msg) => {
@@ -286,8 +283,6 @@ export default function AIChatScreen() {
 
   };
 
-
-
   const handleImageUpload = async () => {
     if (isGenerating) return;
 
@@ -491,7 +486,6 @@ export default function AIChatScreen() {
 
     const queryText = inputText.trim();
     setInputText('');
-    setInputFocused(false);
     setIsGenerating(true);
 
     const thinkingMessageId = crypto.randomUUID();
@@ -686,6 +680,13 @@ export default function AIChatScreen() {
   }, [renderedMessages]);
 
 
+  // Handle more icons buttons
+  const handleMoreInputBox = () => {
+    const change = !showMoreInputBox;
+    console.log("chnage is", change);
+    setShowMoreInputBox(change);
+  }
+
   return (
     <SafeAreaView style={styles.root}>
       <StatusBar backgroundColor={c.background} barStyle="dark-content" />
@@ -696,7 +697,7 @@ export default function AIChatScreen() {
       >
         {/* Header */}
         <View style={styles.headerBlur}>
-          <View style={[  styles.headerContent]}>
+          <View style={[styles.headerContent]}>
             {/* <TouchableOpacity
               onPress={() => router.back()}
               style={styles.backButton}
@@ -721,7 +722,7 @@ export default function AIChatScreen() {
                 end={{ x: 1, y: 1 }}
                 style={styles.headerAvatar}
               >
-              <Logo width={50} height={50} />
+                <Logo width={50} height={50} />
                 {/* <Sparkles size={16} color="#FFFFFF" /> */}
               </LinearGradient>
               <View style={styles.headerText}>
@@ -739,7 +740,7 @@ export default function AIChatScreen() {
             >
               <Home size={22} color={c.text} />
             </TouchableOpacity>
- 
+
 
 
             <View style={styles.headerRight} />
@@ -802,107 +803,42 @@ export default function AIChatScreen() {
             </View>
           )} */}
 
-          {/* Bottom Bar */}
-          <View style={styles.bottomBar}>
-            {composerMode === 'audio' ? (
-              <ChatAudioRecorder
-                onClose={closeAudioComposer}
-                onRecordingComplete={handleAudioComplete}
-              />
-            ) : (
-              <>
-                <View style={styles.inputRow}>
-                  {/* Voice Centric Mic Button */}
-                  <TouchableOpacity
-                    onPress={() => !isGenerating && setComposerMode('audio')}
-                    style={[styles.micButtonVoiceCentric, isGenerating && { opacity: 0.5 }]}
-                    disabled={isGenerating}
-                    activeOpacity={0.8}
-                  >
-                    <LinearGradient
-                      colors={[c.primaryContainer, '#FFB77A']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={styles.micGradientVoiceCentric}
-                    >
-                      <Mic size={22} color="#FFFFFF" fill="rgba(255, 255, 255, 0.25)" />
-                    </LinearGradient>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={handleImageUpload}
-                    style={[styles.imageButton, isGenerating && { opacity: 0.5 }]}
-                    disabled={isGenerating}
-                    activeOpacity={0.8}
-                  >
-                    <LinearGradient
-                      colors={[c.primaryContainer, '#14B8A6']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={styles.imageButtonGradient}
-                    >
-                      <ImagePlus size={22} color="#FFFFFF" />
-                    </LinearGradient>
-                  </TouchableOpacity>
-
-                  <View
-                    style={[
-                      styles.inputContainer,
-                      inputFocused && styles.inputContainerFocused,
-                    ]}
-                    collapsable={false}
-                  >
-                    <View
-                      style={styles.textInputArea}
-                      collapsable={false}
-                    >
-                      <TextInput
-                        placeholder={isGenerating ? t('chat.aiIsTyping') : t('chat.askQuestion')}
-                        placeholderTextColor={c.textMuted}
-                        value={inputText}
-                        onChangeText={setInputText}
-                        onFocus={() => setInputFocused(true)}
-                        onBlur={() => setInputFocused(false)}
-                        style={styles.textInput}
-                        collapsable={false}
-                        editable={!isGenerating}
-                      />
-                    </View>
-                  </View>
-
-                  <TouchableOpacity
-                    onPress={handleSendText}
-                    activeOpacity={0.85}
-                    style={[
-                      styles.sendButton,
-                      (inputText.length === 0 || isGenerating) && styles.sendButtonDisabled,
-                    ]}
-                    disabled={inputText.length === 0 || isGenerating}
-                  >
-                    <LinearGradient
-                      colors={
-                        inputText.length > 0 && !isGenerating
-                          ? [c.primaryDark, c.primary]
-                          : [c.border, c.border]
-                      }
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={styles.sendGradient}
-                    >
-                      <Send size={18} color={inputText.length > 0 && !isGenerating ? '#FFFFFF' : c.textMuted} />
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-
-          </View>
+          <ChatBottomBar
+            composerMode={composerMode}
+            onOpenMoreInputBox={handleMoreInputBox}
+            isGenerating={isGenerating}
+            inputText={inputText}
+            onTextChange={setInputText}
+            onSendText={handleSendText}
+            onImageUpload={handleImageUpload}
+            onAudioComplete={handleAudioComplete}
+            onCloseAudio={closeAudioComposer}
+            onOpenAudio={() => setComposerMode('audio')}
+          />
         </View>
+
+
+        <InputMoreItems
+          open={showMoreInputBox}
+          isGenerating={isGenerating}
+          onClose={handleMoreInputBox}
+          onImagePress={handleImageUpload}
+          onMicePress={() => setComposerMode('audio')}
+        />
+
+        {
+          showMoreInputBox && <Pressable
+            style={[StyleSheet.absoluteFill]}
+            onPress={handleMoreInputBox}
+          />
+        }
 
 
       </KeyboardAvoidingView>
 
       <ChatHistorySheet ref={sideSheetRef} />
+
+
 
 
     </SafeAreaView>
