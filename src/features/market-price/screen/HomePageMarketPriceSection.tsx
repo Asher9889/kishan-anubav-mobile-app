@@ -1,69 +1,59 @@
 import {
   ChevronDown,
-  ChevronRight,
   Clock,
   MapPin,
   RefreshCw,
-  Store,
-  TrendingDown,
-  TrendingUp,
+  Store
 } from "lucide-react-native";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, Image, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, Text, View } from "react-native";
 
 import { Colors } from "@/constants/theme";
-import useBazaarBhav from "@/features/bazar-bhav/hooks/useBazaarBhav";
 import i18n from "@/i18n";
-import { ILocationData } from "@/shared/types/types";
+import type { ILocationData } from "@/shared/types/types";
+
+import useMarketPrices from "../hooks/useMarketPrices";
+import type { Commodity } from "../types/types";
 
 interface Props {
   location?: ILocationData;
+  localizedLocation?: ILocationData;
   onSeeAll?: () => void;
-  onUpdate?: () => void;
 }
-
-const CROP_DATA = [
-  {
-    id: "1",
-    cropName: "गेहूं",
-    englishName: "Wheat",
-    image:
-      "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300",
-    modalPrice: 2275,
-    previousPrice: 2260,
-    minPrice: 2120,
-    maxPrice: 2420,
-    trend: "up" as const,
-  },
-  {
-    id: "2",
-    cropName: "सरसों",
-    englishName: "Mustard",
-    image:
-      "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=300",
-    modalPrice: 5400,
-    previousPrice: 5440,
-    minPrice: 5150,
-    maxPrice: 5760,
-    trend: "down" as const,
-  },
-];
 
 const CARD_WIDTH = 300;
 
-function formatPrice(price: number) {
-  return `₹${price.toLocaleString("en-IN")}`;
+function formatPrice(price: string) {
+  const num = Number(price);
+  if (isNaN(num)) return `₹0`;
+  return `₹${num.toLocaleString("en-IN")}`;
 }
 
-function MarketPriceCard({ crop, c, t }: {
-  crop: (typeof CROP_DATA)[number];
-  c: typeof Colors.light;
-  t: (key: string, options?: Record<string, unknown>) => string;
-}) {
-  const difference = crop.modalPrice - crop.previousPrice;
-  const percentage = ((difference / crop.previousPrice) * 100).toFixed(2);
-  const isUp = crop.trend === "up";
+function MarketPriceCard({ commodity }: { commodity: Commodity }) {
+  const { t } = useTranslation("common");
+  const c = Colors.light;
+  const isHindi = i18n.language === "hi";
+
+  const name = isHindi
+    ? commodity.commodityNameHi || commodity.commodityName
+    : commodity.commodityName;
+
+  const market = isHindi
+    ? commodity.marketNameHi || commodity.marketName
+    : commodity.marketName;
+
+  const grade = isHindi
+    ? commodity.gradeNameHi || commodity.gradeName
+    : commodity.gradeName;
+
+  const variety = isHindi
+    ? commodity.varietyNameHi || commodity.varietyName
+    : commodity.varietyName;
+
+  const priceUnit = isHindi
+    ? "प्रति क्विंटल"
+    : commodity.priceUnit;
 
   return (
     <View
@@ -73,93 +63,88 @@ function MarketPriceCard({ crop, c, t }: {
         borderRadius: 16,
         borderWidth: 1,
         borderColor: c.borderLight,
-        padding: 20,
+        padding: 16,
       }}
     >
-      {/* Top Row */}
-      <View className="flex-row items-center justify-between">
-        {/* Image + Name */}
-        <View className="flex-row flex-1 items-center">
-          <View
-            className="items-center justify-center"
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: 40,
-              backgroundColor: c.surfaceContainerLow,
-            }}
-          >
-            <Image
-              source={{ uri: crop.image }}
-              style={{ width: 60, height: 60 }}
-              resizeMode="contain"
-            />
-          </View>
-          <View className="ml-3 flex-shrink">
-            <Text
-              className="text-[20px] font-semibold"
-              style={{ color: c.onSurface }}
-            >
-              {crop.cropName}
-            </Text>
-            <Text
-              className="mt-1 text-[16px]"
-              style={{ color: c.onSurfaceVariant }}
-            >
-              ({crop.englishName})
-            </Text>
-          </View>
-        </View>
-
-        {/* Trend Badge */}
+      {/* Top Row: Avatar + Name + Grade */}
+      <View className="flex-row items-start">
         <View
           className="items-center justify-center"
           style={{
-            width: 44,
-            height: 44,
-            borderRadius: 12,
-            backgroundColor: isUp ? c.successLight : c.errorLight,
-          }}
-        >
-          {isUp ? (
-            <TrendingUp size={24} color={c.secondary} />
-          ) : (
-            <TrendingDown size={24} color={c.error} />
-          )}
-        </View>
-      </View>
-
-      {/* Price */}
-      <Text
-        className="mt-3 text-[42px] font-extrabold"
-        style={{ color: c.onSurface }}
-      >
-        {formatPrice(crop.modalPrice)}
-      </Text>
-
-      {/* Change Row */}
-      <View className="flex-row items-center" style={{ marginTop: 8, gap: 12 }}>
-        <Text
-          className="text-[16px] font-semibold"
-          style={{ color: isUp ? c.secondary : c.error }}
-        >
-          {difference > 0 ? "+" : ""}₹{Math.abs(difference)} (
-          {t("home.perQuintal")})
-        </Text>
-        <View
-          className="rounded-lg px-3 py-1.5"
-          style={{
-            backgroundColor: isUp ? c.successLight : c.errorLight,
+            width: 64,
+            height: 64,
+            borderRadius: 32,
+            backgroundColor: c.surfaceContainerLow,
           }}
         >
           <Text
-            className="text-[14px] font-medium"
-            style={{ color: isUp ? c.secondary : c.error }}
+            className="text-[24px] font-extrabold"
+            style={{ color: c.primary, letterSpacing: -0.5 }}
           >
-            {difference > 0 ? "+" : ""}
-            {percentage}%
+            {commodity.commodityName.charAt(0)}
           </Text>
         </View>
+
+        <View className="ml-3 flex-1 justify-center" style={{ minHeight: 64 }}>
+          <Text
+            className="text-[25px] pt-2 font-bold leading-tight"
+            style={{ color: c.onSurface }}
+            numberOfLines={2}
+          >
+            {name}
+          </Text>
+          <View className="mt-1.5 flex-row items-center" style={{ gap: 8 }}>
+            <View
+              className="rounded-full px-2.5 py-1"
+              style={{ backgroundColor: c.primaryMuted as string }}
+            >
+              <Text
+                className="text-[11px] font-semibold"
+                style={{ color: c.primary }}
+              >
+                {grade}
+              </Text>
+            </View>
+            <Text
+              className="text-[12px] font-medium"
+              style={{ color: c.onSurfaceVariant }}
+              numberOfLines={1}
+            >
+              {variety}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Market Name */}
+      <View
+        className="mt-3 flex-row items-center rounded-xl px-3 py-2.5"
+        style={{ backgroundColor: c.surfaceContainerLow }}
+      >
+        <Store size={14} color={c.primary} />
+        <Text
+          className="ml-2 flex-1 text-[13px] font-medium"
+          style={{ color: c.onSurface }}
+          numberOfLines={1}
+        >
+          {market}
+        </Text>
+      </View>
+
+      {/* Price */}
+      <View className="mt-4 flex-row items-baseline">
+        <Text
+          className="text-[42px] font-extrabold"
+          style={{ color: c.onSurface, letterSpacing: -1 }}
+        >
+          {commodity.modalPrice}
+        </Text>
+        <Text
+          className="ml-2 text-[13px] font-medium"
+          style={{ color: c.onSurfaceVariant }}
+        >
+          {priceUnit}
+        </Text>
       </View>
 
       {/* Divider */}
@@ -168,45 +153,54 @@ function MarketPriceCard({ crop, c, t }: {
         style={{ backgroundColor: c.borderLight }}
       />
 
-      {/* Metadata Row */}
-      <View className="flex-row items-center">
-        <View className="flex-1 items-center">
-          <Text className="text-[13px]" style={{ color: c.onSurfaceVariant }}>
+      {/* Metadata Row: Min | Max | Yesterday */}
+      <View className="flex-row items-stretch">
+        <View className="flex-1 items-center py-1">
+          <Text
+            className="text-[11px] font-semibold tracking-wide"
+            style={{ color: c.onSurfaceVariant }}
+          >
             {t("home.minPrice")}
           </Text>
           <Text
-            className="mt-0.5 text-[13px] font-medium"
-            style={{ color: c.onSurfaceVariant }}
+            className="mt-1 text-[15px] font-bold"
+            style={{ color: c.onSurface }}
           >
-            {formatPrice(crop.minPrice)}
+            {commodity.minPrice}
           </Text>
         </View>
         <View
-          style={{ width: 1, height: 32, backgroundColor: c.borderLight }}
+          style={{ width: 1, backgroundColor: c.borderLight }}
         />
-        <View className="flex-1 items-center">
-          <Text className="text-[13px]" style={{ color: c.onSurfaceVariant }}>
+        <View className="flex-1 items-center py-1">
+          <Text
+            className="text-[11px] font-semibold tracking-wide"
+            style={{ color: c.onSurfaceVariant }}
+          >
             {t("home.maxPrice")}
           </Text>
           <Text
-            className="mt-0.5 text-[13px] font-medium"
-            style={{ color: c.onSurfaceVariant }}
+            className="mt-1 text-[15px] font-bold"
+            style={{ color: c.onSurface }}
           >
-            {formatPrice(crop.maxPrice)}
+            {commodity.maxPrice}
           </Text>
         </View>
         <View
-          style={{ width: 1, height: 32, backgroundColor: c.borderLight }}
+          style={{ width: 1, backgroundColor: c.borderLight }}
         />
-        <View className="flex-1 items-center">
-          <Text className="text-[13px]" style={{ color: c.onSurfaceVariant }}>
+        <View className="flex-1 items-center py-1">
+          <Text
+            className="text-[11px] font-semibold tracking-wide"
+            style={{ color: c.onSurfaceVariant }}
+          >
             {t("home.yesterdaysPrice")}
           </Text>
           <Text
-            className="mt-0.5 text-[13px] font-medium"
+            className="mt-1 text-[15px] font-bold"
             style={{ color: c.onSurfaceVariant }}
           >
-            {formatPrice(crop.previousPrice)}
+            —
           </Text>
         </View>
       </View>
@@ -216,23 +210,20 @@ function MarketPriceCard({ crop, c, t }: {
 
 export default function HomePageMarketPriceSection({
   location,
+  localizedLocation,
   onSeeAll,
-  onUpdate,
 }: Props) {
   const { t } = useTranslation("common");
   const c = Colors.light;
 
-  const { data, isLoading, refetch } = useBazaarBhav();
-
-  const currentLangugae = i18n.language; 
-  const isHindi = currentLangugae === "hi";
-
-
+  const cityName = location?.city ?? "";
+  const districtName = location?.district ?? "";
+  const { data, isLoading, isFetching, refetch } = useMarketPrices(cityName, districtName);
 
   const commodities = data?.data?.commodities ?? [];
   const count = data?.data?.count ?? 0;
-
-  console.log("HomePageMarketPriceSection location:", location);
+  const displayLocation = localizedLocation || location;
+  const isHindi = i18n.language === "hi";
 
   return (
     <View>
@@ -278,8 +269,8 @@ export default function HomePageMarketPriceSection({
               className="text-[14px] font-semibold"
               style={{ color: c.onSurface }}
             >
-              {location
-                ? `${location.city}, ${location.region}`
+              {displayLocation
+                ? `${displayLocation.city}, ${displayLocation.region}`
                 : t("home.loadingLocation")}
             </Text>
           </View>
@@ -291,22 +282,41 @@ export default function HomePageMarketPriceSection({
         </Pressable>
       </View>
 
-      {/* Horizontal Card Carousel */}
-      <FlatList
-        horizontal
-        data={CROP_DATA}
-        keyExtractor={(item) => item.id}
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 20, gap: 16 }}
-        snapToInterval={CARD_WIDTH + 16}
-        decelerationRate="fast"
-        renderItem={({ item }) => (
-          <MarketPriceCard crop={item} c={c} t={t} />
-        )}
-      />
+      {/* Commodities Carousel */}
+      {isLoading ? (
+        <View className="h-[280px] items-center justify-center">
+          <ActivityIndicator size="large" color={c.primary} />
+        </View>
+      ) : commodities.length === 0 ? (
+        <View
+          className="items-center justify-center rounded-[24px] px-5 py-10"
+          style={{ backgroundColor: c.surfaceContainerLow }}
+        >
+          <Text
+            className="text-[16px] font-medium"
+            style={{ color: c.onSurfaceVariant }}
+          >
+            {isHindi
+              ? "आपके क्षेत्र के लिए कोई डेटा उपलब्ध नहीं है"
+              : "No data available for your region"}
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          horizontal
+          data={commodities}
+          keyExtractor={(item) => item.id}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 20, gap: 16 }}
+          snapToInterval={CARD_WIDTH + 16}
+          decelerationRate="fast"
+          renderItem={({ item }) => <MarketPriceCard commodity={item} />}
+        />
+      )}
 
-      {/* View All Button */}
-      <Pressable
+      {/* View All Button opencode do not remove Pressable button i will use it later  */}
+      
+      {/* <Pressable
         onPress={onSeeAll}
         className="flex-row items-center justify-between"
         style={({ pressed }) => ({
@@ -322,7 +332,6 @@ export default function HomePageMarketPriceSection({
       >
         <View className="flex-row mt-6">
           <View className="flex-row items-center flex-1">
-
             <Store size={28} color={c.primary} />
             <Text
               className="ml-3 text-[16px] font-semibold"
@@ -333,13 +342,12 @@ export default function HomePageMarketPriceSection({
           </View>
           <ChevronRight size={20} color={c.primary} />
         </View>
-      </Pressable>
+      </Pressable> */}
 
       {/* Update Info Bar */}
       <View
         className="flex-row items-center justify-between"
         style={{
-          // marginHorizontal: 20,
           marginTop: 16,
           backgroundColor: c.primaryLight,
           borderRadius: 16,
@@ -354,27 +362,39 @@ export default function HomePageMarketPriceSection({
             style={{ color: c.onSurfaceVariant }}
             numberOfLines={1}
           >
-            {t("home.pricesAsOf")}
+            {count > 0
+              ? isHindi
+                ? `${count} वस्तुओं के दाम अपडेट किए गए`
+                : `${count} commodities updated`
+              : isHindi
+                ? "कल के अपडेट दिखाए गए हैं"
+                : "Updates from yesterday shown"}
           </Text>
         </View>
         <Pressable
-          onPress={onUpdate}
+          onPress={() => refetch()}
           className="flex-row items-center"
           style={({ pressed }) => ({
             opacity: pressed ? 0.6 : 1,
           })}
         >
-          <Text
-            className="text-[14px] font-medium"
-            style={{ color: c.secondary }}
-          >
-            {t("home.update")}
-          </Text>
-          <RefreshCw
-            size={18}
-            color={c.secondary}
-            style={{ marginLeft: 6 }}
-          />
+          {isFetching ? (
+            <ActivityIndicator size="small" color={c.secondary} />
+          ) : (
+            <>
+              <Text
+                className="text-[14px] font-medium"
+                style={{ color: c.secondary }}
+              >
+                {t("home.update")}
+              </Text>
+              <RefreshCw
+                size={18}
+                color={c.secondary}
+                style={{ marginLeft: 6 }}
+              />
+            </>
+          )}
         </Pressable>
       </View>
 

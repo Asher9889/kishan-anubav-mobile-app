@@ -1,4 +1,4 @@
-import { Heart, MessageCircle, Send } from 'lucide-react-native';
+import { Heart } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -44,7 +44,8 @@ export default function FeedActionBar({ isLiked, isLiking, likesCount, commentsC
         </View>
       </Pressable>
 
-      <Pressable
+      {/* Do not remove these buttons */}
+      {/* <Pressable
         onPress={onComment}
         style={({ pressed }) => [styles.action, pressed && styles.pressed]}
       >
@@ -62,7 +63,7 @@ export default function FeedActionBar({ isLiked, isLiking, likesCount, commentsC
           <Send size={24} color={theme.textSecondary} />
           <Text style={styles.label}>{t('share')}</Text>
         </View>
-      </Pressable>
+      </Pressable> */}
     </View>
   );
 }

@@ -1,11 +1,7 @@
 import { envConfig } from "@/config";
 import { useAuthStore } from "@/features/auth/store/auth.store";
+import i18n from "@/i18n";
 import axios from "axios";
-
-// const API_BASE_URL = "http://kishananubhav.mssplonline.in";
-// const NODE_API_BASE_URL = "http://10.0.2.2:4500/api/v1"; 
-// const NODE_API_BASE_URL = "http://160.25.62.109:8222/api/v1"; 
-
 
 const nodeApi = axios.create({
   baseURL: envConfig.nodeApiBaseUrl,
@@ -36,7 +32,10 @@ api.interceptors.response.use(
 // adding bearer token to nodeApi requests
 nodeApi.interceptors.request.use(
   (config) => {
+    config.headers["Accept-Language"] = i18n.resolvedLanguage;
     const accessToken = useAuthStore.getState().accessToken;
+
+
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;

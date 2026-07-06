@@ -175,7 +175,7 @@ export const useProfileForm = () => {
     !user?.state?.trim() ||
     !user?.city?.trim() ||
     !currentAddress.line1?.trim();
-  const { data: locationData } = useCurrentLocation({ enabled: shouldFetchLocation });
+  const { localizedLocation: locationData } = useCurrentLocation({ enabled: shouldFetchLocation });
 
   const form = useForm<ProfileFormState>({
     resolver: zodResolver(editProfileSchema),

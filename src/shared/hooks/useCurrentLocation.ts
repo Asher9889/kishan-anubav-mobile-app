@@ -8,7 +8,14 @@ type UseCurrentLocationOptions = {
     enabled?: boolean;
 };
 
-export function useCurrentLocation(options: UseCurrentLocationOptions = {}) {
+type UseCurrentLocationReturn = {
+    englishLocation: ILocationData | undefined;
+    localizedLocation: ILocationData | undefined;
+    loading: boolean;
+    error: Error | null;
+};
+
+export function useCurrentLocation(options: UseCurrentLocationOptions = {}): UseCurrentLocationReturn {
     const { enabled = true } = options;
     const { i18n } = useTranslation();
     const language = i18n.language;
@@ -20,31 +27,25 @@ export function useCurrentLocation(options: UseCurrentLocationOptions = {}) {
         staleTime: 1000 * 60 * 10, // 10 minutes
     });
 
-    const data = locationQuery.data;
+    const englishLocation = locationQuery.data;
 
-    const cityTrans = useTranslate(data?.city ?? "", language);
-    const regionTrans = useTranslate(data?.region ?? "", language);
-    const countryTrans = useTranslate(data?.country ?? "", language);
+    const cityTrans = useTranslate(englishLocation?.city ?? "", language);
+    const regionTrans = useTranslate(englishLocation?.region ?? "", language);
+    const countryTrans = useTranslate(englishLocation?.country ?? "", language);
 
-    const mergedData = data
+    const localizedLocation = englishLocation && language !== "en"
         ? {
-            ...data,
-            ...(language !== "en"
-                ? {
-                    city: cityTrans.data ?? data.city,
-                    region: regionTrans.data ?? data.region,
-                    country: countryTrans.data ?? data.country,
-                }
-                : {}),
+            ...englishLocation,
+            city: cityTrans.data ?? englishLocation.city,
+            region: regionTrans.data ?? englishLocation.region,
+            country: countryTrans.data ?? englishLocation.country,
         }
-        : undefined;
+        : englishLocation;
 
     return {
-        ...locationQuery,
-        data: mergedData,
-        isTranslating:
-            cityTrans.isFetching ||
-            regionTrans.isFetching ||
-            countryTrans.isFetching,
+        englishLocation,
+        localizedLocation,
+        loading: locationQuery.isLoading,
+        error: locationQuery.error,
     };
 }

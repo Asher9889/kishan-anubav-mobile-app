@@ -31,9 +31,9 @@ export default function HomeScreen() {
   const c = Colors.light;
 
   const user = useAuthStore((state) => state.user);
-  const { isLoading: isLoadingLocation, data: locationData } = useCurrentLocation();
+  const { loading: isLoadingLocation, englishLocation, localizedLocation } = useCurrentLocation();
   const { isLoading: isWeatherLoading, data: weatherData } = useCurrentWeather();
-  const location = locationData;
+  const location = localizedLocation;
   const weather = weatherData;
 
   const { data: newsData, isLoading: isLoadingNews, } = useNews();
@@ -96,7 +96,7 @@ export default function HomeScreen() {
 
             {/* <BazaarBhavSection /> */}
 
-            <HomePageMarketPriceSection location={location} />
+            <HomePageMarketPriceSection location={englishLocation} localizedLocation={localizedLocation} />
           
 
             {/* <SectionHeading

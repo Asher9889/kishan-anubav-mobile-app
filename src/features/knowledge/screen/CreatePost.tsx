@@ -34,7 +34,7 @@ export default function CreateKnowledgeScreen() {
   const isProfileCompleted = useAuthStore((state) => state.user?.isProfileCompleted);
   const userInfo = useAuthStore((state) => state.user);
 
-  const { isLoading: isLoadingLocation, data: locationData } = useCurrentLocation(); 
+  const { loading: isLoadingLocation, localizedLocation: locationData } = useCurrentLocation(); 
     
   const { t } = useTranslation('common');
   const mutateKnowledgePost = usePostKnowledge();

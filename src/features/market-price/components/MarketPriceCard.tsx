@@ -43,11 +43,7 @@ export default function MarketPriceCard({
   const difference =
     modalPrice - previousPrice;
 
-  const percentage =
-    (
-      (difference / previousPrice) *
-      100
-    ).toFixed(1);
+  const percentage = ((difference / previousPrice) * 100).toFixed(1);
 
   return (
     <View

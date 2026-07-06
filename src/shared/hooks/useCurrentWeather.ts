@@ -5,7 +5,7 @@ import { useCurrentLocation } from "./useCurrentLocation";
 
 function useCurrentWeather() {
 
-    const { data:location } = useCurrentLocation();
+    const { englishLocation: location } = useCurrentLocation();
 
     const weatherData = useQuery<IWeatherData>({
         queryKey: ['weather', location?.latitude, location?.longitude],
