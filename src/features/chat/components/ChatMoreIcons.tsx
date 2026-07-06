@@ -1,6 +1,6 @@
 import { Camera, FileHeadphone, Image } from "lucide-react-native";
-import { Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Animated from "react-native-reanimated";
+import { useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type props = {
@@ -11,34 +11,49 @@ type props = {
     onImagePress: () => void
 }
 
-const InputMoreItems = ({
+const ChatInputMoreItems = ({
     open,
     onClose,
     isGenerating,
     onMicePress,
     onImagePress,
 }: props) => {
-    if (!open) return null;
     const insets = useSafeAreaInsets();
-    console.log("insets values are", insets);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+    if (!open) return null;
+
+    // useEffect(() => {
+    //     const show = Keyboard.addListener(
+    //         Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+    //         e => {
+    //             console.log("Keyboard opened", e.endCoordinates.height)
+    //             setKeyboardHeight(e.endCoordinates.height)
+    //         }
+    //     );
+
+    //     const hide = Keyboard.addListener(
+    //         Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+    //         () => setKeyboardHeight(0)
+    //     );
+
+    //     return () => {
+    //         show.remove();
+    //         hide.remove();
+    //     };
+    // }, []);
+
     return (
-
-
-        <Animated.View
+        <View
             style={{
                 position: "absolute",
                 zIndex: 100,
                 flex: 1,
-                bottom: insets.bottom + 20,
+                bottom: insets.bottom + keyboardHeight + 20,
                 left: insets.left + 10,
             }}
             className="bg-white w-1/2 rounded-3xl p-3 shadow-lg border border-gray-200"
         >
-
-            <Pressable
-                style={[StyleSheet.absoluteFill]}
-                onPress={onClose}
-            />
             <TouchableOpacity
                 onPress={onMicePress}
                 disabled={isGenerating}
@@ -90,8 +105,8 @@ const InputMoreItems = ({
                     Camera
                 </Text>
             </TouchableOpacity>
-        </Animated.View>
+        </View>
     )
 }
 
-export default InputMoreItems;
+export default ChatInputMoreItems;

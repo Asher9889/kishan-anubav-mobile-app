@@ -10,9 +10,10 @@ import {
 } from "react-native";
 
 import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface ChatInputRowProps {
-  onOpenMoreInputBox: () => void
+  onOpenMoreInputBox: () => void;
   isGenerating: boolean;
   inputText: string;
   onTextChange: (text: string) => void;
@@ -33,6 +34,13 @@ export default function ChatInputRow({
   const { t } = useTranslation("common");
   const c = Colors.light;
   const [inputFocused, setInputFocused] = useState(false);
+  const insets = useSafeAreaInsets();
+
+  const [showMoreIcons, setShowMoreIcons] = useState<boolean>(false);
+
+  const toggleShowMore = () => {
+    setShowMoreIcons((prev) => !prev);
+  }
 
   return (
     <View style={styles.inputRow}>
@@ -128,8 +136,7 @@ export default function ChatInputRow({
 
 
 
-      {/* Floating Button Group */}
-    
+     
 
     </View>
   );

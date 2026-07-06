@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { convertAudioToText } from '../api/ask-audio-stream.api';
 import { analyzeImage } from '../api/ask-image.api';
 import { askQuestionStream } from '../api/ask-text-stream.api';
-import InputMoreItems from '../components/ChatMoreIcons';
+import ChatInputMoreItems from '../components/ChatMoreIcons';
 import { ChatHistorySheet } from '../components/side-sheet/ChatHistorySheet';
 import GeneratingState from '../components/states/GeneratingState';
 import ListeningState from '../components/states/ListeningState';
@@ -795,17 +795,9 @@ export default function AIChatScreen() {
             }}
           />
 
-          {/* Voice Status */}
-          {/* {isRecording && (
-            <View style={styles.listeningBar}>
-              <View style={styles.listeningDot} />
-              <Text style={styles.listeningText}>Listening...</Text>
-            </View>
-          )} */}
-
           <ChatBottomBar
             composerMode={composerMode}
-            onOpenMoreInputBox={handleMoreInputBox}
+            onOpenMoreInputBox={() => setShowMoreInputBox(true)}
             isGenerating={isGenerating}
             inputText={inputText}
             onTextChange={setInputText}
@@ -815,24 +807,22 @@ export default function AIChatScreen() {
             onCloseAudio={closeAudioComposer}
             onOpenAudio={() => setComposerMode('audio')}
           />
-        </View>
 
-
-        <InputMoreItems
-          open={showMoreInputBox}
-          isGenerating={isGenerating}
-          onClose={handleMoreInputBox}
-          onImagePress={handleImageUpload}
-          onMicePress={() => setComposerMode('audio')}
-        />
-
-        {
-          showMoreInputBox && <Pressable
-            style={[StyleSheet.absoluteFill]}
-            onPress={handleMoreInputBox}
+          <ChatInputMoreItems 
+            open={showMoreInputBox} 
+            onClose={handleMoreInputBox}
+            isGenerating={isGenerating}
+            onMicePress={() => setComposerMode('audio')}
+            onImagePress={handleImageUpload}
           />
-        }
 
+          {showMoreInputBox && 
+          <Pressable 
+            style={[StyleSheet.absoluteFill]} 
+            onPress={() => setShowMoreInputBox(false)}
+          />}
+
+        </View>
 
       </KeyboardAvoidingView>
 
