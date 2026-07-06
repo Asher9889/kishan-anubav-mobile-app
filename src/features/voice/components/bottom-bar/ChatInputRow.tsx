@@ -56,39 +56,6 @@ export default function ChatInputRow({
         </TouchableOpacity>
 
 
-        {/* <TouchableOpacity
-          onPress={onMicPress}
-          style={[styles.iconBtn, isGenerating && { opacity: 0.5 }]}
-          disabled={isGenerating}
-          activeOpacity={0.8}
-        >
-          <LinearGradient
-            colors={[c.primaryContainer, "#FFB77A"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.iconGradient}
-          >
-            <Mic size={22} color="#FFFFFF" fill="rgba(255, 255, 255, 0.25)" />
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={onImagePress}
-          style={[styles.iconBtn, isGenerating && { opacity: 0.5 }]}
-          disabled={isGenerating}
-          activeOpacity={0.8}
-        >
-          <LinearGradient
-            colors={[c.primaryContainer, "#14B8A6"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.iconGradient}
-          >
-            <ImagePlus size={22} color="#FFFFFF" />
-          </LinearGradient>
-        </TouchableOpacity> */}
-
-
         <View className="ml-2" style={styles.textInputArea} collapsable={false}>
           <TextInput
             placeholder={

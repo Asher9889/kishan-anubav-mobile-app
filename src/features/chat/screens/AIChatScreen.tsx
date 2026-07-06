@@ -698,13 +698,6 @@ export default function AIChatScreen() {
         {/* Header */}
         <View style={styles.headerBlur}>
           <View style={[styles.headerContent]}>
-            {/* <TouchableOpacity
-              onPress={() => router.back()}
-              style={styles.backButton}
-              activeOpacity={0.7}
-            >
-              <ArrowLeft size={22} color={c.text} />
-            </TouchableOpacity> */}
 
             <TouchableOpacity
               onPress={() => sideSheetRef.current?.open()}
@@ -808,19 +801,19 @@ export default function AIChatScreen() {
             onOpenAudio={() => setComposerMode('audio')}
           />
 
-          <ChatInputMoreItems 
-            open={showMoreInputBox} 
+          <ChatInputMoreItems
+            open={showMoreInputBox}
             onClose={handleMoreInputBox}
             isGenerating={isGenerating}
             onMicePress={() => setComposerMode('audio')}
             onImagePress={handleImageUpload}
           />
 
-          {showMoreInputBox && 
-          <Pressable 
-            style={[StyleSheet.absoluteFill]} 
-            onPress={() => setShowMoreInputBox(false)}
-          />}
+          {showMoreInputBox &&
+            <Pressable
+              style={[StyleSheet.absoluteFill]}
+              onPress={() => setShowMoreInputBox(false)}
+            />}
 
         </View>
 
