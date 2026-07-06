@@ -1,20 +1,20 @@
 import { MessageBubble } from '@/components';
 import Logo from '@/components/logo';
-import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
+import { Colors } from '@/constants/theme';
 import { ImagePickerService } from '@/services/camera.service';
 import * as crypto from 'expo-crypto';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Home } from 'lucide-react-native';
+import { Home, ImagePlus, Mic, Send } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { Alert, FlatList, KeyboardAvoidingView, Platform, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { convertAudioToText } from '../api/ask-audio-stream.api';
 import { analyzeImage } from '../api/ask-image.api';
 import { askQuestionStream } from '../api/ask-text-stream.api';
-import ChatBottomBar from '../components/bottom-bar/ChatBottomBar';
+import ChatAudioRecorder from '../components/audio-recorder/ChatAudioRecorder';
 import { ChatHistorySheet } from '../components/side-sheet/ChatHistorySheet';
 import GeneratingState from '../components/states/GeneratingState';
 import ListeningState from '../components/states/ListeningState';
@@ -23,6 +23,7 @@ import UploadingState from '../components/states/UploadingState';
 import { createChat, getMessagesByChatId, saveAIMessage, saveUserMessage, updateChatTitle } from '../services/chat.service';
 import { useChatStore } from '../store/chat.store';
 import { ChatMessage, TSheetHandle } from '../types/types';
+import styles from './styles';
 
 type TAIState = "idle" | "listening" | "uploading" | "thinking" | "generating";
 
@@ -37,6 +38,7 @@ export default function AIChatScreen() {
   const { t } = useTranslation('common');
 
   const [inputText, setInputText] = useState('');
+  const [inputFocused, setInputFocused] = useState(false);
   const [composerMode, setComposerMode] = useState<'text' | 'audio'>('text');
   // const [aiState, setAiState] = useState<TAIState>("idle");
   const [messages, setMessages] = useState<ChatMessage[]>([]); // db orienetd messages
@@ -489,6 +491,7 @@ export default function AIChatScreen() {
 
     const queryText = inputText.trim();
     setInputText('');
+    setInputFocused(false);
     setIsGenerating(true);
 
     const thinkingMessageId = crypto.randomUUID();
@@ -799,17 +802,101 @@ export default function AIChatScreen() {
             </View>
           )} */}
 
-          <ChatBottomBar
-            composerMode={composerMode}
-            isGenerating={isGenerating}
-            inputText={inputText}
-            onTextChange={setInputText}
-            onSendText={handleSendText}
-            onImageUpload={handleImageUpload}
-            onAudioComplete={handleAudioComplete}
-            onCloseAudio={closeAudioComposer}
-            onOpenAudio={() => setComposerMode('audio')}
-          />
+          {/* Bottom Bar */}
+          <View style={styles.bottomBar}>
+            {composerMode === 'audio' ? (
+              <ChatAudioRecorder
+                onClose={closeAudioComposer}
+                onRecordingComplete={handleAudioComplete}
+              />
+            ) : (
+              <>
+                <View style={styles.inputRow}>
+                  {/* Voice Centric Mic Button */}
+                  <TouchableOpacity
+                    onPress={() => !isGenerating && setComposerMode('audio')}
+                    style={[styles.micButtonVoiceCentric, isGenerating && { opacity: 0.5 }]}
+                    disabled={isGenerating}
+                    activeOpacity={0.8}
+                  >
+                    <LinearGradient
+                      colors={[c.primaryContainer, '#FFB77A']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.micGradientVoiceCentric}
+                    >
+                      <Mic size={22} color="#FFFFFF" fill="rgba(255, 255, 255, 0.25)" />
+                    </LinearGradient>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    onPress={handleImageUpload}
+                    style={[styles.imageButton, isGenerating && { opacity: 0.5 }]}
+                    disabled={isGenerating}
+                    activeOpacity={0.8}
+                  >
+                    <LinearGradient
+                      colors={[c.primaryContainer, '#14B8A6']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.imageButtonGradient}
+                    >
+                      <ImagePlus size={22} color="#FFFFFF" />
+                    </LinearGradient>
+                  </TouchableOpacity>
+
+                  <View
+                    style={[
+                      styles.inputContainer,
+                      inputFocused && styles.inputContainerFocused,
+                    ]}
+                    collapsable={false}
+                  >
+                    <View
+                      style={styles.textInputArea}
+                      collapsable={false}
+                    >
+                      <TextInput
+                        placeholder={isGenerating ? t('chat.aiIsTyping') : t('chat.askQuestion')}
+                        placeholderTextColor={c.textMuted}
+                        value={inputText}
+                        onChangeText={setInputText}
+                        onFocus={() => setInputFocused(true)}
+                        onBlur={() => setInputFocused(false)}
+                        style={styles.textInput}
+                        collapsable={false}
+                        editable={!isGenerating}
+                      />
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={handleSendText}
+                    activeOpacity={0.85}
+                    style={[
+                      styles.sendButton,
+                      (inputText.length === 0 || isGenerating) && styles.sendButtonDisabled,
+                    ]}
+                    disabled={inputText.length === 0 || isGenerating}
+                  >
+                    <LinearGradient
+                      colors={
+                        inputText.length > 0 && !isGenerating
+                          ? [c.primaryDark, c.primary]
+                          : [c.border, c.border]
+                      }
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.sendGradient}
+                    >
+                      <Send size={18} color={inputText.length > 0 && !isGenerating ? '#FFFFFF' : c.textMuted} />
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+
+          </View>
         </View>
 
 
@@ -822,242 +909,4 @@ export default function AIChatScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: Colors.light.background,
-  },
-  flex: {
-    flex: 1,
-  },
 
-  // Header
-  headerBlur: {
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.light.borderLight,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: "space-evenly",
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm + 2,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.light.surfaceContainerLow,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerCenter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'center',
-  },
-  headerAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerText: {
-    marginLeft: Spacing.sm + 2,
-  },
-  headerTitle: {
-    ...Typography.h3,
-    fontSize: 17,
-    color: Colors.light.text,
-  },
-  onlineRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 2,
-  },
-  onlineDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: Colors.light.success,
-  },
-  onlineLabel: {
-    ...Typography.caption,
-    color: Colors.light.success,
-    marginLeft: 5,
-  },
-  headerRight: {
-    width: 40,
-  },
-
-  // Messages
-  messagesList: {
-    paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.lg,
-    paddingBottom: Spacing.md,
-  },
-  messageGap: {
-    height: Spacing.lg + 4,
-  },
-  messageRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-  },
-  messageRowUser: {
-    justifyContent: 'flex-end',
-  },
-  messageRowAI: {
-    justifyContent: 'flex-start',
-  },
-
-  // AI Avatar
-  aiAvatarContainer: {
-    marginRight: Spacing.sm,
-    marginBottom: 20,
-  },
-  aiAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  // Bubbles
-  bubbleWrapper: {
-    maxWidth: '78%',
-  },
-  bubbleWrapperUser: {
-    alignItems: 'flex-end',
-  },
-  aiNameLabel: {
-    ...Typography.caption,
-    color: Colors.light.textSecondary,
-    marginBottom: 4,
-    marginLeft: 2,
-  },
-  bubble: {
-    paddingHorizontal: Spacing.md + 2,
-    paddingVertical: Spacing.md - 2,
-    borderRadius: Radius.xxl,
-  },
-  bubbleUser: {
-    backgroundColor: Colors.light.primary,
-    borderBottomRightRadius: Radius.sm,
-  },
-  bubbleAI: {
-    backgroundColor: Colors.light.card,
-    borderWidth: 1,
-    borderColor: 'rgba(13,148,136,0.08)',
-    borderBottomLeftRadius: Radius.sm,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
-  },
-  bubbleText: {
-    ...Typography.body,
-  },
-  bubbleTextUser: {
-    color: Colors.light.textInverse,
-  },
-  bubbleTextAI: {
-    color: Colors.light.text,
-  },
-
-  // Bubble Footer
-  bubbleFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 6,
-    marginLeft: 2,
-    gap: Spacing.sm,
-  },
-  timestamp: {
-    ...Typography.small,
-    color: Colors.light.textMuted,
-  },
-  listenButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.light.primaryMuted,
-    paddingHorizontal: Spacing.sm + 2,
-    paddingVertical: 4,
-    borderRadius: Radius.full,
-    gap: 4,
-  },
-  listenLabel: {
-    ...Typography.small,
-    fontWeight: '600',
-    color: Colors.light.primary,
-  },
-
-  // Listening Bar
-  listeningBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: Spacing.sm,
-    backgroundColor: Colors.light.primaryMuted,
-    gap: Spacing.sm,
-  },
-  listeningDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.light.primary,
-  },
-  listeningText: {
-    ...Typography.caption,
-    color: Colors.light.primary,
-    fontWeight: '600',
-  },
-
-  // Voice Section
-  voiceSection: {
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
-  voiceButtonContainer: {
-    width: 88,
-    height: 88,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  voiceButtonInner: {
-    borderRadius: 44,
-  },
-  voiceButtonGradient: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: Colors.light.primary,
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
-  },
-  voiceHint: {
-    ...Typography.caption,
-    color: Colors.light.textMuted,
-    marginTop: Spacing.xs + 2,
-  },
-
-
-  imageBubbleUser: {
-    padding: 4,
-    borderBottomRightRadius: Radius.sm,
-    overflow: 'hidden',
-  },
-  chatImage: {
-    width: 200,
-    height: 200,
-    borderRadius: Radius.lg,
-  },
-
-});
