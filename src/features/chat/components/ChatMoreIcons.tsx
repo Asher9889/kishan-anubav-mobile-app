@@ -8,7 +8,8 @@ type props = {
     onClose: () => void;
     isGenerating: boolean;
     onMicePress: () => void
-    onImagePress: () => void
+    onGalleryPress: () => void
+    onCameraPress: () => void
 }
 
 const ChatInputMoreItems = ({
@@ -16,7 +17,8 @@ const ChatInputMoreItems = ({
     onClose,
     isGenerating,
     onMicePress,
-    onImagePress,
+    onGalleryPress,
+    onCameraPress,
 }: props) => {
     const insets = useSafeAreaInsets();
     const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -53,7 +55,7 @@ const ChatInputMoreItems = ({
             {/* <View className="h-px bg-gray-200 my-3" /> */}
 
             <TouchableOpacity
-                onPress={onImagePress}
+                onPress={onGalleryPress}
                 disabled={isGenerating}
                 activeOpacity={0.5}
                 className={`flex-row py-4 items-center pl-4 ${isGenerating ? "opacity-50" : ""
@@ -71,7 +73,7 @@ const ChatInputMoreItems = ({
             {/* <View className="h-px bg-gray-200 my-3" /> */}
 
             <TouchableOpacity
-                onPress={onImagePress}
+                onPress={onCameraPress}
                 disabled={isGenerating}
                 activeOpacity={0.5}
                 className={`flex-row py-4 items-center pl-4 ${isGenerating ? "opacity-50" : ""

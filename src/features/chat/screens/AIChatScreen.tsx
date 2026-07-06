@@ -26,8 +26,6 @@ import { useChatStore } from '../store/chat.store';
 import { ChatMessage, TSheetHandle } from '../types/types';
 import styles from './styles';
 
-type TAIState = "idle" | "listening" | "uploading" | "thinking" | "generating";
-
 const getWelcomeMessage = (t: (key: string) => string) => ({
   id: 'welcome',
   role: 'ai' as const,
@@ -40,14 +38,19 @@ export default function AIChatScreen() {
 
   const [inputText, setInputText] = useState('');
   const [composerMode, setComposerMode] = useState<'text' | 'audio'>('text');
-  // const [aiState, setAiState] = useState<TAIState>("idle");
   const [messages, setMessages] = useState<ChatMessage[]>([]); // db orienetd messages
   const [uiMessages, setUiMessages] = useState<ChatMessage[]>([]); // messages formatted for UI (with states like 'thinking', 'listening' etc)
   const [isGenerating, setIsGenerating] = useState(false);
   const [showMoreInputBox, setShowMoreInputBox] = useState<boolean>(false);
-  const typingTimerRef = useRef<any>(null);
-  const router = useRouter();
+  const { activeChatIdState, setActiveChatId } = useChatStore();
+  const [showVoiceChatOrb, setShowVoiceChatOrb] = useState<boolean>(false);
 
+  const typingTimerRef = useRef<any>(null);
+
+  const flatListRef = useRef<FlatList>(null); // to scroll to bottom on new messages
+  const sideSheetRef = useRef<TSheetHandle>(null); // for controlling side sheet from header
+
+  const router = useRouter();
   useEffect(() => {
     return () => {
       if (typingTimerRef.current) {
@@ -55,11 +58,6 @@ export default function AIChatScreen() {
       }
     };
   }, []);
-
-  const flatListRef = useRef<FlatList>(null); // to scroll to bottom on new messages
-  const sideSheetRef = useRef<TSheetHandle>(null); // for controlling side sheet from header
-
-  const { activeChatIdState, setActiveChatId } = useChatStore();
 
   const c = Colors.light;
 
@@ -70,7 +68,7 @@ export default function AIChatScreen() {
       });
     });
   };
-  // helpers
+
   const addUiMessage = (message: ChatMessage) => {
     setUiMessages((prev) => [...prev, message]);
   };
@@ -113,6 +111,7 @@ export default function AIChatScreen() {
   const handleAudioComplete = async (audioUri: string) => {
 
     if (isGenerating) return;
+    setShowMoreInputBox(false);
     setComposerMode('text');
     setIsGenerating(true);
 
@@ -283,22 +282,16 @@ export default function AIChatScreen() {
 
   };
 
-  const handleImageUpload = async () => {
+  const handleImageUpload = async (option: string) => {
+
     if (isGenerating) return;
+    setShowMoreInputBox(false);
 
-    const chosenOption = await new Promise<string | null>((resolve) => {
-      Alert.alert(t('chat.imageAnalysis'), t('chat.chooseOption'), [
-        { text: t('camera'), onPress: () => resolve("camera") },
-        { text: t('gallery'), onPress: () => resolve("gallery") },
-        { text: t('cancel'), onPress: () => resolve(null), style: "cancel" },
-      ]);
-    });
-
-    if (!chosenOption) return;
+    if (!option) return;
 
     let asset;
     try {
-      asset = chosenOption === "camera"
+      asset = option === "camera"
         ? await ImagePickerService.pickFromCamera()
         : await ImagePickerService.pickFromGallery();
     } catch (err: any) {
@@ -481,6 +474,11 @@ export default function AIChatScreen() {
     setComposerMode('text');
   };
 
+  const openAudioComposer = () => {
+    setShowMoreInputBox(false);
+    setComposerMode('audio')
+  }
+
   const handleSendText = async () => {
     if (!inputText.trim() || isGenerating) return;
 
@@ -660,7 +658,6 @@ export default function AIChatScreen() {
 
 
   const renderedMessages = useMemo(() => {
-
     return messages.length === 0
       ? [
         getWelcomeMessage(t),
@@ -679,8 +676,6 @@ export default function AIChatScreen() {
     }
   }, [renderedMessages]);
 
-
-  // Handle more icons buttons
   const handleMoreInputBox = () => {
     const change = !showMoreInputBox;
     console.log("chnage is", change);
@@ -795,18 +790,17 @@ export default function AIChatScreen() {
             inputText={inputText}
             onTextChange={setInputText}
             onSendText={handleSendText}
-            onImageUpload={handleImageUpload}
             onAudioComplete={handleAudioComplete}
             onCloseAudio={closeAudioComposer}
-            onOpenAudio={() => setComposerMode('audio')}
           />
 
           <ChatInputMoreItems
             open={showMoreInputBox}
             onClose={handleMoreInputBox}
             isGenerating={isGenerating}
-            onMicePress={() => setComposerMode('audio')}
-            onImagePress={handleImageUpload}
+            onMicePress={openAudioComposer}
+            onGalleryPress={() => handleImageUpload('gallery')}
+            onCameraPress={() => handleImageUpload('camera')}
           />
 
           {showMoreInputBox &&

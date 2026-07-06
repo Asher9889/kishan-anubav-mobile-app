@@ -12,10 +12,8 @@ interface ChatBottomBarProps {
   inputText: string;
   onTextChange: (text: string) => void;
   onSendText: () => void;
-  onImageUpload: () => void;
   onAudioComplete: (audioUri: string) => void;
   onCloseAudio: () => void;
-  onOpenAudio: () => void;
 }
 
 export default function ChatBottomBar({
@@ -25,10 +23,8 @@ export default function ChatBottomBar({
   inputText,
   onTextChange,
   onSendText,
-  onImageUpload,
   onAudioComplete,
   onCloseAudio,
-  onOpenAudio,
 }: ChatBottomBarProps) {
   return (
     <View style={styles.bottomBar}>
@@ -43,8 +39,6 @@ export default function ChatBottomBar({
           isGenerating={isGenerating}
           inputText={inputText}
           onTextChange={onTextChange}
-          onMicPress={onOpenAudio}
-          onImagePress={onImageUpload}
           onSendPress={onSendText}
         />
       )}

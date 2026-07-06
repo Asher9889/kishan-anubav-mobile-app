@@ -16,8 +16,6 @@ interface ChatInputRowProps {
   isGenerating: boolean;
   inputText: string;
   onTextChange: (text: string) => void;
-  onMicPress: () => void;
-  onImagePress: () => void;
   onSendPress: () => void;
 }
 
@@ -26,8 +24,6 @@ export default function ChatInputRow({
   isGenerating,
   inputText,
   onTextChange,
-  onMicPress,
-  onImagePress,
   onSendPress,
 }: ChatInputRowProps) {
   const { t } = useTranslation("common");
