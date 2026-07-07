@@ -726,7 +726,7 @@ export default function AIChatScreen() {
               onPress={() => router.back()}
               activeOpacity={1}
             >
-              <Home size={22} color={c.text} />
+              <Home size={26} color={c.text} />
             </TouchableOpacity>
 
 

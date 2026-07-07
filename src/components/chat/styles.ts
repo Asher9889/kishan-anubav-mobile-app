@@ -1,10 +1,10 @@
 import { StyleSheet } from "react-native";
 
 import {
-    Colors,
-    Radius,
-    Spacing,
-    Typography,
+  Colors,
+  Radius,
+  Spacing,
+  Typography,
 } from "@/constants/theme";
 
 export const styles = StyleSheet.create({
@@ -20,11 +20,6 @@ export const styles = StyleSheet.create({
   aiRow: {
     alignItems: "flex-start",
   },
-
-  /*
-   * AI Header
-   */
-
   aiHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -47,38 +42,18 @@ export const styles = StyleSheet.create({
     color: Colors.light.textMuted,
     marginTop: 2,
   },
-
-  /*
-   * AI Content
-   */
-
   aiContent: {
     width: "95%",
     paddingLeft: 44,
   },
-
-  /*
-   * User Bubble
-   */
-
   userBubble: {
     maxWidth: "78%",
-
     backgroundColor: Colors.light.primary,
-
     borderRadius: Radius.xxl,
-
     borderBottomRightRadius: Radius.sm,
-
     paddingHorizontal: Spacing.md + 2,
-
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.xs,
   },
-
-  /*
-   * Footer
-   */
-
   footer: {
     flexDirection: "row",
 
@@ -88,30 +63,15 @@ export const styles = StyleSheet.create({
 
     gap: Spacing.md,
   },
-
-  /*
-   * Timestamp
-   */
-
   timestamp: {
     ...Typography.small,
     color: Colors.light.textMuted,
   },
-
-  /*
-   * User Timestamp
-   */
-
   userFooter: {
     marginTop: 6,
     marginRight: 4,
     alignSelf: "flex-end",
   },
-
-  /*
-   * AI Footer
-   */
-
   aiFooter: {
     marginTop: Spacing.sm,
     marginLeft: 44,

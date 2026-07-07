@@ -1,5 +1,5 @@
 import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
   root: {
@@ -19,8 +19,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: "space-evenly",
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm + 2,
+    paddingLeft: Spacing.md,
+    paddingVertical: Spacing.sm,
   },
   backButton: {
     width: 40,

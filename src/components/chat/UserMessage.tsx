@@ -16,9 +16,7 @@ export default function UserMessage({
 
     console.log("UserMessage", message)
   return (
-    <View
-      style={[styles.row, styles.userRow]}
-    >
+    <View style={[styles.row, styles.userRow]}>
       <View style={styles.userBubble}>
         <ChatMarkdown
           content={message.content ?? ""}
