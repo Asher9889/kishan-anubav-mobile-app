@@ -147,4 +147,12 @@ export const endPoints = {
       method: "GET",
     },
   },
+
+  // Livekit token generation endpoint
+  LIVEKIT: {
+    GENERATE_TOKEN: {
+      url: "/voice/session",
+      method: "POST",
+    },
+  },
 };

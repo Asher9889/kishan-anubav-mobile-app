@@ -1,6 +1,6 @@
-import api from "./axios";
+import api, { nodeApi } from "./axios";
 import { endPoints } from "./endpoints";
 
 
-export { api, endPoints };
+export { api, endPoints, nodeApi };
 

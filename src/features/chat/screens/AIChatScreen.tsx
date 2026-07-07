@@ -2,6 +2,10 @@ import { MessageBubble } from '@/components';
 import Logo from '@/components/logo';
 import { Colors } from '@/constants/theme';
 import ChatBottomBar from '@/features/voice/components/bottom-bar/ChatBottomBar';
+import Orb from '@/features/voice/components/Orb';
+import OrbContainer from '@/features/voice/components/OrbContainer';
+import useVoiceChat from '@/features/voice/hooks/useVoiceChat';
+import { VoiceState } from '@/features/voice/types/voice.types';
 import { ImagePickerService } from '@/services/camera.service';
 import * as crypto from 'expo-crypto';
 import { Image } from 'expo-image';
@@ -11,7 +15,7 @@ import { Home } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { convertAudioToText } from '../api/ask-audio-stream.api';
 import { analyzeImage } from '../api/ask-image.api';
 import { askQuestionStream } from '../api/ask-text-stream.api';
@@ -36,6 +40,8 @@ const getWelcomeMessage = (t: (key: string) => string) => ({
 export default function AIChatScreen() {
   const { t } = useTranslation('common');
 
+  const insets = useSafeAreaInsets();
+
   const [inputText, setInputText] = useState('');
   const [composerMode, setComposerMode] = useState<'text' | 'audio'>('text');
   const [messages, setMessages] = useState<ChatMessage[]>([]); // db orienetd messages
@@ -43,7 +49,7 @@ export default function AIChatScreen() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showMoreInputBox, setShowMoreInputBox] = useState<boolean>(false);
   const { activeChatIdState, setActiveChatId } = useChatStore();
-  const [showVoiceChatOrb, setShowVoiceChatOrb] = useState<boolean>(false);
+  const [orbUIState, setOrbUIState] = useState<VoiceState>("hidden");
 
   const typingTimerRef = useRef<any>(null);
 
@@ -51,6 +57,24 @@ export default function AIChatScreen() {
   const sideSheetRef = useRef<TSheetHandle>(null); // for controlling side sheet from header
 
   const router = useRouter();
+
+  const { generateTokenMutation } = useVoiceChat();
+
+
+  const handleOrbPress = async () => {
+    if (isGenerating) return;
+    try {
+      setOrbUIState("loading");
+      const session = await generateTokenMutation.mutateAsync();
+      console.log('Voice chat token generated:', session);
+
+    }
+    catch (error) {
+      console.log('Error generating voice chat token:', error);
+      Alert.alert(t('chat.voiceChatTokenFailed'), t('chat.voiceChatNotAvailable'));
+    }
+  }
+
   useEffect(() => {
     return () => {
       if (typingTimerRef.current) {
@@ -792,6 +816,7 @@ export default function AIChatScreen() {
             onSendText={handleSendText}
             onAudioComplete={handleAudioComplete}
             onCloseAudio={closeAudioComposer}
+            onOrbPress={handleOrbPress}
           />
 
           <ChatInputMoreItems
@@ -808,6 +833,19 @@ export default function AIChatScreen() {
               style={[StyleSheet.absoluteFill]}
               onPress={() => setShowMoreInputBox(false)}
             />}
+
+          {
+            orbUIState !== "hidden" &&
+            <View className='absolute right-0 left-0 items-center' style={[{ bottom: insets.bottom + 10 }]}>
+
+              <Orb state={orbUIState} />
+            </View>
+          }
+          
+
+          <OrbContainer state={orbUIState} />
+
+
 
         </View>
 

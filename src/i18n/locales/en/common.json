@@ -59,7 +59,9 @@
     "imageAnalysisFailed": "Image Analysis Failed",
     "couldNotAnalyze": "Could not analyze the image.",
     "chooseOption": "Choose an option",
-    "imageAnalysis": "Image Analysis"
+    "imageAnalysis": "Image Analysis",
+    "voiceChatTokenFailed": "Failed to Start Voice Chat.",
+    "voiceChatNotAvailable": "Voice Chat is not available at the moment. Please try again later."
   },
   "settings": {
     "title": "Settings",

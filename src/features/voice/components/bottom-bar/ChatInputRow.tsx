@@ -17,6 +17,7 @@ interface ChatInputRowProps {
   inputText: string;
   onTextChange: (text: string) => void;
   onSendPress: () => void;
+  onOrbPress: () => void;
 }
 
 export default function ChatInputRow({
@@ -25,6 +26,7 @@ export default function ChatInputRow({
   inputText,
   onTextChange,
   onSendPress,
+  onOrbPress,
 }: ChatInputRowProps) {
   const { t } = useTranslation("common");
   const c = Colors.light;
@@ -83,7 +85,7 @@ export default function ChatInputRow({
               color={inputText.length > 0 && !isGenerating ? "#FFFFFF" : c.textMuted}
             />
             :
-            <AudioLines color={"#FFFFFF"} />
+            <AudioLines onPress={onOrbPress} color={"#FFFFFF"} />
           }
         </TouchableOpacity>
 
