@@ -1,27 +1,57 @@
-import { ActivityIndicator, View } from "react-native";
+import { LiveKitRoom } from "@livekit/react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { VoiceState } from "../types/voice.types";
-import Orb from "./Orb";
+import { GenerateTokenData, VoiceState } from "../types/voice.types";
+import VoiceOrb from "./orb/VoiceOrb";
+
 
 type props = {
     state: VoiceState;
+    session: GenerateTokenData | null;
+    onConnected: () => void;
 }
 
-const OrbContainer = ({ state }: props) => {
-
+const OrbContainer = ({ state, session, onConnected }: props) => {
     const insets = useSafeAreaInsets();
 
-    if (state === "hidden") {
-        return (<View className='absolute right-0 left-0 items-center bg-red-300' style={[{ bottom: insets.bottom }]}>
-            <ActivityIndicator />
-        </View>
+    if (state === "hidden" && !session) {
+        return null;
+    }
+
+    if (state === "loading") {
+        return (
+            <View className='absolute right-0 left-0 items-center bg-red-300' style={[{ bottom: insets.bottom + 56 }]}>
+                <ActivityIndicator size="small" />
+                <Text>I am opening</Text>
+            </View>
         )
     }
 
+    // const room = useRoomContext();
+
+    // room.on(RoomEvent.ConnectionStateChanged, (state) => {
+    //     console.log("Connection state:", state);
+
+    //     if (state === ConnectionState.Connected) {
+    //         onConnected();
+    //     }
+    // })
+
     return (
-        <View className='absolute right-0 left-0 items-center' style={[{ bottom: insets.bottom + 10 }]}>
-            <Orb state='listening' />
-        </View>
+        <LiveKitRoom
+            serverUrl={session?.livekitUrl}
+            token={session?.token}
+            connect={true}
+            audio={true}
+            onConnected={() => {
+                console.log("Connected to LiveKit room");
+                onConnected()
+            }}
+        >
+            <View className='absolute right-0 left-0 items-center' style={[{ bottom: insets.bottom + 52 }]}>
+                <VoiceOrb state='connected' />
+            </View>
+        </LiveKitRoom>
     )
 }
 

@@ -2,10 +2,8 @@ import { MessageBubble } from '@/components';
 import Logo from '@/components/logo';
 import { Colors } from '@/constants/theme';
 import ChatBottomBar from '@/features/voice/components/bottom-bar/ChatBottomBar';
-import Orb from '@/features/voice/components/Orb';
 import OrbContainer from '@/features/voice/components/OrbContainer';
 import useVoiceChat from '@/features/voice/hooks/useVoiceChat';
-import { VoiceState } from '@/features/voice/types/voice.types';
 import { ImagePickerService } from '@/services/camera.service';
 import * as crypto from 'expo-crypto';
 import { Image } from 'expo-image';
@@ -49,7 +47,7 @@ export default function AIChatScreen() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showMoreInputBox, setShowMoreInputBox] = useState<boolean>(false);
   const { activeChatIdState, setActiveChatId } = useChatStore();
-  const [orbUIState, setOrbUIState] = useState<VoiceState>("hidden");
+
 
   const typingTimerRef = useRef<any>(null);
 
@@ -58,16 +56,13 @@ export default function AIChatScreen() {
 
   const router = useRouter();
 
-  const { generateTokenMutation } = useVoiceChat();
-
+  const { startSession, voiceState, setVoiceState, sessionData } = useVoiceChat();
 
   const handleOrbPress = async () => {
+    if (sessionData) return; // already connected, no need to generate token again
     if (isGenerating) return;
     try {
-      setOrbUIState("loading");
-      const session = await generateTokenMutation.mutateAsync();
-      console.log('Voice chat token generated:', session);
-
+      await startSession();
     }
     catch (error) {
       console.log('Error generating voice chat token:', error);
@@ -834,18 +829,11 @@ export default function AIChatScreen() {
               onPress={() => setShowMoreInputBox(false)}
             />}
 
-          {
-            orbUIState !== "hidden" &&
-            <View className='absolute right-0 left-0 items-center' style={[{ bottom: insets.bottom + 10 }]}>
-
-              <Orb state={orbUIState} />
-            </View>
-          }
-          
-
-          <OrbContainer state={orbUIState} />
-
-
+          <OrbContainer
+            state={voiceState}
+            session={sessionData}
+            onConnected={() => setVoiceState("connected")}
+          />
 
         </View>
 

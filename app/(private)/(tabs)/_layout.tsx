@@ -3,7 +3,7 @@ import TabAvatar from '@/components/TabAvatar';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Tabs } from 'expo-router';
-import { Bot, House, Newspaper } from 'lucide-react-native';
+import { House, Newspaper } from 'lucide-react-native';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -35,13 +35,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Newspaper size={28}  color={color} />,
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="ai-chat"
         options={{
           title: t('tabs.aiChat'),
           tabBarIcon: ({ color }) => <Bot size={32} color={color} />,
         }}
-      />
+      /> */}
       <Tabs.Screen
         name="profile"
         options={{
