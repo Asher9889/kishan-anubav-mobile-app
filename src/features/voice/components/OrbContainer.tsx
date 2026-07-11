@@ -2,6 +2,7 @@ import { LiveKitRoom } from "@livekit/react-native";
 import { ActivityIndicator, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GenerateTokenData, VoiceState } from "../types/voice.types";
+import MicDebug from "./orb/MicDebug";
 import VoiceOrb from "./orb/VoiceOrb";
 
 
@@ -48,6 +49,7 @@ const OrbContainer = ({ state, session, onConnected }: props) => {
                 onConnected()
             }}
         >
+             <MicDebug />
             <View className='absolute right-0 left-0 items-center' style={[{ bottom: insets.bottom + 52 }]}>
                 <VoiceOrb state='connected' />
             </View>

@@ -49,6 +49,82 @@ float fbm(float2 p){
     return value;
 }
 
+half4 main(float2 fragCoord) {
+
+    float2 uv = fragCoord / resolution;
+
+    uv -= .5;
+
+    float r = length(uv);
+
+    float mask = smoothstep(.52,.45,r);
+
+    float2 warp = uv;
+
+    warp.x +=
+        fbm(
+            uv*4.0
+            + float2(time*.18,0.0)
+        )*.18;
+
+    warp.y +=
+        fbm(
+            uv*4.0
+            + float2(0.0,time*.15)
+        )*.18;
+
+    float n =
+        fbm(
+            warp*3.5
+            + time*.25
+        );
+
+    float3 blue =
+        float3(.15,.62,1.0);
+
+    float3 purple =
+        float3(.55,.25,1.0);
+
+    float3 cyan =
+        float3(.18,.95,.92);
+
+    float t =
+        .5
+        + .5*sin(
+            n*8.0
+            + time*.8
+        );
+
+    float3 color =
+        mix(
+            blue,
+            purple,
+            t
+        );
+
+    color =
+        mix(
+            color,
+            cyan,
+            smoothstep(.4,.9,n)
+        );
+
+    color *= 1.4;
+
+    color *= mask;
+
+    return half4(
+        color,
+        mask
+    );
+
+}
+`)!;
+
+
+
+/**
+ * 
 half4 main(float2 fragCoord){
 
     float2 uv = fragCoord / resolution;
@@ -124,4 +200,4 @@ half4 main(float2 fragCoord){
         glow
     );
 }
-`)!;
+ */
