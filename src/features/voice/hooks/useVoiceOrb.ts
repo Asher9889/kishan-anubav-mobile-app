@@ -2,8 +2,6 @@ import { useEffect } from "react";
 import {
   Easing,
   useSharedValue,
-  withRepeat,
-  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import { VoiceState } from "../types/voice.types";
@@ -14,53 +12,61 @@ export default function useVoiceOrb(state: VoiceState) {
   const glow = useSharedValue(0.35);
 
   useEffect(() => {
-    let pulseDuration = 1800;
-    let maxScale = 1.03;
     let glowValue = 0.35;
+    let rotationDuration = 10000;
+    let enableRotation = true;
 
     switch (state) {
+      case "idle":
+      case "hidden":
+        glowValue = 0.25;
+        rotationDuration = 20000;
+        break;
+
+      case "connecting":
       case "loading":
-        pulseDuration = 700;
-        maxScale = 1.08;
         glowValue = 0.6;
+        rotationDuration = 6000;
+        break;
+
+      case "listening":
+        glowValue = 0.55;
+        rotationDuration = 12000;
         break;
 
       case "thinking":
-        pulseDuration = 1200;
-        maxScale = 1.05;
-        glowValue = 0.55;
+        glowValue = 0.5;
+        rotationDuration = 15000;
         break;
 
       case "speaking":
-        pulseDuration = 260;
-        maxScale = 1.12;
         glowValue = 0.75;
+        rotationDuration = 8000;
+        break;
+
+      case "connected":
+        glowValue = 0.35;
+        rotationDuration = 10000;
+        break;
+
+      case "disconnected":
+        glowValue = 0.2;
+        enableRotation = false;
         break;
     }
 
-    scale.value = withRepeat(
-      withSequence(
-        withTiming(maxScale, {
-          duration: pulseDuration,
-          easing: Easing.inOut(Easing.ease),
-        }),
-        withTiming(1, {
-          duration: pulseDuration,
-          easing: Easing.inOut(Easing.ease),
-        })
-      ),
-      -1
-    );
+    scale.value = withTiming(1, { duration: 300, easing: Easing.out(Easing.ease) });
 
-    glow.value = withTiming(glowValue);
+    glow.value = withTiming(glowValue, { duration: 300 });
 
-    rotation.value = withRepeat(
-      withTiming(360, {
-        duration: 10000,
+    if (enableRotation) {
+      rotation.value = withTiming(360, {
+        duration: rotationDuration,
         easing: Easing.linear,
-      }),
-      -1
-    );
+      });
+    } else {
+      rotation.value = withTiming(0, { duration: 500 });
+    }
   }, [state]);
 
   return {

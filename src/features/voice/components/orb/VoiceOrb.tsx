@@ -14,7 +14,7 @@ type Props = {
 export default function VoiceOrb({
   state,
   size = 220,
-}:Props) {
+}: Props) {
   const animation = useVoiceOrb(state);
 
   const style = useAnimatedStyle(() => ({
@@ -27,7 +27,7 @@ export default function VoiceOrb({
 
   return (
     <Animated.View style={[style, { backgroundColor: 'transparent' }]}>
-      <OrbCanvas  />
+      <OrbCanvas state="speaking" />
     </Animated.View>
   );
 }
