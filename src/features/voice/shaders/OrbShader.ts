@@ -144,15 +144,15 @@ struct StateParams {
 
 StateParams getStateParams(int s) {
   StateParams p;
-  p.color1 = float3(0.14, 0.14, 0.17);
-  p.color2 = float3(0.10, 0.24, 0.38);
-  p.color3 = float3(0.14, 0.14, 0.17);
+  p.color1 = float3(0.30, 0.30, 0.35);
+  p.color2 = float3(0.20, 0.30, 0.40);
+  p.color3 = float3(0.30, 0.30, 0.35);
   p.flowSpeed = 1.0;
-  p.flowIntensity = 0.15;
-  p.brightness = 0.50;
-  p.pulseAmount = 0.0;
+  p.flowIntensity = 0.25;
+  p.brightness = 0.60;
+  p.pulseAmount = 0.05;
   p.pulseSpeed = 1.0;
-  p.glowIntensity = 0.15;
+  p.glowIntensity = 0.20;
 
   if (s == 0) {
     p.color1 = float3(0.18, 0.65, 1.00);
@@ -194,6 +194,36 @@ StateParams getStateParams(int s) {
     p.pulseAmount = 0.20;
     p.pulseSpeed = 3.00;
     p.glowIntensity = 0.45;
+  } else if (s == 4) {
+    p.color1 = float3(0.06, 0.06, 0.08);
+    p.color2 = float3(0.04, 0.04, 0.06);
+    p.color3 = float3(0.06, 0.06, 0.08);
+    p.flowSpeed = 0.50;
+    p.flowIntensity = 0.10;
+    p.brightness = 0.15;
+    p.pulseAmount = 0.0;
+    p.pulseSpeed = 0.50;
+    p.glowIntensity = 0.05;
+  } else if (s == 5) {
+    p.color1 = float3(0.90, 0.70, 0.20);
+    p.color2 = float3(0.95, 0.50, 0.10);
+    p.color3 = float3(1.00, 0.85, 0.30);
+    p.flowSpeed = 1.80;
+    p.flowIntensity = 0.75;
+    p.brightness = 0.90;
+    p.pulseAmount = 0.25;
+    p.pulseSpeed = 2.50;
+    p.glowIntensity = 0.40;
+  } else if (s == 6) {
+    p.color1 = float3(0.10, 0.75, 0.55);
+    p.color2 = float3(0.20, 0.90, 0.70);
+    p.color3 = float3(0.60, 1.00, 0.85);
+    p.flowSpeed = 0.90;
+    p.flowIntensity = 0.50;
+    p.brightness = 0.85;
+    p.pulseAmount = 0.05;
+    p.pulseSpeed = 0.60;
+    p.glowIntensity = 0.25;
   }
 
   return p;
