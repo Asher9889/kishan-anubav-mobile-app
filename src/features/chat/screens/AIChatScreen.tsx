@@ -58,7 +58,7 @@ export default function AIChatScreen() {
 
   const router = useRouter();
 
-  const { startSession, voiceState, setVoiceState, sessionData } = useVoiceChat();
+  const { startSession, stopSession, voiceState, setVoiceState, sessionData } = useVoiceChat();
 
   const handleOrbPress = async () => {
     if (sessionData) return; // already connected, no need to generate token again
@@ -70,6 +70,10 @@ export default function AIChatScreen() {
       console.log('Error generating voice chat token:', error);
       Alert.alert(t('chat.voiceChatTokenFailed'), t('chat.voiceChatNotAvailable'));
     }
+  }
+
+  const handleCloseSession = () => {
+    stopSession();
   }
 
   useEffect(() => {
@@ -804,7 +808,7 @@ export default function AIChatScreen() {
           />
 
           <ChatBottomBar
-            state={sessionData ? true: false}
+            state={sessionData ? true : false}
             composerMode={composerMode}
             onOpenMoreInputBox={() => setShowMoreInputBox(true)}
             isGenerating={isGenerating}
@@ -814,6 +818,7 @@ export default function AIChatScreen() {
             onAudioComplete={handleAudioComplete}
             onCloseAudio={closeAudioComposer}
             onOrbPress={handleOrbPress}
+            onCloseSession={handleCloseSession}
           />
 
           <ChatInputMoreItems
@@ -829,18 +834,19 @@ export default function AIChatScreen() {
             <Pressable
               style={[StyleSheet.absoluteFill]}
               onPress={() => setShowMoreInputBox(false)}
-            />}
+            />
+          }
 
-          <OrbContainer
+          {sessionData && <OrbContainer
             state={voiceState}
             session={sessionData}
-            onConnected={() => {
+            onConnected={() => { 
               setVoiceState("connected")
               soundService.play("connected");
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
             }
-          />
+          />}
 
         </View>
 

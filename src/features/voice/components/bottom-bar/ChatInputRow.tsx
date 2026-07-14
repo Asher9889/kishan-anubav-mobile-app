@@ -19,6 +19,7 @@ interface ChatInputRowProps {
   onTextChange: (text: string) => void;
   onSendPress: () => void;
   onOrbPress: () => void;
+  onCloseSession: () => void;
 }
 
 export default function ChatInputRow({
@@ -29,6 +30,7 @@ export default function ChatInputRow({
   onTextChange,
   onSendPress,
   onOrbPress,
+  onCloseSession,
 }: ChatInputRowProps) {
   const { t } = useTranslation("common");
   const c = Colors.light;
@@ -91,7 +93,7 @@ export default function ChatInputRow({
             <X
               size={20}
               color="#FFFFFF"
-              onPress={() => {}}
+              onPress={onCloseSession}
             />
           ) : (
             <AudioLines

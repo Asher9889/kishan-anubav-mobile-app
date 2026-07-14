@@ -16,6 +16,7 @@ interface ChatBottomBarProps {
   onAudioComplete: (audioUri: string) => void;
   onCloseAudio: () => void;
   onOrbPress: () => void;
+  onCloseSession: () => void;
 }
 
 export default function ChatBottomBar({
@@ -29,6 +30,7 @@ export default function ChatBottomBar({
   onAudioComplete,
   onCloseAudio,
   onOrbPress,
+  onCloseSession,
 }: ChatBottomBarProps) {
   return (
     <View style={styles.bottomBar}>
@@ -46,6 +48,7 @@ export default function ChatBottomBar({
           onTextChange={onTextChange}
           onSendPress={onSendText}
           onOrbPress={onOrbPress}
+          onCloseSession={onCloseSession}
         />
       )}
     </View>

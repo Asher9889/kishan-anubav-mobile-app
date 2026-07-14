@@ -15,10 +15,12 @@ type props = {
 const OrbContainer = ({ state, session, onConnected }: props) => {
     const insets = useSafeAreaInsets();
     
+    if (!session) return null;
+
     return (
         <LiveKitRoom
-            serverUrl={session?.livekitUrl}
-            token={session?.token}
+            serverUrl={session.livekitUrl}
+            token={session.token}
             connect={true}
             audio={true}
             onConnected={() => {

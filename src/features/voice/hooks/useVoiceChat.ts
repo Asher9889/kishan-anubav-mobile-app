@@ -23,8 +23,14 @@ const useVoiceChat = () => {
         setVoiceState("connecting");
     }
 
+    const stopSession = () => {
+        setSessionData(null);
+        setVoiceState("hidden");
+    }
+
     return {
         startSession,
+        stopSession,
         voiceState,
         setVoiceState,
         sessionData,

@@ -14,8 +14,9 @@ class SoundService {
 
   play(name: string) {
     const player = this.players.get(name);
-
+    
     if (!player) return;
+    player.volume = 1.0;
 
     player.seekTo(0);
     player.play();
