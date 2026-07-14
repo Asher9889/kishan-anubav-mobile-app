@@ -4,8 +4,10 @@ import { Colors } from '@/constants/theme';
 import ChatBottomBar from '@/features/voice/components/bottom-bar/ChatBottomBar';
 import OrbContainer from '@/features/voice/components/OrbContainer';
 import useVoiceChat from '@/features/voice/hooks/useVoiceChat';
+import { soundService } from '@/services';
 import { ImagePickerService } from '@/services/camera.service';
 import * as crypto from 'expo-crypto';
+import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -697,7 +699,6 @@ export default function AIChatScreen() {
 
   const handleMoreInputBox = () => {
     const change = !showMoreInputBox;
-    console.log("chnage is", change);
     setShowMoreInputBox(change);
   }
 
@@ -803,6 +804,7 @@ export default function AIChatScreen() {
           />
 
           <ChatBottomBar
+            state={sessionData ? true: false}
             composerMode={composerMode}
             onOpenMoreInputBox={() => setShowMoreInputBox(true)}
             isGenerating={isGenerating}
@@ -832,7 +834,12 @@ export default function AIChatScreen() {
           <OrbContainer
             state={voiceState}
             session={sessionData}
-            onConnected={() => setVoiceState("connected")}
+            onConnected={() => {
+              setVoiceState("connected")
+              soundService.play("connected");
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            }
+            }
           />
 
         </View>

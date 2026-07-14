@@ -5,6 +5,8 @@ export const orbShader = Skia.RuntimeEffect.Make(`
 uniform float2 resolution;
 uniform float time;
 uniform int state;
+uniform int prevState;
+uniform float transition;
 
 const float PI = 3.14159265359;
 
@@ -229,6 +231,20 @@ StateParams getStateParams(int s) {
   return p;
 }
 
+StateParams blendStateParams(StateParams a, StateParams b, float t) {
+  StateParams r;
+  r.color1 = mix(a.color1, b.color1, t);
+  r.color2 = mix(a.color2, b.color2, t);
+  r.color3 = mix(a.color3, b.color3, t);
+  r.flowSpeed = mix(a.flowSpeed, b.flowSpeed, t);
+  r.flowIntensity = mix(a.flowIntensity, b.flowIntensity, t);
+  r.brightness = mix(a.brightness, b.brightness, t);
+  r.pulseAmount = mix(a.pulseAmount, b.pulseAmount, t);
+  r.pulseSpeed = mix(a.pulseSpeed, b.pulseSpeed, t);
+  r.glowIntensity = mix(a.glowIntensity, b.glowIntensity, t);
+  return r;
+}
+
 float3 applyPalette(float t, StateParams p) {
   float t1 = min(t * 2.0, 1.0);
   float t2 = max(t * 2.0 - 1.0, 0.0);
@@ -255,8 +271,10 @@ half4 main(float2 fragCoord) {
   // 3. Perfect Circle Mask
   float mask = circleMask(radius);
 
-  // 4. State Parameters
-  StateParams params = getStateParams(state);
+  // 4. State Parameters (blended between previous and current)
+  StateParams prevParams = getStateParams(prevState);
+  StateParams nextParams = getStateParams(state);
+  StateParams params = blendStateParams(prevParams, nextParams, transition);
 
   // 5. Flow Field - Domain Warp
   float2 flowUV = domainWarp(uv, time * params.flowSpeed);

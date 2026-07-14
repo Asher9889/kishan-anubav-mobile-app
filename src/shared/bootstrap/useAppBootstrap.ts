@@ -1,5 +1,6 @@
 import migrations from '@/drizzle/migrations';
 import { useAuthStore } from '@/features/auth/store/auth.store';
+import { soundService } from '@/services';
 import db from '@/shared/db/sqlite';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import * as SecureStore from 'expo-secure-store';
@@ -18,6 +19,7 @@ const useAppBootstrap = () => {
             try {
             // 1. boot strapping true
             setBootstrapping(true);
+            await soundService.load();
             //2. getting refresh Token
             const refreshToken = await SecureStore.getItemAsync("refreshToken");
             // 3. if not exits call logout

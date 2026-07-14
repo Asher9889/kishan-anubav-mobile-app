@@ -1,5 +1,5 @@
 import { Canvas, Fill, Shader } from "@shopify/react-native-skia";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { orbShader } from "../../shaders/OrbShader";
 import { VoiceState } from "../../types/voice.types";
@@ -20,8 +20,25 @@ const stateMap: Record<VoiceState, number> = {
   connecting: 5,
 };
 
+const TRANSITION_DURATION = 500;
+
 export default function OrbCanvas({ state }: Props) {
   const [time, setTime] = useState(0);
+  const [transition, setTransition] = useState(1);
+  const prevStateRef = useRef(state);
+  const transitionStartRef = useRef(0);
+
+  // Track previous state (runs after each render, so prevStateRef holds old value during next render)
+  useEffect(() => {
+    prevStateRef.current = state;
+  });
+
+  // Start transition when state changes
+  const stateValue = stateMap[state] ?? 0;
+  useEffect(() => {
+    transitionStartRef.current = performance.now();
+    setTransition(0);
+  }, [stateValue]);
 
   useEffect(() => {
     let frameId: number;
@@ -29,6 +46,10 @@ export default function OrbCanvas({ state }: Props) {
 
     const animate = (now: number) => {
       setTime((now - start) / 1000);
+
+      const elapsed = now - transitionStartRef.current;
+      setTransition(Math.min(elapsed / TRANSITION_DURATION, 1));
+
       frameId = requestAnimationFrame(animate);
     };
 
@@ -37,7 +58,7 @@ export default function OrbCanvas({ state }: Props) {
     return () => cancelAnimationFrame(frameId);
   }, []);
 
-  const stateValue = stateMap[state] ?? 0;
+  const prevStateValue = stateMap[prevStateRef.current] ?? 0;
 
   return (
     <Canvas
@@ -53,6 +74,8 @@ export default function OrbCanvas({ state }: Props) {
             resolution: [240, 240],
             time,
             state: stateValue,
+            prevState: prevStateValue,
+            transition,
           }}
         />
       </Fill>

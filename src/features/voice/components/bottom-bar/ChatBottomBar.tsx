@@ -6,6 +6,7 @@ import ChatAudioRecorder from "@/features/chat/components/audio-recorder/ChatAud
 import ChatInputRow from "./ChatInputRow";
 
 interface ChatBottomBarProps {
+  state: boolean;
   composerMode: "text" | "audio";
   onOpenMoreInputBox: () => void
   isGenerating: boolean;
@@ -18,6 +19,7 @@ interface ChatBottomBarProps {
 }
 
 export default function ChatBottomBar({
+  state,
   composerMode,
   onOpenMoreInputBox,
   isGenerating,
@@ -37,6 +39,7 @@ export default function ChatBottomBar({
         />
       ) : (
         <ChatInputRow
+          state={state}
           onOpenMoreInputBox={onOpenMoreInputBox}
           isGenerating={isGenerating}
           inputText={inputText}

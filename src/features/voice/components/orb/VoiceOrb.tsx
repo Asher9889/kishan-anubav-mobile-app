@@ -27,7 +27,7 @@ export default function VoiceOrb({
 
   return (
     <Animated.View style={[style, { backgroundColor: 'transparent' }]}>
-      <OrbCanvas state="listening" />
+      <OrbCanvas state="speaking" />
     </Animated.View>
   );
 }

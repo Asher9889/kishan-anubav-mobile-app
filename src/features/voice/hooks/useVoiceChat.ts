@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
+import * as Haptics from 'expo-haptics';
 import { useState } from "react";
 import { generateLivekitToken } from "../api/voice.api";
 import { GenerateTokenData, VoiceState } from "../types/voice.types";
-
 
 const useVoiceChat = () => {
     const [voiceState, setVoiceState] = useState<VoiceState>("hidden");
@@ -14,6 +14,7 @@ const useVoiceChat = () => {
 
 
     const startSession = async () => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
         setVoiceState("loading")
         const token = await generateTokenMutation.mutateAsync();
         const session = token.data;

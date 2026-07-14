@@ -1,4 +1,4 @@
-import { AudioLines, Plus, Send } from "lucide-react-native";
+import { AudioLines, Plus, Send, X } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -12,6 +12,7 @@ import {
 import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
 
 interface ChatInputRowProps {
+  state: boolean;
   onOpenMoreInputBox: () => void;
   isGenerating: boolean;
   inputText: string;
@@ -21,6 +22,7 @@ interface ChatInputRowProps {
 }
 
 export default function ChatInputRow({
+  state,
   onOpenMoreInputBox,
   isGenerating,
   inputText,
@@ -31,7 +33,7 @@ export default function ChatInputRow({
   const { t } = useTranslation("common");
   const c = Colors.light;
   const [inputFocused, setInputFocused] = useState(false);
-  
+
   return (
     <View style={styles.inputRow}>
       <View
@@ -80,20 +82,30 @@ export default function ChatInputRow({
         >
 
 
-          {inputText.length > 0 ?
-            <Send size={20}
-              color={inputText.length > 0 && !isGenerating ? "#FFFFFF" : c.textMuted}
+          {inputText.length > 0 ? (
+            <Send
+              size={20}
+              color={!isGenerating ? "#FFFFFF" : c.textMuted}
             />
-            :
-            <AudioLines onPress={onOrbPress} color={"#FFFFFF"} />
-          }
+          ) : state ? (
+            <X
+              size={20}
+              color="#FFFFFF"
+              onPress={() => {}}
+            />
+          ) : (
+            <AudioLines
+              color="#FFFFFF"
+              onPress={onOrbPress}
+            />
+          )}
         </TouchableOpacity>
 
       </View>
 
 
 
-     
+
 
     </View>
   );

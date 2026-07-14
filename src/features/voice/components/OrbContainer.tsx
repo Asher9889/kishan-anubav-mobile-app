@@ -14,19 +14,6 @@ type props = {
 
 const OrbContainer = ({ state, session, onConnected }: props) => {
     const insets = useSafeAreaInsets();
-
-    // if (state === "hidden" && !session) {
-    //     return null;
-    // }
-
-    // if (state === "loading") {
-    //     return (
-    //         <View className='absolute right-0 left-0 items-center bg-red-300' style={[{ bottom: insets.bottom + 56 }]}>
-    //             <ActivityIndicator size="small" />
-    //             <Text>I am opening</Text>
-    //         </View>
-    //     )
-    // }
     
     return (
         <LiveKitRoom
