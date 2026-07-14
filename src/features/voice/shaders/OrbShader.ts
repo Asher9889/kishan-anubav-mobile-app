@@ -67,7 +67,7 @@ float2 domainWarp(float2 uv, float t) {
 //==============================================================================
 
 float circleMask(float radius) {
-  return 1.0 - smoothstep(0.48, 0.50, radius);
+  return 1.0 - smoothstep(0.48, 0.485, radius);
 }
 
 //==============================================================================
@@ -76,7 +76,7 @@ float circleMask(float radius) {
 
 float sphereShading(float radius) {
   float light = 1.0 - smoothstep(0.0, 0.50, radius);
-  return pow(light, 1.45);
+  return mix(0.25, 1.0, pow(light, 1.45));
 }
 
 float coreBloom(float radius) {
@@ -85,7 +85,7 @@ float coreBloom(float radius) {
 
 float rimLight(float radius) {
   float rim = smoothstep(0.36, 0.48, radius);
-  rim *= 1.0 - smoothstep(0.48, 0.52, radius);
+  rim *= 1.0 - smoothstep(0.48, 0.485, radius);
   return rim;
 }
 
@@ -287,19 +287,15 @@ half4 main(float2 fragCoord) {
 
   // 13. Rim Light
   float rim = rimLight(radius);
-  color += color * rim * 0.15;
+  color += float3(1.0) * rim * 0.15;
 
   // 14. Specular Highlight
   float spec = specularHighlight(uv);
   color += float3(1.0) * spec * 0.22;
 
-  // 15. Outer Glow
-  float glow = outerGlow(radius);
-  float3 glowColor = paletteColor * 0.2 + float3(1.0) * 0.6;
-
   // 16. Final RGBA
-  float finalAlpha = max(mask, glow * params.glowIntensity * 0.60);
-  float3 finalColor = color * mask + glowColor * glow * params.glowIntensity * 0.60;
+  float finalAlpha = mask;
+  float3 finalColor = color * mask;
 
   return half4(finalColor, finalAlpha);
 }
