@@ -76,7 +76,7 @@ float circleMask(float radius) {
 
 float sphereShading(float radius) {
   float light = 1.0 - smoothstep(0.0, 0.50, radius);
-  return mix(0.25, 1.0, pow(light, 1.45));
+  return mix(0.65, 1.0, pow(light, 0.80));
 }
 
 float coreBloom(float radius) {
@@ -246,6 +246,7 @@ half4 main(float2 fragCoord) {
   float2 uv = fragCoord / resolution;
   uv -= 0.5;
   uv.x *= resolution.x / resolution.y;
+  uv *= 1.25;
 
   // 2. Geometry
   float radius = length(uv);
@@ -277,9 +278,10 @@ half4 main(float2 fragCoord) {
   // 10. Sphere Lighting
   color *= sphereShading(radius);
 
-  // 11. Breathing Pulse
-  float pulse = 1.0 + params.pulseAmount * sin(time * params.pulseSpeed);
-  color *= pulse * params.brightness;
+  // 11. Breathing Pulse (only brightens, never dims)
+  float pulse = max(0.0, params.pulseAmount * sin(time * params.pulseSpeed));
+  color *= params.brightness;
+  color += color * pulse;
 
   // 12. Core Bloom
   float bloom = coreBloom(radius);
@@ -287,11 +289,11 @@ half4 main(float2 fragCoord) {
 
   // 13. Rim Light
   float rim = rimLight(radius);
-  color += float3(1.0) * rim * 0.15;
+  color += float3(1.0, 0.85, 0.55) * rim * 0.15;
 
   // 14. Specular Highlight
   float spec = specularHighlight(uv);
-  color += float3(1.0) * spec * 0.22;
+  color += float3(1.0, 0.85, 0.55) * spec * 0.22;
 
   // 16. Final RGBA
   float finalAlpha = mask;
