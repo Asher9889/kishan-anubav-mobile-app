@@ -275,9 +275,6 @@ half4 main(float2 fragCoord) {
   float3 paletteColor = applyPalette(gradPos, params);
   float3 color = paletteColor;
 
-  // 10. Sphere Lighting
-  color *= sphereShading(radius);
-
   // 11. Breathing Pulse (only brightens, never dims)
   float pulse = max(0.0, params.pulseAmount * sin(time * params.pulseSpeed));
   color *= params.brightness;
