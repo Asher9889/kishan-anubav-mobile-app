@@ -1,188 +1,277 @@
 import { Skia } from "@shopify/react-native-skia";
 
 export const orbShader = Skia.RuntimeEffect.Make(`
+
 uniform float2 resolution;
 uniform float time;
 uniform int state;
 
 const float PI = 3.14159265359;
 
-float hash(float2 p){
-    return fract(
-        sin(dot(p, float2(127.1, 311.7)))
-        * 43758.5453123
-    );
+//==============================================================================
+// Math Utilities
+//==============================================================================
+
+float hash(float2 p) {
+  return fract(sin(dot(p, float2(127.1, 311.7))) * 43758.5453123);
 }
 
-float noise(float2 p){
-    float2 i = floor(p);
-    float2 f = fract(p);
+float noise(float2 p) {
+  float2 i = floor(p);
+  float2 f = fract(p);
+  float2 u = f * f * (3.0 - 2.0 * f);
 
-    float a = hash(i);
-    float b = hash(i + float2(1.0, 0.0));
-    float c = hash(i + float2(0.0, 1.0));
-    float d = hash(i + float2(1.0, 1.0));
+  float a = hash(i);
+  float b = hash(i + float2(1.0, 0.0));
+  float c = hash(i + float2(0.0, 1.0));
+  float d = hash(i + float2(1.0, 1.0));
 
-    float2 u = f * f * (3.0 - 2.0 * f);
-
-    return mix(
-        mix(a, b, u.x),
-        mix(c, d, u.x),
-        u.y
-    );
+  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
 }
 
-float fbm(float2 p){
-    float value = 0.0;
-    float amplitude = 0.5;
-
-    for(int i = 0; i < 6; i++){
-        value += amplitude * noise(p);
-        p *= 2.0;
-        amplitude *= 0.5;
-    }
-    return value;
+float fbm(float2 p) {
+  float v = 0.0;
+  float a = 0.5;
+  for (int i = 0; i < 4; i++) {
+    v += a * noise(p);
+    p *= 2.0;
+    a *= 0.5;
+  }
+  return v;
 }
 
-float circleMask(float2 uv, float radius, float feather){
-    float dist = length(uv);
-    return smoothstep(radius - feather, radius + feather, dist);
+//==============================================================================
+// Domain Warp - Multi-Scale Flow Field
+//==============================================================================
+
+float2 domainWarp(float2 uv, float t) {
+  float2 p = uv;
+
+  // Stage 1: Large slow currents
+  float f1 = fbm(p * 0.8 + float2(t * 0.04, t * 0.02));
+  p += 0.25 * float2(cos(f1 * 6.283), sin(f1 * 6.283));
+
+  // Stage 2: Medium currents
+  float f2 = fbm(p * 1.5 + float2(t * 0.06, -t * 0.03));
+  p += 0.12 * float2(sin(f2 * 6.283), cos(f2 * 6.283));
+
+  // Stage 3: Tiny turbulence
+  float f3 = fbm(p * 3.0 + float2(t * 0.10, t * 0.05));
+  p += 0.04 * float2(cos(f3 * 6.283), sin(f3 * 6.283));
+
+  return p;
 }
 
-float2 domainWarp(float2 p, float time){
-    float2 warp = float2(
-        fbm(p * 0.5 + float2(time * 0.07, time * 0.05)),
-        fbm(p * 0.5 + float2(time * 0.03, time * 0.09))
-    );
-    return p + warp * 0.15;
+//==============================================================================
+// Geometry - Perfect Circle
+//==============================================================================
+
+float circleMask(float radius) {
+  return 1.0 - smoothstep(0.48, 0.50, radius);
 }
 
-float3 getStateColors(int state, float angle, float noiseVal, float time, float radius, float mask){
-    float3 color = float3(0.0);
+//==============================================================================
+// Sphere Lighting
+//==============================================================================
 
-    if (state == 0) {
-        float3 blue = float3(0.12, 0.55, 1.00);
-        float3 purple = float3(0.48, 0.18, 0.95);
-        float3 cyan = float3(0.10, 0.85, 0.95);
-        
-        float mixVal = 0.5 + 0.5 * sin(angle * 1.5 + noiseVal * 4.0 + time * 0.25);
-        color = mix(blue, purple, mixVal);
-        color = mix(color, cyan, noiseVal * 0.2);
-        color *= 0.7 + 0.3 * sin(time * 0.5 + angle * 2.0);
-        
-    } else if (state == 1) {
-        float3 teal = float3(0.08, 0.75, 0.80);
-        float3 green = float3(0.15, 0.95, 0.45);
-        float3 white = float3(1.00, 1.00, 1.00);
-        
-        float pulse = sin(time * 2.5) * 0.5 + 0.5;
-        float mixVal = 0.5 + 0.5 * sin(angle * 3.0 + noiseVal * 8.0 + time * 1.2);
-        color = mix(teal, green, mixVal);
-        color = mix(color, white, pulse * 0.35);
-        color *= 0.8 + 0.2 * pulse;
-        
-    } else if (state == 2) {
-        float3 gold = float3(0.98, 0.70, 0.12);
-        float3 amber = float3(0.95, 0.50, 0.04);
-        float3 deepOrange = float3(0.90, 0.30, 0.03);
-        
-        float swirl = sin(angle * 4.0 + time * 0.7) * 0.5 + 0.5;
-        float mixVal = 0.5 + 0.5 * sin(angle * 2.5 + noiseVal * 5.0 + time * 0.45);
-        color = mix(gold, amber, mixVal);
-        color = mix(color, deepOrange, swirl * 0.35);
-        color *= 0.75 + 0.25 * swirl;
-        
-    } else if (state == 3) {
-        float3 hotPink = float3(0.98, 0.22, 0.60);
-        float3 magenta = float3(0.92, 0.08, 0.80);
-        float3 white = float3(1.00, 1.00, 1.00);
-        
-        float audioReact = abs(sin(time * 12.0)) * 0.5 + 0.5;
-        float mixVal = 0.5 + 0.5 * sin(angle * 4.0 + noiseVal * 12.0 + time * 2.5);
-        color = mix(hotPink, magenta, mixVal);
-        color = mix(color, white, audioReact * 0.45);
-        color *= 0.85 + 0.15 * audioReact;
-        
-    } else if (state == 4) {
-        float3 darkGray = float3(0.12, 0.12, 0.15);
-        float3 dimBlue = float3(0.08, 0.20, 0.35);
-        
-        float fade = max(0.0, 1.0 - time * 0.3);
-        float mixVal = 0.5 + 0.5 * sin(angle * 1.0 + time * 0.15);
-        color = mix(darkGray, dimBlue, mixVal * 0.25);
-        color *= 0.3 * fade;
-        
-    } else if (state == 5) {
-        float3 softBlue = float3(0.18, 0.60, 1.00);
-        float3 softPurple = float3(0.52, 0.22, 1.00);
-        float3 softCyan = float3(0.15, 0.85, 1.00);
-        
-        float mixVal = 0.5 + 0.5 * sin(angle * 1.5 + noiseVal * 4.0 + time * 0.3);
-        color = mix(softBlue, softPurple, mixVal);
-        color = mix(color, softCyan, noiseVal * 0.25);
-        color *= 0.7 + 0.3 * sin(time * 0.5 + angle * 2.0);
-        
-    } else if (state == 6) {
-        float3 connBlue = float3(0.20, 0.65, 1.00);
-        float3 connCyan = float3(0.15, 0.90, 1.00);
-        
-        float pulse = sin(time * 1.2) * 0.5 + 0.5;
-        color = mix(connBlue, connCyan, 0.5 + 0.5 * sin(angle * 2.0 + time * 0.4));
-        color *= 0.75 + 0.25 * pulse;
-    }
-
-    return color * mask;
+float sphereShading(float radius) {
+  float light = 1.0 - smoothstep(0.0, 0.50, radius);
+  return pow(light, 1.45);
 }
 
-float getCoreBloom(float radius, float mask){
-    float core = 1.0 - smoothstep(0.0, 0.35, radius);
-    return core * mask * 0.25;
+float coreBloom(float radius) {
+  return exp(-radius * 8.0);
 }
 
-float getRimLight(float radius, float mask, float time){
-    float rim = smoothstep(0.48, 0.52, radius) * (1.0 - smoothstep(0.52, 0.55, radius));
-    float pulse = 0.7 + 0.3 * sin(time * 1.5);
-    return rim * mask * pulse * 0.18;
+float rimLight(float radius) {
+  float rim = smoothstep(0.36, 0.48, radius);
+  rim *= 1.0 - smoothstep(0.48, 0.52, radius);
+  return rim;
 }
 
-float getOuterGlow(float radius, float mask, float time, int state){
-    float glowIntensity = 0.15;
-    if (state == 1) glowIntensity = 0.22;
-    else if (state == 3) glowIntensity = 0.28;
-    else if (state == 4) glowIntensity = 0.05;
-    
-    float glow = smoothstep(0.52, 0.58, radius) * mask;
-    float pulse = 0.8 + 0.2 * sin(time * 0.8);
-    return glow * pulse * glowIntensity;
+float specularHighlight(float2 uv) {
+  float2 lightPos = float2(-0.18, -0.18);
+  return exp(-length(uv - lightPos) * 18.0);
 }
 
-half4 main(float2 fragCoord){
-    float2 uv = fragCoord / resolution;
-    uv -= 0.5;
-    uv *= float2(1.0, resolution.y / resolution.x);
-    uv *= 2.0;
-
-    float radius = length(uv);
-    float angle = atan(uv.y, uv.x);
-
-    float maskRadius = 0.5;
-    float feather = 0.008;
-    float mask = 1.0 - circleMask(uv, maskRadius, feather);
-
-    float2 warpedUV = domainWarp(uv, time);
-    
-    float noiseVal = fbm(warpedUV * 2.5 + float2(time * 0.08, time * 0.06));
-    float noiseVal2 = fbm(warpedUV * 5.0 + float2(time * 0.04, time * 0.12));
-    float combinedNoise = noiseVal * 0.7 + noiseVal2 * 0.3;
-
-    float3 color = getStateColors(state, angle, combinedNoise, time, radius, mask);
-
-    color += getCoreBloom(radius, mask);
-    color += getRimLight(radius, mask, time);
-    color += getOuterGlow(radius, mask, time, state);
-
-    float alpha = mask;
-
-    return half4(color, alpha);
+float outerGlow(float radius) {
+  float d = max(radius - 0.42, 0.0);
+  return exp(-d * 10.0);
 }
-`)!;
+
+//==============================================================================
+// Color Gradient - Static in UV Space
+//==============================================================================
+
+float gradientSample(float2 uv) {
+  float r = length(uv);
+  float a = atan(uv.y, uv.x);
+
+  float g = 0.0;
+  g += sin(a * 1.0 + r * 2.5) * 0.35;
+  g += sin(a * 3.0 - r * 1.5 + 0.8) * 0.25;
+  g += sin(a * 5.0 + r * 4.0 + 1.2) * 0.15;
+  g += (1.0 - r * 1.2) * 0.25;
+  g = g * 0.5 + 0.5;
+
+  return g;
+}
+
+//==============================================================================
+// Micro Detail - High-Frequency Energy
+//==============================================================================
+
+float microDetail(float2 uv, float t) {
+  float2 p = uv * 4.0 + float2(t * 0.08, -t * 0.06);
+  return fbm(p);
+}
+
+//==============================================================================
+// State Parameters - Configuration Only, No Rendering
+//==============================================================================
+
+struct StateParams {
+  float3 color1;
+  float3 color2;
+  float3 color3;
+  float flowSpeed;
+  float flowIntensity;
+  float brightness;
+  float pulseAmount;
+  float pulseSpeed;
+  float glowIntensity;
+};
+
+StateParams getStateParams(int s) {
+  StateParams p;
+  p.color1 = float3(0.14, 0.14, 0.17);
+  p.color2 = float3(0.10, 0.24, 0.38);
+  p.color3 = float3(0.14, 0.14, 0.17);
+  p.flowSpeed = 1.0;
+  p.flowIntensity = 0.15;
+  p.brightness = 0.50;
+  p.pulseAmount = 0.0;
+  p.pulseSpeed = 1.0;
+  p.glowIntensity = 0.15;
+
+  if (s == 0) {
+    p.color1 = float3(0.18, 0.65, 1.00);
+    p.color2 = float3(0.52, 0.22, 1.00);
+    p.color3 = float3(0.15, 0.90, 1.00);
+    p.flowSpeed = 0.80;
+    p.flowIntensity = 0.70;
+    p.brightness = 0.90;
+    p.pulseAmount = 0.10;
+    p.pulseSpeed = 0.45;
+    p.glowIntensity = 0.30;
+  } else if (s == 1) {
+    p.color1 = float3(0.08, 0.82, 0.84);
+    p.color2 = float3(0.18, 1.00, 0.50);
+    p.color3 = float3(1.00, 1.00, 1.00);
+    p.flowSpeed = 1.20;
+    p.flowIntensity = 0.80;
+    p.brightness = 1.00;
+    p.pulseAmount = 0.15;
+    p.pulseSpeed = 1.80;
+    p.glowIntensity = 0.40;
+  } else if (s == 2) {
+    p.color1 = float3(1.00, 0.74, 0.18);
+    p.color2 = float3(1.00, 0.56, 0.05);
+    p.color3 = float3(0.95, 0.34, 0.05);
+    p.flowSpeed = 0.60;
+    p.flowIntensity = 0.60;
+    p.brightness = 0.95;
+    p.pulseAmount = 0.08;
+    p.pulseSpeed = 0.35;
+    p.glowIntensity = 0.35;
+  } else if (s == 3) {
+    p.color1 = float3(1.00, 0.25, 0.65);
+    p.color2 = float3(0.95, 0.10, 0.85);
+    p.color3 = float3(1.00, 1.00, 1.00);
+    p.flowSpeed = 1.50;
+    p.flowIntensity = 0.90;
+    p.brightness = 1.00;
+    p.pulseAmount = 0.20;
+    p.pulseSpeed = 3.00;
+    p.glowIntensity = 0.45;
+  }
+
+  return p;
+}
+
+float3 applyPalette(float t, StateParams p) {
+  float t1 = min(t * 2.0, 1.0);
+  float t2 = max(t * 2.0 - 1.0, 0.0);
+  float3 c = mix(p.color1, p.color2, t1);
+  c = mix(c, p.color3, t2);
+  return c;
+}
+
+//==============================================================================
+// Main - Rendering Pipeline
+//==============================================================================
+
+half4 main(float2 fragCoord) {
+  // 1. Normalize UV
+  float2 uv = fragCoord / resolution;
+  uv -= 0.5;
+  uv.x *= resolution.x / resolution.y;
+
+  // 2. Geometry
+  float radius = length(uv);
+  float angle = atan(uv.y, uv.x);
+
+  // 3. Perfect Circle Mask
+  float mask = circleMask(radius);
+
+  // 4. State Parameters
+  StateParams params = getStateParams(state);
+
+  // 5. Flow Field - Domain Warp
+  float2 flowUV = domainWarp(uv, time * params.flowSpeed);
+  flowUV = mix(uv, flowUV, params.flowIntensity);
+
+  // 6. Large Color Gradient
+  float gradPos = gradientSample(flowUV);
+
+  // 7. Gradient Advection (implicit - sampled at flowUV)
+
+  // 8. Micro Detail Layer
+  float detail = microDetail(uv, time);
+  gradPos += (detail - 0.5) * 0.12;
+
+  // 9. State Color Mapping
+  float3 paletteColor = applyPalette(gradPos, params);
+  float3 color = paletteColor;
+
+  // 10. Sphere Lighting
+  color *= sphereShading(radius);
+
+  // 11. Breathing Pulse
+  float pulse = 1.0 + params.pulseAmount * sin(time * params.pulseSpeed);
+  color *= pulse * params.brightness;
+
+  // 12. Core Bloom
+  float bloom = coreBloom(radius);
+  color += color * bloom * 0.28;
+
+  // 13. Rim Light
+  float rim = rimLight(radius);
+  color += color * rim * 0.15;
+
+  // 14. Specular Highlight
+  float spec = specularHighlight(uv);
+  color += float3(1.0) * spec * 0.22;
+
+  // 15. Outer Glow
+  float glow = outerGlow(radius);
+  float3 glowColor = paletteColor * 0.2 + float3(1.0) * 0.6;
+
+  // 16. Final RGBA
+  float finalAlpha = max(mask, glow * params.glowIntensity * 0.60);
+  float3 finalColor = color * mask + glowColor * glow * params.glowIntensity * 0.60;
+
+  return half4(finalColor, finalAlpha);
+}
+`);
+
