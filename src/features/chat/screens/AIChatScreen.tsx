@@ -837,16 +837,16 @@ export default function AIChatScreen() {
             />
           }
 
-          {sessionData && <OrbContainer
+          <OrbContainer
             state={voiceState}
             session={sessionData}
-            onConnected={() => { 
+            onConnected={() => {
               setVoiceState("connected")
               soundService.play("connected");
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
             }
-          />}
+          />
 
         </View>
 

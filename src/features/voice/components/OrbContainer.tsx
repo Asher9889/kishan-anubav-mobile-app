@@ -1,5 +1,5 @@
 import { LiveKitRoom } from "@livekit/react-native";
-import { View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GenerateTokenData, VoiceState } from "../types/voice.types";
 import MicDebug from "./orb/MicDebug";
@@ -15,12 +15,22 @@ type props = {
 const OrbContainer = ({ state, session, onConnected }: props) => {
     const insets = useSafeAreaInsets();
     
-    if (!session) return null;
+     if (state === "hidden" && !session) {
+        return null;
+    }
+
+    if (state === "loading") {
+        return (
+            <View className='absolute right-0 left-0 items-center bg-red-300' style={[{ bottom: insets.bottom + 56 }]}>
+                <ActivityIndicator size="small" />
+            </View>
+        )
+    }
 
     return (
         <LiveKitRoom
-            serverUrl={session.livekitUrl}
-            token={session.token}
+            serverUrl={session?.livekitUrl}
+            token={session?.token}
             connect={true}
             audio={true}
             onConnected={() => {
@@ -28,7 +38,7 @@ const OrbContainer = ({ state, session, onConnected }: props) => {
                 onConnected()
             }}
         >
-             <MicDebug />
+            <MicDebug />
             <View className='absolute right-0 left-0 items-center' style={[{ bottom: insets.bottom + 52 }]}>
                 <VoiceOrb state="listening" />
             </View>
