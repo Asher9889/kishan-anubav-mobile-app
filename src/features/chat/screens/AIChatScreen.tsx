@@ -2,9 +2,8 @@ import { MessageBubble } from '@/components';
 import Logo from '@/components/logo';
 import { Colors } from '@/constants/theme';
 import ChatBottomBar from '@/features/voice/components/bottom-bar/ChatBottomBar';
-import OrbContainer from '@/features/voice/components/OrbContainer';
+import VoiceSessionController from '@/features/voice/components/VoiceSessionController';
 import useVoiceChat from '@/features/voice/hooks/useVoiceChat';
-import { soundService } from '@/services';
 import { ImagePickerService } from '@/services/camera.service';
 import * as crypto from 'expo-crypto';
 import * as Haptics from 'expo-haptics';
@@ -837,15 +836,14 @@ export default function AIChatScreen() {
             />
           }
 
-          <OrbContainer
-            state={voiceState}
+          <VoiceSessionController
             session={sessionData}
+            voiceState={voiceState}
             onConnected={() => {
               setVoiceState("connected")
-              soundService.play("connected");
+              // soundService.play("connected");
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-            }
-            }
+            }}
           />
 
         </View>

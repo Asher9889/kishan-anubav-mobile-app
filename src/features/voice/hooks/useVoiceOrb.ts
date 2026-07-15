@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import {
   Easing,
   useSharedValue,
@@ -10,6 +10,11 @@ export default function useVoiceOrb(state: VoiceState) {
   const scale = useSharedValue(1);
   const rotation = useSharedValue(0);
   const glow = useSharedValue(0.35);
+  const audioScale = useSharedValue(1);
+
+  const setAudioLevel = useCallback((level: number) => {
+    audioScale.value = 1 + level * 0.12;
+  }, []);
 
   useEffect(() => {
     let glowValue = 0.35;
@@ -71,7 +76,9 @@ export default function useVoiceOrb(state: VoiceState) {
 
   return {
     scale,
+    audioScale,
     rotation,
     glow,
+    setAudioLevel,
   };
 }
