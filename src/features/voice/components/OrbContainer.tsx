@@ -2,6 +2,7 @@ import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { VoiceState } from "../types/voice.types";
+import OrbStateLabel from "./orb/OrbStateLabel";
 import VoiceOrb from "./orb/VoiceOrb";
 
 type props = {
@@ -17,6 +18,7 @@ const OrbContainer = ({ state }: props) => {
       style={[{ bottom: insets.bottom + 52 }]}
     >
       <VoiceOrb state={state} />
+      <OrbStateLabel state={state} />
     </View>
   );
 };

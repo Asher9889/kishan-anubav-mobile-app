@@ -1,5 +1,5 @@
 
-export type VoiceState = "idle" | "listening" | "thinking" | "speaking" | "loading" | "hidden" | "connected" | "disconnected" | "connecting";
+export type VoiceState = "idle" | "listening" | "thinking" | "speaking" | "loading" | "hidden" | "connected" | "disconnected" | "connecting" | "error";
 export interface NodeApiResponse<T>{
     success: boolean;
     statusCode: number;

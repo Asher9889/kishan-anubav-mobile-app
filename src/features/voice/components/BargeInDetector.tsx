@@ -1,8 +1,8 @@
 import { useLocalParticipant, useVoiceAssistant } from "@livekit/react-native";
 import { useCallback, useEffect, useRef } from "react";
 
-const AUDIO_THRESHOLD = 0.08;
-const DEBOUNCE_MS = 1000;
+const AUDIO_THRESHOLD = 0.15;
+const DEBOUNCE_MS = 400;
 
 export default function BargeInDetector() {
   const { localParticipant } = useLocalParticipant();

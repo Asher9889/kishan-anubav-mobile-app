@@ -6,7 +6,6 @@ import VoiceSessionController from '@/features/voice/components/VoiceSessionCont
 import useVoiceChat from '@/features/voice/hooks/useVoiceChat';
 import { ImagePickerService } from '@/services/camera.service';
 import * as crypto from 'expo-crypto';
-import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -842,7 +841,7 @@ export default function AIChatScreen() {
             onConnected={() => {
               setVoiceState("connected")
               // soundService.play("connected");
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              // Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }}
           />
 
