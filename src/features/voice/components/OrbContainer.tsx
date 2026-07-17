@@ -7,9 +7,10 @@ import VoiceOrb from "./orb/VoiceOrb";
 
 type props = {
   state: VoiceState;
+  onRetry?: () => void;
 };
 
-const OrbContainer = ({ state }: props) => {
+const OrbContainer = ({ state, onRetry }: props) => {
   const insets = useSafeAreaInsets();
 
   return (
@@ -18,7 +19,7 @@ const OrbContainer = ({ state }: props) => {
       style={[{ bottom: insets.bottom + 52 }]}
     >
       <VoiceOrb state={state} />
-      <OrbStateLabel state={state} />
+      <OrbStateLabel state={state} onRetry={onRetry} />
     </View>
   );
 };

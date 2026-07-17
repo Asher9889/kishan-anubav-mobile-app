@@ -6,6 +6,7 @@ import VoiceSessionController from '@/features/voice/components/VoiceSessionCont
 import useVoiceChat from '@/features/voice/hooks/useVoiceChat';
 import { ImagePickerService } from '@/services/camera.service';
 import * as crypto from 'expo-crypto';
+import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -72,6 +73,11 @@ export default function AIChatScreen() {
 
   const handleCloseSession = () => {
     stopSession();
+  }
+
+  const handleRetry = async () => {
+    stopSession();
+    await startSession();
   }
 
   useEffect(() => {
@@ -840,9 +846,14 @@ export default function AIChatScreen() {
             voiceState={voiceState}
             onConnected={() => {
               setVoiceState("connected")
-              // soundService.play("connected");
-              // Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }}
+            onError={(reason) => {
+              console.warn("Voice session error:", reason);
+              setVoiceState("error");
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+              setTimeout(() => setVoiceState("idle"), 3000);
+            }}
+            onRetry={handleRetry}
           />
 
         </View>
