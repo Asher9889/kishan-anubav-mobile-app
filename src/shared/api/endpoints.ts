@@ -11,7 +11,7 @@ export const endPoints = {
       method: "POST",
     },
     VOICE_TO_TEXT: {
-      url: "/transcribe",
+      url: "/transcribe", // transcribe
       method: "POST",
     },
     QUICK_UPLOAD: {

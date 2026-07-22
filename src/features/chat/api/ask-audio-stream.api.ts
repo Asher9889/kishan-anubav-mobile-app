@@ -100,44 +100,29 @@ export async function askAudioStream(audioUri: string, chatId: string, handlers:
 }
 
 export async function convertAudioToText(audioUri: string): Promise<TranscriptionResponse> {
-    const { method, url } = endPoints.AI.VOICE_TO_TEXT;
+    const { url } = endPoints.AI.VOICE_TO_TEXT;
+    const fullUrl = envConfig.aiApiBaseUrl + url;
 
     const formData = new FormData();
-
     formData.append("file", {
         uri: audioUri,
         type: "audio/mp4",
-        name: `audio.m4a`,
+        name: "audio.m4a",
     } as any);
 
-    const response = await api.request({
-        url,
-        method,
-        data: formData,
-    }) as TranscriptionResponse;
+    const response = await fetch(fullUrl, {
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+        },
+        body: formData,
+    });
 
-    console.log("Transcription response:======", response);
+    if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(`Transcription failed (${response.status}): ${errorBody}`);
+    }
 
-    return response as unknown as TranscriptionResponse;
-
-    // const formData = new FormData();
-
-    // formData.append("file", {
-    //     uri: audioUri,
-    //     name: "audio.m4a",
-    //     type: "audio/mp4",
-    // } as any);
-
-    // const response = await fetch(
-    //     "https://api.krishi-anubhav-ai.mssplonline.in/transcribe",
-    //     {
-    //         method: "POST",
-    //         body: formData,
-    //     }
-    // );
-
-    // console.log(response.status);
-    // console.log(await response.text());
-
-    // return await response.json() as Promise<TranscriptionResponse>;
+    const data = await response.json();
+    return data as TranscriptionResponse;
 }
