@@ -55,6 +55,7 @@ export default function useVoiceOrb(state: VoiceState) {
         break;
 
       case "disconnected":
+      case "error":
         glowValue = 0.2;
         enableRotation = false;
         break;

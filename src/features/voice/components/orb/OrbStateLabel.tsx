@@ -1,46 +1,13 @@
 import { FontFamily } from "@/constants/fonts";
 import { Colors } from "@/constants/theme";
-import { useVoiceAssistant } from "@livekit/react-native";
 import { RefreshCw } from "lucide-react-native";
-import { useEffect } from "react";
 import { Pressable, Text, View } from "react-native";
 import Animated, {
   Easing,
   FadeInDown,
   FadeOutUp,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming,
 } from "react-native-reanimated";
 import { VoiceState } from "../../types/voice.types";
-
-function PulsingDot() {
-  const opacity = useSharedValue(0.4);
-
-  useEffect(() => {
-    opacity.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0.4, { duration: 800, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      true
-    );
-  }, []);
-
-  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
-
-  return (
-    <Animated.View
-      style={[
-        { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.light.primaryContainer },
-        style,
-      ]}
-    />
-  );
-}
 
 type Props = {
   state: VoiceState;
@@ -48,30 +15,40 @@ type Props = {
 };
 
 export default function OrbStateLabel({ state, onRetry }: Props) {
-  const { state: agentState } = useVoiceAssistant();
-
   if (state === "hidden") return null;
 
   let label: string | null = null;
   let showDot = false;
   let showSubtitle = false;
 
-  if (state === "loading" || state === "connecting") {
-    label = "Connecting";
-  } else if (state === "error") {
-    label = "Connection failed";
-  } else if (state === "idle") {
-    label = "Double tap to speak";
-  } else if (state === "connected" || state === "listening" || state === "speaking" || state === "thinking") {
-    if (agentState === "listening") {
+  switch (state) {
+    case "loading":
+    case "connecting":
+      label = "Connecting";
+      break;
+    case "error":
+      label = "Connection failed";
+      break;
+    case "idle":
+      label = "Double tap to speak";
+      break;
+    case "connected":
+      label = "Connected";
+      break;
+    case "listening":
       label = "Listening";
       showDot = true;
       showSubtitle = true;
-    } else if (agentState === "speaking") {
-      label = "Speaking";
-    } else if (agentState === "thinking") {
+      break;
+    case "thinking":
       label = "Thinking";
-    }
+      break;
+    case "speaking":
+      label = "Speaking";
+      break;
+    case "disconnected":
+      label = "Disconnected";
+      break;
   }
 
   if (!label) return null;
@@ -79,7 +56,7 @@ export default function OrbStateLabel({ state, onRetry }: Props) {
   return (
     <View style={{ alignItems: "center", gap: showSubtitle ? 8 : 0, paddingTop: 16 }}>
       <Animated.View
-        key={`${state}-${agentState}`}
+        key={state}
         entering={FadeInDown.duration(200).easing(Easing.out(Easing.ease)).withInitialValues({ opacity: 0, transform: [{ translateY: -8 }] })}
         exiting={FadeOutUp.duration(150).easing(Easing.in(Easing.ease))}
       >
@@ -132,5 +109,20 @@ export default function OrbStateLabel({ state, onRetry }: Props) {
         </View>
       )}
     </View>
+  );
+}
+
+function PulsingDot() {
+  return (
+    <Animated.View
+      entering={FadeInDown.duration(200)}
+      style={{
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: Colors.light.primaryContainer,
+        opacity: 0.7,
+      }}
+    />
   );
 }

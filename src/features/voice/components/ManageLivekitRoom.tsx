@@ -1,15 +1,17 @@
 import { useVoiceAssistant } from "@livekit/react-native";
 import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useRef } from "react";
+import { AgentVoiceState } from "../types/voice.types";
 
 const AGENT_TIMEOUT_MS = 15_000;
 
 type Props = {
   onReady?: () => void;
   onError?: (reason: string) => void;
+  onAgentStateChange?: (state: AgentVoiceState) => void;
 };
 
-const ManageLivekitRoom = ({ onReady, onError }: Props) => {
+const ManageLivekitRoom = ({ onReady, onError, onAgentStateChange }: Props) => {
   const { state } = useVoiceAssistant();
   const didReadyRef = useRef(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -25,6 +27,12 @@ const ManageLivekitRoom = ({ onReady, onError }: Props) => {
   useEffect(() => {
     if (state === "listening") handleReady();
   }, [state, handleReady]);
+
+  useEffect(() => {
+    if (state === "idle" || state === "listening" || state === "thinking" || state === "speaking") {
+      onAgentStateChange?.(state);
+    }
+  }, [state, onAgentStateChange]);
 
   useEffect(() => {
     timeoutRef.current = setTimeout(() => {

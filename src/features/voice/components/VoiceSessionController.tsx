@@ -4,7 +4,7 @@ import { ActivityIndicator, Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { AudioCaptureOptions } from "livekit-client";
-import { GenerateTokenData, VoiceState } from "../types/voice.types";
+import { AgentVoiceState, GenerateTokenData, VoiceState } from "../types/voice.types";
 import ManageLivekitRoom from "./ManageLivekitRoom";
 import OrbContainer from "./OrbContainer";
 
@@ -13,10 +13,11 @@ type Props = {
   voiceState: VoiceState;
   onConnected: () => void;
   onError?: (reason: string) => void;
+  onAgentStateChange?: (state: AgentVoiceState) => void;
   onRetry?: () => void;
 };
 
-export default function VoiceSessionController({ session, voiceState, onConnected, onError, onRetry }: Props) {
+export default function VoiceSessionController({ session, voiceState, onConnected, onError, onAgentStateChange, onRetry }: Props) {
   const insets = useSafeAreaInsets();
 
   const audioCaptureOptions: AudioCaptureOptions = {
@@ -66,8 +67,11 @@ export default function VoiceSessionController({ session, voiceState, onConnecte
       audio={audioCaptureOptions}
       onError={() => onError?.("connection_failed")}
     >
-      <ManageLivekitRoom onReady={onConnected} onError={onError} />
-      {/* <MicDebug /> */}
+      <ManageLivekitRoom
+        onReady={onConnected}
+        onError={onError}
+        onAgentStateChange={onAgentStateChange}
+      />
       <OrbContainer state={voiceState} onRetry={onRetry} />
     </LiveKitRoom>
   );

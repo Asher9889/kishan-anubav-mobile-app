@@ -18,6 +18,7 @@ const stateMap: Record<VoiceState, number> = {
   connected: 6,
   disconnected: 4,
   connecting: 5,
+  error: 4,
 };
 
 const TRANSITION_DURATION = 500;

@@ -3,10 +3,9 @@ import Logo from '@/components/logo';
 import { Colors } from '@/constants/theme';
 import ChatBottomBar from '@/features/voice/components/bottom-bar/ChatBottomBar';
 import VoiceSessionController from '@/features/voice/components/VoiceSessionController';
-import useVoiceChat from '@/features/voice/hooks/useVoiceChat';
+import useVoiceSession from '@/features/voice/hooks/useVoiceSession';
 import { ImagePickerService } from '@/services/camera.service';
 import * as crypto from 'expo-crypto';
-import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -57,7 +56,7 @@ export default function AIChatScreen() {
 
   const router = useRouter();
 
-  const { startSession, stopSession, voiceState, setVoiceState, sessionData } = useVoiceChat();
+  const { startSession, stopSession, voiceState, sessionData, handleConnected, handleError, handleAgentStateChange } = useVoiceSession();
 
   const handleOrbPress = async () => {
     if (sessionData) return; // already connected, no need to generate token again
@@ -844,15 +843,9 @@ export default function AIChatScreen() {
           <VoiceSessionController
             session={sessionData}
             voiceState={voiceState}
-            onConnected={() => {
-              setVoiceState("connected")
-            }}
-            onError={(reason) => {
-              console.warn("Voice session error:", reason);
-              setVoiceState("error");
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-              setTimeout(() => setVoiceState("idle"), 3000);
-            }}
+            onConnected={handleConnected}
+            onError={handleError}
+            onAgentStateChange={handleAgentStateChange}
             onRetry={handleRetry}
           />
 

@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { VoiceState } from "../types/voice.types";
 import OrbStateLabel from "./orb/OrbStateLabel";
 import VoiceOrb from "./orb/VoiceOrb";
+import WaveAnimation from "./orb/WaveAnimation";
 
 type props = {
   state: VoiceState;
@@ -19,6 +20,7 @@ const OrbContainer = ({ state, onRetry }: props) => {
       style={[{ bottom: insets.bottom + 52 }]}
     >
       <VoiceOrb state={state} />
+      {state === "listening" && <WaveAnimation />}
       <OrbStateLabel state={state} onRetry={onRetry} />
     </View>
   );
