@@ -1,12 +1,14 @@
+import { envConfig } from '@/config';
 import { api } from '@/shared/api';
-import { API_BASE_URL, endPoints } from '@/shared/api/endpoints';
+import { endPoints } from '@/shared/api/endpoints';
 import { StreamHandlers, TranscriptionResponse } from '../types/types';
 
 
 export async function askAudioStream(audioUri: string, chatId: string, handlers: StreamHandlers,) {
 
     const { method, url } = endPoints.AI.VOICE;
-    const fullUrl = API_BASE_URL + url;
+    const fullUrl = envConfig.aiApiBaseUrl + url;
+    console.log("Debug [askAudioStream] hit", fullUrl);
 
     const formData = new FormData();
 
@@ -99,7 +101,6 @@ export async function askAudioStream(audioUri: string, chatId: string, handlers:
 
 export async function convertAudioToText(audioUri: string): Promise<TranscriptionResponse> {
     const { method, url } = endPoints.AI.VOICE_TO_TEXT;
-    const fullUrl = API_BASE_URL + url;
 
     const formData = new FormData();
 
@@ -115,7 +116,28 @@ export async function convertAudioToText(audioUri: string): Promise<Transcriptio
         data: formData,
     }) as TranscriptionResponse;
 
+    console.log("Transcription response:======", response);
+
     return response as unknown as TranscriptionResponse;
 
+    // const formData = new FormData();
 
+    // formData.append("file", {
+    //     uri: audioUri,
+    //     name: "audio.m4a",
+    //     type: "audio/mp4",
+    // } as any);
+
+    // const response = await fetch(
+    //     "https://api.krishi-anubhav-ai.mssplonline.in/transcribe",
+    //     {
+    //         method: "POST",
+    //         body: formData,
+    //     }
+    // );
+
+    // console.log(response.status);
+    // console.log(await response.text());
+
+    // return await response.json() as Promise<TranscriptionResponse>;
 }

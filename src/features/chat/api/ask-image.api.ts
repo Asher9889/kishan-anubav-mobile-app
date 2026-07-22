@@ -1,3 +1,4 @@
+import { envConfig } from '@/config';
 import { endPoints } from '@/shared/api/endpoints';
 
 export type ImageAnalysisResponse = {
@@ -18,7 +19,7 @@ export type ImageAnalysisResponse = {
 export async function analyzeImage(imageUri: string): Promise<ImageAnalysisResponse> {
   const { method, url } = endPoints.AI.IMAGE;
   // const fullUrl = API_BASE_URL + url;
-  const fullUrl = "http://kishananubhav.mssplonline.in" + url;
+  const fullUrl = envConfig.aiApiBaseUrl + url;
 
   // console.log('Analyzing image at ' + fullUrl + ' for chatId:', chatId);
 

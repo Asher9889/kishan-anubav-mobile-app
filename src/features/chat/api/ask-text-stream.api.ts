@@ -1,12 +1,14 @@
+import { envConfig } from '@/config';
 import { fetch } from 'expo/fetch';
 import { StreamHandlers } from '../types/types';
 
 
 export async function askQuestionStream(query: string, chatId: string | null, handlers: StreamHandlers,) {
 
-    const url = "http://kishananubhav.mssplonline.in/v3/ask";
 
-    console.log('Sending query to:', query, 'with chatId:', chatId);
+    const url =  envConfig.aiApiBaseUrl + "/v3/ask";
+
+    console.log('Sending query to:', query, 'with chatId:', chatId, "url is", url);
 
     const response = await fetch(url,
         {
