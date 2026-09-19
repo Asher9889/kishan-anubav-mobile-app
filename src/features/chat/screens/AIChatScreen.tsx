@@ -13,7 +13,7 @@ import { Home } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { convertAudioToText } from '../api/ask-audio-stream.api';
 import { analyzeImage } from '../api/ask-image.api';
 import { askQuestionStream } from '../api/ask-text-stream.api';
@@ -37,8 +37,6 @@ const getWelcomeMessage = (t: (key: string) => string) => ({
 
 export default function AIChatScreen() {
   const { t } = useTranslation('common');
-
-  const insets = useSafeAreaInsets();
 
   const [inputText, setInputText] = useState('');
   const [composerMode, setComposerMode] = useState<'text' | 'audio'>('text');

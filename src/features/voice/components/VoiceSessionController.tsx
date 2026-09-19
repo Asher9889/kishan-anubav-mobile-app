@@ -7,6 +7,7 @@ import type { AudioCaptureOptions } from "livekit-client";
 import type { LocalMicDumpResult } from "../debug/localMicDump";
 import { AgentVoiceState, GenerateTokenData, VoiceState } from "../types/voice.types";
 import { type ProcessingFlags } from "./AudioDebugBar";
+import BargeInDetector from "./BargeInDetector";
 import ManageLivekitRoom from "./ManageLivekitRoom";
 import OrbContainer from "./OrbContainer";
 
@@ -102,24 +103,9 @@ export default function VoiceSessionController({ session, voiceState, onConnecte
           onAgentStateChange={onAgentStateChange}
         />
         <OrbContainer state={voiceState} onRetry={onRetry} />
-        {/* {__DEV__ && (
-          <LocalMicDump
-            enabled={recordArmed}
-            sampleRate={CAPTURE_SAMPLE_RATE}
-            onStateChange={setDumpActive}
-            onSaved={handleDumpSaved}
-          />
-        )} */}
+        <BargeInDetector />
+      
       </LiveKitRoom>
-      {/* {__DEV__ && (
-        <AudioDebugBar
-          flags={processingFlags}
-          onFlagsChange={setProcessingFlags}
-          recording={dumpActive}
-          onToggleRecord={() => setRecordArmed((armed) => !armed)}
-          lastSaved={lastDump}
-        />
-      )} */}
     </>
   );
 }

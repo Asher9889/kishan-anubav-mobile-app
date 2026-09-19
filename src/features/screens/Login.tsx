@@ -1,5 +1,6 @@
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
+import { Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AuthPhoneScreen from "../auth/components/AuthPhoneScreen";
 import useSendOtp from "../auth/hooks/useSendOtp.ts";
@@ -12,6 +13,10 @@ const LoginScreen = () => {
 
     const handleContinue = (phoneNumber: string) => {
         mutation.mutate({ phone: phoneNumber });
+
+        if (mutation.isError) {
+            Alert.alert("Error", "Failed to send OTP. Please try again.");
+        }
     }
 
     return (

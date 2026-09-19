@@ -13,3 +13,12 @@ Orrganisation name: Multifacet Softwares Systems Pvt Ltd
 Kanpur Nagar
 Uttar Pradesh
 in
+
+# Testing
+./gradlew assembleDebug
+
+# Production APK
+./gradlew assembleRelease
+
+# Play Store
+./gradlew bundleRelease
