@@ -5,7 +5,7 @@ import db from '@/shared/db/sqlite';
 import * as crypto from "expo-crypto";
 
 import { api, endPoints } from '@/shared/api';
-import { asc, desc, eq } from 'drizzle-orm';
+import { asc, desc, eq, inArray } from 'drizzle-orm';
 
 export async function askQuestion(query: string, chatId?: string | null) {
   const { method, url } = endPoints.AI.ASK;
@@ -183,10 +183,74 @@ export async function getChats() {
         id: true,
         title: true,
         lastMessageAt: true,
+        archived: true,
     },
-    orderBy: desc( // desc meabs decending order
+    orderBy: desc( // desc meams decending order
       chats.lastMessageAt
     ),
   }); 
 
+}
+
+/**
+ * Inserts a chat row for the given id (used by the assistant-ui thread
+ * lifecycle when a new thread is initialized) and bumps its timestamps. Safe
+ * to call repeatedly.
+ */
+export async function ensureChat({ id, title }: { id: string; title?: string }) {
+  const now = Date.now();
+
+  await db.insert(chats)
+    .values({
+      id,
+      title: (title ?? 'New Chat').slice(0, 80),
+      createdAt: now,
+      updatedAt: now,
+      lastMessageAt: now,
+    })
+    .onConflictDoUpdate({
+      target: chats.id,
+      set: {
+        updatedAt: now,
+        lastMessageAt: now,
+      },
+    });
+}
+
+export async function getChatById(chatId: string) {
+  const result = await db.query.chats.findFirst({
+    where: eq(chats.id, chatId),
+  });
+
+  return result ?? null;
+}
+
+export async function setChatArchived(chatId: string, archived: boolean) {
+  return db
+    .update(chats)
+    .set({ archived })
+    .where(eq(chats.id, chatId));
+}
+
+export async function deleteChatWithMessages(chatId: string) {
+  const messageIds = await db
+    .select({ id: messages.id })
+    .from(messages)
+    .where(eq(messages.chatId, chatId));
+
+  const ids = messageIds.map((m) => m.id);
+
+  if (ids.length > 0) {
+    await db
+      .delete(attachments)
+      .where(inArray(attachments.messageId, ids));
+  }
+
+  await db
+    .delete(messages)
+    .where(eq(messages.chatId, chatId));
+
+  await db
+    .delete(chats)
+    .where(eq(chats.id, chatId));
 }

@@ -2,16 +2,14 @@ import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
-  useState
+  useState,
 } from 'react';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
-  FlatList,
   Pressable,
   StyleSheet,
-  TouchableOpacity,
 } from 'react-native';
 
 import {
@@ -19,6 +17,12 @@ import {
   MessageSquareText,
   X,
 } from 'lucide-react-native';
+
+import {
+  ThreadListPrimitive,
+  ThreadListItemPrimitive,
+  useAuiState,
+} from '@assistant-ui/react-native';
 
 import {
   Sheet,
@@ -29,20 +33,88 @@ import { Text } from '@/components/ui/text';
 import { View } from '@/components/ui/view';
 import { Colors } from '@/constants/theme';
 
-import { getChats } from '../../services/chat.service';
 import { useChatStore } from '../../store/chat.store';
 import { TSheetHandle } from '../../types/types';
+
+/**
+ * One row in the recent-chats list. Rendered inside
+ * `ThreadListPrimitive.Items` within the per-item `threadListItem` scope, so
+ * all state (title, date, active highlight) comes from the runtime.
+ */
+function ChatListRow() {
+  const c = Colors.light;
+  const lastMessageAt = useAuiState((state) => state.threadListItem.lastMessageAt);
+
+  return (
+    <ThreadListItemPrimitive.Root>
+      <ThreadListItemPrimitive.Trigger>
+        {({ isActive }) => (
+          <View
+            style={[
+              styles.chatItem,
+              {
+                backgroundColor: isActive ? c.primaryContainer : 'transparent',
+                borderColor: isActive ? c.primary : 'transparent',
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.chatIconContainer,
+                {
+                  backgroundColor: isActive ? c.primary : c.surface,
+                },
+              ]}
+            >
+              <MessageSquareText
+                size={16}
+                color={isActive ? '#FFFFFF' : c.textMuted}
+              />
+            </View>
+
+            <View style={styles.chatContent}>
+              <Text
+                numberOfLines={1}
+                style={[
+                  styles.chatTitle,
+                  {
+                    color: isActive ? c.text : c.textMuted,
+                  },
+                ]}
+              >
+                <ThreadListItemPrimitive.Title fallback="New Chat" />
+              </Text>
+
+              <Text
+                style={[
+                  styles.chatMeta,
+                  {
+                    color: c.textMuted,
+                  },
+                ]}
+              >
+                {lastMessageAt
+                  ? new Date(lastMessageAt).toLocaleDateString(undefined, {
+                      month: 'short',
+                      day: 'numeric',
+                    })
+                  : 'Today'}
+              </Text>
+            </View>
+          </View>
+        )}
+      </ThreadListItemPrimitive.Trigger>
+    </ThreadListItemPrimitive.Root>
+  );
+}
 
 export const ChatHistorySheet = forwardRef<TSheetHandle>(
   function ChatHistorySheet(_, ref) {
     const [isOpen, setIsOpen] = useState(false);
 
-    const [activeChat, setActiveChat] = useState('1');
-    const [chatList, setChatList] = useState<{ id: string; title: string, lastMessageAt: number }[]>([]);
-
     const c = Colors.light;
     const insets = useSafeAreaInsets();
-    const { setActiveChatId } = useChatStore();
+    const activeChatIdState = useChatStore((state) => state.activeChatIdState);
 
     useImperativeHandle(
       ref,
@@ -55,25 +127,14 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
     );
 
     /**
-     * Replace later with SQLite data
+     * Thread switches (selecting a chat or pressing "New Chat") are driven by
+     * the runtime through the controlled thread id. Close the sheet whenever
+     * it changes so navigation feels instant.
      */
-    // const chats = useMemo();
-
-    const handleSelectChat = (chatId: string) => {
-      setActiveChat(chatId);
-      setActiveChatId(chatId);
-      setIsOpen(false);
-    };
-
     useEffect(() => {
-      if (!isOpen) return;
-      async function loadChats() {
-
-        const result = await getChats();
-        setChatList(result);
-      }
-      loadChats();
-    }, [isOpen])
+      if (activeChatIdState === undefined) return;
+      setIsOpen(false);
+    }, [activeChatIdState]);
 
     return (
       <Sheet
@@ -126,8 +187,7 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
                 style={[
                   styles.closeButton,
                   {
-                    backgroundColor:
-                      c.primaryContainer,
+                    backgroundColor: c.primaryContainer,
                   },
                 ]}
               >
@@ -139,20 +199,13 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
             </View>
 
             {/* NEW CHAT */}
-            <TouchableOpacity
-              activeOpacity={0.88}
+            <ThreadListPrimitive.New
               style={[
                 styles.newChatButton,
                 {
-                  backgroundColor:
-                    c.primary,
+                  backgroundColor: c.primary,
                 },
               ]}
-              onPress={() => {
-                setActiveChatId(null)
-                setActiveChat('');
-                setIsOpen(false);
-              }}
             >
               <MessageSquarePlus
                 size={18}
@@ -160,13 +213,11 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
               />
 
               <Text
-                style={
-                  styles.newChatText
-                }
+                style={styles.newChatText}
               >
                 New Chat
               </Text>
-            </TouchableOpacity>
+            </ThreadListPrimitive.New>
           </View>
 
           {/* SECTION LABEL */}
@@ -179,190 +230,38 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
                 },
               ]}
             >
-              RECENT CHATS
+              Recent chats
             </Text>
           </View>
 
-          {/* CHAT LIST
-          <View style={styles.chatList}>
-            {chatList.map((chat) => {
-              const isActive = activeChat === chat.id;
-
-              return (
-                <TouchableOpacity
-                  key={chat.id}
-                  activeOpacity={0.75}
-                  onPress={() => {
-                    handleSelectChat(chat.id)
-                  }}
-                  style={[
-                    styles.chatItem,
-                    {
-                      backgroundColor:
-                        isActive
-                          ? c.primaryContainer
-                          : 'transparent',
-
-                      borderColor:
-                        isActive
-                          ? c.primary
-                          : 'transparent',
-                    },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.chatIconContainer,
-                      {
-                        backgroundColor: isActive ? c.primary : c.surface,
-                      },
-                    ]}
-                  >
-                    <MessageSquareText
-                      size={16}
-                      color={
-                        isActive ? '#FFFFFF' : c.textMuted
-                      }
-                    />
-                  </View>
-
-                  <View style={ styles.chatContent}>
-                    <Text
-                      numberOfLines={1}
-                      style={[
-                        styles.chatTitle,
-                        {
-                          color: isActive ? c.text : c.textMuted,
-                        },
-                      ]}
-                    >
-                      {chat.title}
-                    </Text>
-
-                    <Text
-                      style={[
-                        styles.chatMeta,
-                        {
-                          color:
-                            c.textMuted,
-                        },
-                      ]}
-                    >
-                      Today
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View> 
-          */}
-
-          <FlatList
-            data={chatList}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={true}
-            contentContainerStyle={[styles.chatList]}
-            renderItem={({ item: chat }) => {
-
-              const isActive = activeChat === chat.id;
-
-              return (
-                <TouchableOpacity
-                  activeOpacity={0.75}
-                  onPress={() => {
-                    handleSelectChat(chat.id);
-                  }}
-                  style={[
-                    styles.chatItem,
-                    {
-                      backgroundColor:
-                        isActive
-                          ? c.primaryContainer
-                          : 'transparent',
-
-                      borderColor:
-                        isActive
-                          ? c.primary
-                          : 'transparent',
-                    },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.chatIconContainer,
-                      {
-                        backgroundColor:
-                          isActive
-                            ? c.primary
-                            : c.surface,
-                      },
-                    ]}
-                  >
-                    <MessageSquareText
-                      size={16}
-                      color={
-                        isActive
-                          ? '#FFFFFF'
-                          : c.textMuted
-                      }
-                    />
-                  </View>
-
-                  <View style={styles.chatContent}>
-                    <Text
-                      numberOfLines={1}
-                      style={[
-                        styles.chatTitle,
-                        {
-                          color: isActive
-                            ? c.text
-                            : c.textMuted,
-                        },
-                      ]}
-                    >
-                      {chat.title}
-                    </Text>
-
-                    <Text
-                      style={[
-                        styles.chatMeta,
-                        {
-                          color: c.textMuted,
-                        },
-                      ]}
-                    >
-                      {new Date(chat.lastMessageAt).toLocaleDateString(undefined, {
-                        month: 'short',
-                        day: 'numeric',
-                      })}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            }}
-          />
+          {/* CHAT LIST */}
+          <ThreadListPrimitive.Root>
+            <ThreadListPrimitive.Items
+              contentContainerStyle={styles.chatList}
+              showsVerticalScrollIndicator={true}
+              renderItem={({ threadId }) => (
+                <ChatListRow key={threadId} />
+              )}
+            />
+          </ThreadListPrimitive.Root>
 
           {/* FOOTER */}
           <View
             style={[
               styles.footer,
               {
-                borderTopColor:
-                  c.border,
+                borderTopColor: c.border,
               },
             ]}
           >
             <View
-              style={
-                styles.onlineRow
-              }
+              style={styles.onlineRow}
             >
               <View
                 style={[
                   styles.onlineDot,
                   {
-                    backgroundColor:
-                      c.success,
+                    backgroundColor: c.success,
                   },
                 ]}
               />
@@ -371,8 +270,7 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
                 style={[
                   styles.onlineText,
                   {
-                    color:
-                      c.textMuted,
+                    color: c.textMuted,
                   },
                 ]}
               >
@@ -387,16 +285,8 @@ export const ChatHistorySheet = forwardRef<TSheetHandle>(
 );
 
 const styles = StyleSheet.create({
-  sheetContent: {
-    width: '84%',
-    maxWidth: 360,
-    borderRightWidth: 1,
-    paddingHorizontal: 0,
-  },
-
   header: {
     paddingHorizontal: 20,
-    // paddingTop: 10,
     paddingBottom: 16,
   },
 
@@ -448,9 +338,8 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 1.2,
+    fontSize: 13,
+    fontWeight: '600',
   },
 
   chatList: {

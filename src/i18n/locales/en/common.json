@@ -55,6 +55,7 @@
     "askQuestion": "Ask a question...",
     "aiIsTyping": "AI is typing...",
     "listening": "Listening...",
+    "transcribing": "Transcribing your note...",
     "audioParsingFailed": "Audio parsing failed",
     "imageAnalysisFailed": "Image Analysis Failed",
     "couldNotAnalyze": "Could not analyze the image.",

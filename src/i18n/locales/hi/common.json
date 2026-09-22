@@ -55,6 +55,7 @@
     "askQuestion": "कोई सवाल पूछें...",
     "aiIsTyping": "AI टाइप कर रहा है...",
     "listening": "सुन रहा है...",
+    "transcribing": "आपका नोट ट्रांसक्राइब हो रहा है...",
     "audioParsingFailed": "ऑडियो पार्स करने में विफल",
     "imageAnalysisFailed": "इमेज विश्लेषण विफल",
     "couldNotAnalyze": "इमेज का विश्लेषण नहीं कर सका।",

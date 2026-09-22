@@ -59,7 +59,7 @@ export default function VoiceSessionController({ session, voiceState, onConnecte
     } else if (Platform.OS === "android") {
       await AudioSession.configureAudio({
         android: {
-          preferredOutputList: ["speaker", "earpiece", "headset", "bluetooth"],
+          preferredOutputList: ["speaker"],
           audioTypeOptions: AndroidAudioTypePresets.communication,
         },
       });
