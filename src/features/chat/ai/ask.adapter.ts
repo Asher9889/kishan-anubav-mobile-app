@@ -1,4 +1,5 @@
 import type { ChatModelAdapter, ThreadMessage } from '@assistant-ui/react-native';
+import { voiceStreamBridge } from '@/features/voice/services/voiceStreamBridge';
 import { createAskStream } from '../api/ask-text-stream.api';
 
 const textOfUserMessage = (message: ThreadMessage): string => {
@@ -37,16 +38,32 @@ export const askChatModelAdapter: ChatModelAdapter = {
     if (!query) return;
 
     let fullAnswer = '';
+    let previouslyStreamedText = '';
+
+    /**
+     * Forward only the newly arrived slice of the answer to the voice layer
+     * (thread text is untouched — assistant-ui still renders the full
+     * accumulated text so UI and TTS stay in lock-step).
+     */
+    const publishDelta = () => {
+      const delta = fullAnswer.slice(previouslyStreamedText.length);
+      previouslyStreamedText = fullAnswer;
+      if (delta) voiceStreamBridge.publishChunk(delta);
+    };
+
+    const publishCompletion = () => voiceStreamBridge.publishCompletion();
 
     try {
       for await (const event of createAskStream(query, unstable_threadId ?? null)) {
         switch (event.type) {
           case 'chunk':
             fullAnswer += event.content;
+            publishDelta();
             yield { content: [{ type: 'text', text: fullAnswer }] };
             break;
 
           case 'complete':
+            publishCompletion();
             yield {
               content: [{ type: 'text', text: fullAnswer }],
               status: { type: 'complete', reason: 'stop' },
@@ -54,6 +71,7 @@ export const askChatModelAdapter: ChatModelAdapter = {
             return;
 
           case 'error':
+            publishCompletion();
             yield {
               content: [{ type: 'text', text: fullAnswer }],
               status: {
@@ -70,11 +88,13 @@ export const askChatModelAdapter: ChatModelAdapter = {
         }
       }
 
+      publishCompletion();
       yield {
         content: [{ type: 'text', text: fullAnswer }],
         status: { type: 'complete', reason: 'stop' },
       };
     } catch (error) {
+      publishCompletion();
       yield {
         content: [{ type: 'text', text: fullAnswer }],
         status: { type: 'incomplete', reason: 'error', error: toJsonError(error) },

@@ -1,14 +1,15 @@
-import { AndroidAudioTypePresets, AudioSession, LiveKitRoom } from "@livekit/react-native";
-import { useCallback, useEffect, useState } from "react";
+import { AndroidAudioTypePresets, AudioSession, LiveKitRoom, useConnectionState } from "@livekit/react-native";
+import { ConnectionState } from "livekit-client";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { AudioCaptureOptions } from "livekit-client";
-import type { LocalMicDumpResult } from "../debug/localMicDump";
+import { useVoiceTts } from "../hooks/useVoiceTts";
+import { useVoiceSessionStore } from "../store/voiceSession.store";
 import { AgentVoiceState, GenerateTokenData, VoiceState } from "../types/voice.types";
 import { type ProcessingFlags } from "./AudioDebugBar";
-import BargeInDetector from "./BargeInDetector";
-import ManageLivekitRoom from "./ManageLivekitRoom";
+import LocalTranscriber from "./LocalTranscriber";
 import OrbContainer from "./OrbContainer";
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
   onError?: (reason: string) => void;
   onAgentStateChange?: (state: AgentVoiceState) => void;
   onRetry?: () => void;
+  onUserUtterance?: (text: string) => void;
 };
 
 const DEFAULT_FLAGS: ProcessingFlags = {
@@ -29,15 +31,42 @@ const DEFAULT_FLAGS: ProcessingFlags = {
 
 const CAPTURE_SAMPLE_RATE = 48000;
 
+/**
+ * Media is intentionally NOT published anymore: the mic only feeds the
+ * on-device recognizer, and a lightweight backend receives the text via the
+ * normal `/v3/ask` path. LiveKit is kept purely as the session/presence
+ * channel that powers the orb. Flip to `true` to re-enable live audio
+ * straight into the room.
+ */
 const PUBLISH_LOCAL_AUDIO = false;
 
-export default function VoiceSessionController({ session, voiceState, onConnected, onError, onAgentStateChange, onRetry }: Props) {
+/** Signals the moment the LiveKit room is actually connected. */
+function RoomConnectionProbe({ onConnected }: { onConnected: () => void }) {
+  const connectionState = useConnectionState();
+  const firedRef = useRef(false);
+
+  useEffect(() => {
+    if (connectionState === ConnectionState.Connected && !firedRef.current) {
+      firedRef.current = true;
+      onConnected();
+    }
+  }, [connectionState, onConnected]);
+
+  return null;
+}
+
+export default function VoiceSessionController({ session, voiceState, onConnected, onError, onRetry, onUserUtterance }: Props) {
   const insets = useSafeAreaInsets();
 
-  const [processingFlags, setProcessingFlags] = useState<ProcessingFlags>(DEFAULT_FLAGS);
-  // const [recordArmed, setRecordArmed] = useState(false);
-  // const [dumpActive, setDumpActive] = useState(false);
-  const [lastDump, setLastDump] = useState<LocalMicDumpResult | null>(null);
+  const phase = useVoiceSessionStore((state) => state.phase);
+  const beginConversation = useVoiceSessionStore((state) => state.beginConversation);
+  const endConversation = useVoiceSessionStore((state) => state.endConversation);
+
+  const [processingFlags] = useState<ProcessingFlags>(DEFAULT_FLAGS);
+
+  const sessionActive = !!session;
+
+  useVoiceTts({ enabled: sessionActive });
 
   const audioCaptureOptions: AudioCaptureOptions = {
     ...processingFlags,
@@ -72,12 +101,14 @@ export default function VoiceSessionController({ session, voiceState, onConnecte
     if (session) configureAudio();
   }, [session, configureAudio]);
 
-  // const handleDumpSaved = useCallback((result: LocalMicDumpResult) => {
-  //   setLastDump(result);
-  //   console.log(
-  //     `[MIC DUMP] saved ${result.fileName} (${result.sampleRate}Hz, ${result.durationMs}ms, ${result.bytes} bytes) → ${result.uri}`
-  //   );
-  // }, []);
+  useEffect(() => {
+    if (!sessionActive) endConversation();
+  }, [sessionActive, endConversation]);
+
+  const handleRoomConnected = useCallback(() => {
+    beginConversation();
+    onConnected?.();
+  }, [beginConversation, onConnected]);
 
   if (voiceState === "hidden" && !session) return null;
 
@@ -89,26 +120,25 @@ export default function VoiceSessionController({ session, voiceState, onConnecte
     );
   }
 
+  // Once the room is connected the orb follows the local voice turn phase
+  // (listening → thinking → speaking) instead of agent state.
+  const orbState: VoiceState =
+    voiceState === "connecting" || voiceState === "error"
+      ? voiceState
+      : phase;
+
   return (
-    <>
-      <LiveKitRoom
-        key={captureKey}
-        serverUrl={session?.livekitUrl}
-        token={session?.token}
-        connect={true}
-        // audio={PUBLISH_LOCAL_AUDIO ? audioCaptureOptions : false}
-        audio={true}
-        onError={() => onError?.("connection_failed")}
-      >
-        {/* <LocalTranscriber /> */}
-        <ManageLivekitRoom
-          onReady={onConnected}
-          onError={onError}
-          onAgentStateChange={onAgentStateChange}
-        />
-        <OrbContainer state={voiceState} onRetry={onRetry} />
-        <BargeInDetector />
-      </LiveKitRoom>
-    </>
+    <LiveKitRoom
+      key={captureKey}
+      serverUrl={session?.livekitUrl}
+      token={session?.token}
+      connect={true}
+      audio={PUBLISH_LOCAL_AUDIO ? audioCaptureOptions : false}
+      onError={() => onError?.("connection_failed")}
+    >
+      <RoomConnectionProbe onConnected={handleRoomConnected} />
+      <LocalTranscriber onUserUtterance={onUserUtterance} />
+      <OrbContainer state={orbState} onRetry={onRetry} />
+    </LiveKitRoom>
   );
 }

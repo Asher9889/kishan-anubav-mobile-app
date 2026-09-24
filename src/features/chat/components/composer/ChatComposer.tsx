@@ -14,11 +14,12 @@ import {
 import { Colors, Radius, Spacing, Typography } from '@/constants/theme';
 import { convertAudioToText } from '@/features/chat/api/ask-audio-stream.api';
 import ChatAudioRecorder from '@/features/chat/components/audio-recorder/ChatAudioRecorder';
+import { useVoiceSessionStore } from '@/features/voice/store/voiceSession.store';
 
 interface ChatComposerProps {
   composerMode: 'text' | 'audio';
   onComposerModeChange: (mode: 'text' | 'audio') => void;
-  /** Whether a LiveKit voice session is active (orb button becomes "close"). */
+  /** Whether a voice conversation is active (button becomes "close"). */
   sessionLive: boolean;
   onOrbPress: () => void;
   onCloseSession: () => void;
@@ -45,6 +46,9 @@ export default function ChatComposer({
   const aui = useAui();
   const inputText = useAuiState((state) => state.composer.text);
   const isRunning = useAuiState((state) => state.thread.isRunning);
+
+  const phase = useVoiceSessionStore((state) => state.phase);
+  const voiceError = useVoiceSessionStore((state) => state.voiceError);
 
   const [transcribing, setTranscribing] = useState(false);
   const [inputFocused, setInputFocused] = useState(false);
@@ -111,7 +115,7 @@ export default function ChatComposer({
               placeholderTextColor={c.textMuted}
               onFocus={() => setInputFocused(true)}
               onBlur={() => setInputFocused(false)}
-              editable={!isRunning}
+              editable={!isRunning && !sessionLive}
               style={styles.textInput}
               collapsable={false}
             />
@@ -153,6 +157,21 @@ export default function ChatComposer({
           </Text>
         </View>
       )}
+
+      {voiceError ? (
+        <View style={styles.transcribingRow}>
+          <Text style={[styles.transcribingText, { color: c.error }]}>
+            Voice unavailable: {voiceError}
+          </Text>
+        </View>
+      ) : phase === 'listening' ? (
+        <View style={styles.transcribingRow}>
+          <ActivityIndicator size="small" color={c.primary} />
+          <Text style={[styles.transcribingText, { color: c.textMuted }]}>
+            Listening…
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 }

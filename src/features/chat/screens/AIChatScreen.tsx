@@ -1,9 +1,11 @@
 import { AssistantRuntimeProvider, useAuiState } from '@assistant-ui/react-native';
 import Logo from '@/components/logo';
 import { Colors } from '@/constants/theme';
-import VoiceSessionController from '@/features/voice/components/VoiceSessionController';
-import useVoiceSession from '@/features/voice/hooks/useVoiceSession';
+import LocalTranscriber from '@/features/voice/components/LocalTranscriber';
+import VoiceTurnController from '@/features/voice/components/VoiceTurnController';
+import { useVoiceSessionStore } from '@/features/voice/store/voiceSession.store';
 import { ImagePickerService } from '@/services/camera.service';
+import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Home } from 'lucide-react-native';
@@ -58,25 +60,31 @@ export default function AIChatScreen() {
 
   const router = useRouter();
 
-  const { startSession, stopSession, voiceState, sessionData, handleConnected, handleError, handleAgentStateChange } = useVoiceSession();
+  const isConversationActive = useVoiceSessionStore((state) => state.isConversationActive);
+  const beginConversation = useVoiceSessionStore((state) => state.beginConversation);
+  const endConversation = useVoiceSessionStore((state) => state.endConversation);
+  const setFinalTranscript = useVoiceSessionStore((state) => state.setFinalTranscript);
+  const setVoiceError = useVoiceSessionStore((state) => state.setVoiceError);
 
-  const handleOrbPress = async () => {
-    if (sessionData) return;
-    try {
-      await startSession();
-    } catch (error) {
-      console.log('Error generating voice chat token:', error);
-      Alert.alert(t('chat.voiceChatTokenFailed'), t('chat.voiceChatNotAvailable'));
-    }
+  const handleVoiceError = (code: string) => {
+    console.log('[AIChatScreen] voice error:', code);
+    setVoiceError(code);
   };
 
-  const handleCloseSession = () => {
-    stopSession();
+  /**
+   * Starts the voice turn with zero dependencies — no LiveKit room, no agent.
+   * The recognizer (mounted below) auto-starts because the phase becomes
+   * "listening", its interim words land in the composer, and each finished
+   * utterance is committed through the normal chat thread.
+   */
+  const handleStartVoice = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+    beginConversation();
   };
 
-  const handleRetry = async () => {
-    stopSession();
-    await startSession();
+  const handleStopVoice = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    endConversation();
   };
 
   const closeMoreMenu = () => setShowMoreInputBox(false);
@@ -174,9 +182,9 @@ export default function AIChatScreen() {
             <ChatComposer
               composerMode={composerMode}
               onComposerModeChange={setComposerMode}
-              sessionLive={!!sessionData}
-              onOrbPress={handleOrbPress}
-              onCloseSession={handleCloseSession}
+              sessionLive={isConversationActive}
+              onOrbPress={handleStartVoice}
+              onCloseSession={handleStopVoice}
               onOpenMore={() => setShowMoreInputBox(true)}
             />
 
@@ -195,14 +203,8 @@ export default function AIChatScreen() {
               />
             )}
 
-            <VoiceSessionController
-              session={sessionData}
-              voiceState={voiceState}
-              onConnected={handleConnected}
-              onError={handleError}
-              onAgentStateChange={handleAgentStateChange}
-              onRetry={handleRetry}
-            />
+            <LocalTranscriber onUserUtterance={setFinalTranscript} onError={handleVoiceError} />
+            <VoiceTurnController />
           </View>
         </KeyboardAvoidingView>
 
