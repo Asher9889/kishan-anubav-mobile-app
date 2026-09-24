@@ -29,6 +29,8 @@ const DEFAULT_FLAGS: ProcessingFlags = {
 
 const CAPTURE_SAMPLE_RATE = 48000;
 
+const PUBLISH_LOCAL_AUDIO = false;
+
 export default function VoiceSessionController({ session, voiceState, onConnected, onError, onAgentStateChange, onRetry }: Props) {
   const insets = useSafeAreaInsets();
 
@@ -94,9 +96,11 @@ export default function VoiceSessionController({ session, voiceState, onConnecte
         serverUrl={session?.livekitUrl}
         token={session?.token}
         connect={true}
-        audio={audioCaptureOptions}
+        // audio={PUBLISH_LOCAL_AUDIO ? audioCaptureOptions : false}
+        audio={true}
         onError={() => onError?.("connection_failed")}
       >
+        {/* <LocalTranscriber /> */}
         <ManageLivekitRoom
           onReady={onConnected}
           onError={onError}
@@ -104,7 +108,6 @@ export default function VoiceSessionController({ session, voiceState, onConnecte
         />
         <OrbContainer state={voiceState} onRetry={onRetry} />
         <BargeInDetector />
-      
       </LiveKitRoom>
     </>
   );

@@ -1,21 +1,7 @@
 
-export type VoiceState =
-  | "hidden"
-  | "loading"
-  | "connecting"
-  | "connected"
-  | "idle"
-  | "listening"
-  | "thinking"
-  | "speaking"
-  | "disconnected"
-  | "error";
+export type VoiceState = "hidden" | "loading" | "connecting" | "connected" | "idle" | "listening" | "thinking" | "speaking" | "disconnected"| "error";
 
-export type AgentVoiceState =
-  | "idle"
-  | "listening"
-  | "thinking"
-  | "speaking";
+export type AgentVoiceState = "idle" | "listening" | "thinking" | "speaking";
 
 export interface NodeApiResponse<T> {
   success: boolean;
